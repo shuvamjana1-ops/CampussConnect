@@ -1,0 +1,23 @@
+{
+  "name": "@campusconnect/sso-adapter",
+  "version": "0.0.0",
+  "private": true,
+  "description": "SsoProvider interface and MockSsoProvider client.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./mock-protocol": "./src/mock-protocol.ts"
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings=0",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@campusconnect/tooling": "workspace:*",
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

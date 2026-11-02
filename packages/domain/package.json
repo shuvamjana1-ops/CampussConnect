@@ -1,0 +1,28 @@
+{
+  "name": "@campusconnect/domain",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Pure business rules with no I/O. Each module is a subpath export: @campusconnect/domain/<module>.",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    "./*": "./src/*/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings=0",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "luxon": "^3.7.2"
+  },
+  "devDependencies": {
+    "@campusconnect/tooling": "workspace:*",
+    "@types/luxon": "^3.7.6",
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

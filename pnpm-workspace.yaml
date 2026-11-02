@@ -1,0 +1,35 @@
+packages:
+  - apps/*
+  - packages/*
+  - infra
+  - tools
+
+# Refuse to install on a Node.js version outside the `engines` ranges (Node.js 22 LTS).
+engineStrict: true
+
+# One version of each shared tool across the workspace. Workspaces reference these with "catalog:".
+# TypeScript stays on 6.0: typescript-eslint and dependency-cruiser do not support TypeScript 7 yet.
+catalog:
+  '@eslint/js': ^10.0.1
+  '@types/node': ^22.13.14
+  dependency-cruiser: ^18.7.0
+  eslint: ^10.14.0
+  fast-check: ^4.10.2
+  globals: ^17.14.0
+  turbo: ^2.11.10
+  typescript: ~6.0.3
+  typescript-eslint: ^8.72.1
+  vitest: ^5.0.5
+
+minimumReleaseAgeExclude:
+  - globals@17.14.0
+
+# Dependencies allowed to run install scripts. re2 (packages/pii-redactor, design D14) downloads or builds
+# its native binary in an install script.
+allowBuilds:
+  '@nestjs/core': set this to true or false
+  cpu-features: set this to true or false
+  esbuild: true
+  protobufjs: set this to true or false
+  re2: true
+  ssh2: set this to true or false

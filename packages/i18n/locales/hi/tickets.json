@@ -1,0 +1,11 @@
+{
+    "status.new":  "नया",
+    "status.assigned":  "सौंपा गया",
+    "status.inProgress":  "प्रगति में",
+    "status.awaitingStudent":  "छात्र की प्रतीक्षा",
+    "status.resolvedPending":  "समाधान (पुष्टि लंबित)",
+    "status.closed":  "बंद",
+    "status.reopened":  "पुनः खोला गया",
+    "sla.atRisk":  "जोखिम में",
+    "sla.breached":  "समय सीमा पार"
+}

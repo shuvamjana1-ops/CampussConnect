@@ -1,0 +1,27 @@
+{
+  "name": "@campusconnect/infra",
+  "version": "0.0.0",
+  "private": true,
+  "description": "AWS CDK app. Stacks in lib/stacks: network, data, security, compute, edge, messaging, observability and pipeline.",
+  "type": "module",
+  "scripts": {
+    "synth": "cdk synth --quiet",
+    "lint": "eslint . --max-warnings=0",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "2.170.0",
+    "cdk-nag": "2.34.23",
+    "constructs": "10.4.2"
+  },
+  "devDependencies": {
+    "aws-cdk": "2.170.0",
+    "tsx": "4.19.2",
+    "@campusconnect/tooling": "workspace:*",
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

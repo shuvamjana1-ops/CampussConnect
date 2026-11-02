@@ -1,0 +1,33 @@
+{
+  "name": "@campusconnect/server",
+  "version": "0.0.0",
+  "private": true,
+  "description": "NestJS modules, one folder per component. Each module's index.ts is its public service interface: @campusconnect/server/<module>.",
+  "type": "module",
+  "exports": {
+    "./*": "./*/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings=0",
+    "test": "vitest run",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@campusconnect/ai-adapter": "workspace:*",
+    "@campusconnect/channels": "workspace:*",
+    "@campusconnect/contracts": "workspace:*",
+    "@campusconnect/domain": "workspace:*",
+    "@campusconnect/erp-adapter": "workspace:*",
+    "@campusconnect/pii-redactor": "workspace:*",
+    "csv-stringify": "6.5.2",
+    "pdfmake": "0.2.20"
+  },
+  "devDependencies": {
+    "@campusconnect/tooling": "workspace:*",
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

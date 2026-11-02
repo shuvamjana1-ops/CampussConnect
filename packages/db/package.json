@@ -1,0 +1,30 @@
+{
+  "name": "@campusconnect/db",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Drizzle ORM schema, SQL migrations, RLS policies and withTenant(). The only package that imports the PostgreSQL driver.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema/*": "./src/schema/*/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings=0",
+    "test": "vitest run",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.28.0",
+    "pg": "^8.11.0"
+  },
+  "devDependencies": {
+    "@campusconnect/tooling": "workspace:*",
+    "@testcontainers/postgresql": "^10.0.0",
+    "@types/node": "catalog:",
+    "@types/pg": "^8.11.0",
+    "eslint": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

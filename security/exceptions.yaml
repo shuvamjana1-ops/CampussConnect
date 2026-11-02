@@ -1,0 +1,5 @@
+# Approved exceptions for critical dependency findings (22.9).
+# Each entry needs: id, approver (named person), expires (YYYY-MM-DD).
+# - id: GHSA-xxxx-xxxx-xxxx
+#   approver: Jane Doe
+#   expires: 2026-12-31

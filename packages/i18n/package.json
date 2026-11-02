@@ -1,0 +1,26 @@
+{
+  "name": "@campusconnect/i18n",
+  "version": "0.0.0",
+  "private": true,
+  "description": "English and Hindi resources and the locale manifest.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings=0",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "i18next": "25.5.2"
+  },
+  "files": ["src", "locales"],
+  "devDependencies": {
+    "@campusconnect/tooling": "workspace:*",
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

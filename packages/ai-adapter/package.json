@@ -1,0 +1,30 @@
+{
+  "name": "@campusconnect/ai-adapter",
+  "version": "0.0.0",
+  "private": true,
+  "description": "AiAdapter interface, HuggingFaceAdapter, FakeAiAdapter and circuit breaker. The only package that calls an AI provider.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings=0",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@campusconnect/contracts": "workspace:*",
+    "@campusconnect/pii-redactor": "workspace:*",
+    "@huggingface/inference": "4.13.32",
+    "opossum": "^8.1.0"
+  },
+  "devDependencies": {
+    "@campusconnect/tooling": "workspace:*",
+    "@types/node": "catalog:",
+    "@types/opossum": "^8.0.6",
+    "eslint": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

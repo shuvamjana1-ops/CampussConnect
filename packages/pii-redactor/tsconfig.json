@@ -1,0 +1,10 @@
+{
+  "extends": "@campusconnect/tooling/tsconfig/base.json",
+  "compilerOptions": {
+    // src/engine/ runs in a worker thread that Node.js loads with built-in type stripping, so its relative
+    // imports carry the .ts extension and it may use only erasable TypeScript syntax.
+    "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true
+  },
+  "include": ["src/**/*.ts", "test/**/*.ts", "*.config.ts"]
+}

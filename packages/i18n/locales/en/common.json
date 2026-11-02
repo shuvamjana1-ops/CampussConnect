@@ -1,0 +1,13 @@
+{
+    "appName":  "CampusConnect",
+    "language":  "Language",
+    "selectLanguage":  "Select language",
+    "loading":  "Loading",
+    "save":  "Save",
+    "cancel":  "Cancel",
+    "submit":  "Submit",
+    "offline":  "You are offline",
+    "offlineLastUpdated":  "Last updated {{time}}",
+    "requiresConnection":  "This action requires a connection",
+    "aiSuggested":  "AI-suggested"
+}

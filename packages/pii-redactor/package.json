@@ -1,0 +1,25 @@
+{
+  "name": "@campusconnect/pii-redactor",
+  "version": "0.0.0",
+  "private": true,
+  "description": "PII detectors, span merger, placeholder writer and the RedactedText brand. The only package that can create RedactedText.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings=0",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "re2": "^1.24.1"
+  },
+  "devDependencies": {
+    "@campusconnect/tooling": "workspace:*",
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

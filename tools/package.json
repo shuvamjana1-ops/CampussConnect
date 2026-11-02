@@ -1,0 +1,24 @@
+{
+  "name": "@campusconnect/tools",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Seed data, security-exception validator, AI evaluation harness and load tests.",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint . --max-warnings=0",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@campusconnect/ai-adapter": "workspace:*",
+    "@campusconnect/domain": "workspace:*",
+    "@campusconnect/pii-redactor": "workspace:*"
+  },
+  "devDependencies": {
+    "@campusconnect/tooling": "workspace:*",
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

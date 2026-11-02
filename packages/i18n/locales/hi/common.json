@@ -1,0 +1,13 @@
+{
+    "appName":  "कैम्पसकनेक्ट",
+    "language":  "भाषा",
+    "selectLanguage":  "भाषा चुनें",
+    "loading":  "लोड हो रहा है",
+    "save":  "सहेजें",
+    "cancel":  "रद्द करें",
+    "submit":  "जमा करें",
+    "offline":  "आप ऑफ़लाइन हैं",
+    "offlineLastUpdated":  "अंतिम अपडेट {{time}}",
+    "requiresConnection":  "इस कार्रवाई के लिए इंटरनेट कनेक्शन आवश्यक है",
+    "aiSuggested":  "AI-सुझाव"
+}

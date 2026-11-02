@@ -1,0 +1,36 @@
+# Secret scanning configuration (requirement 22.6).
+#
+# CI runs gitleaks with this file over the repository and over the built client bundles,
+# for example `gitleaks dir --config .gitleaks.toml apps/web/out`, and fails the build on any finding.
+# Real credentials live in AWS Secrets Manager and reach services at runtime. None belong in the repository.
+
+title = "CampusConnect gitleaks configuration"
+
+[extend]
+# Start from the gitleaks default rules (AWS keys, private keys, Hugging Face tokens, JWTs, generic API keys and more).
+useDefault = true
+
+[[rules]]
+id = "postgres-url-with-password"
+description = "PostgreSQL connection URL with an embedded password"
+regex = '''postgres(?:ql)?://[^\s:/@'"]+:([^\s@/'"]+)@'''
+secretGroup = 1
+keywords = ["postgres://", "postgresql://"]
+
+    [[rules.allowlists]]
+    description = "Environment variable placeholders such as ${PGPASSWORD}"
+    regexes = ['''^\$\{?[A-Za-z_][A-Za-z0-9_]*\}?$''']
+
+[[rules]]
+id = "vapid-private-key"
+description = "Web Push VAPID private key"
+regex = '''(?i)vapid[_-]?private[_-]?key['"]?\s*[:=]\s*['"]?([A-Za-z0-9_-]{43})(?:['"\s,;]|$)'''
+secretGroup = 1
+keywords = ["vapid"]
+
+[[allowlists]]
+description = "Dependency lockfile and installed third-party packages"
+paths = [
+  '''(^|/)pnpm-lock\.yaml$''',
+  '''(^|/)node_modules/''',
+]

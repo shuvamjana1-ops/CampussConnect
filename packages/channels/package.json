@@ -1,0 +1,22 @@
+{
+  "name": "@campusconnect/channels",
+  "version": "0.0.0",
+  "private": true,
+  "description": "ChannelAdapter interface; in-app, SES email, Web Push and SMS adapters; notification templates.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings=0",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@campusconnect/tooling": "workspace:*",
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

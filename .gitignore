@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+.vscode/
+
+# Build and test output
+dist/
+out/
+.next/
+cdk.out/
+coverage/
+.turbo/
+*.tsbuildinfo
+
+# Local environment files. Secrets live in AWS Secrets Manager, never in the repository.
+.env
+.env.*
+!.env.example
+
+# Logs and OS files
+*.log
+.DS_Store
+Thumbs.db

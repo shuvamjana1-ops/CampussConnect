@@ -1,0 +1,4 @@
+{
+  "extends": "@campusconnect/tooling/tsconfig/base.json",
+  "include": ["**/*.ts"]
+}

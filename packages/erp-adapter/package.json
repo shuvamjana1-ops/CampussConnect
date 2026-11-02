@@ -1,0 +1,22 @@
+{
+  "name": "@campusconnect/erp-adapter",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Read-only ErpAdapter interface and StubErpAdapter.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings=0",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@campusconnect/tooling": "workspace:*",
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

@@ -1,0 +1,11 @@
+{
+    "status.new":  "New",
+    "status.assigned":  "Assigned",
+    "status.inProgress":  "In Progress",
+    "status.awaitingStudent":  "Awaiting Student",
+    "status.resolvedPending":  "Resolved (Pending Confirmation)",
+    "status.closed":  "Closed",
+    "status.reopened":  "Reopened",
+    "sla.atRisk":  "At risk",
+    "sla.breached":  "Breached"
+}
