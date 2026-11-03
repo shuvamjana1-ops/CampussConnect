@@ -84,7 +84,7 @@ export default function ServiceHealthPage() {
 
       <div className="cc-page-header">
         <div>
-          <h2 className="cc-page-title">Platform Service Health &amp; Operations</h2>
+          <h2 className="cc-page-title">Platform Service Health & Operations</h2>
           <p className="cc-page-desc">
             Live infrastructure status, database health, AI inference circuit breakers, and async message queues.
           </p>
@@ -163,7 +163,7 @@ export default function ServiceHealthPage() {
       <div className="cc-card">
         <div className="cc-card-header">
           <h3 className="cc-card-title">
-            <span>🛡️</span> Operational Event &amp; Incident Log (Last 7 Days)
+            <span>🛡️</span> Operational Event & Incident Log (Last 7 Days)
           </h3>
         </div>
 

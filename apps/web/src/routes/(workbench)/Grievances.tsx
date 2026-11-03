@@ -303,6 +303,7 @@ export default function Grievances() {
         return grievanceList;
       }
     },
+    initialData: grievanceList,
   });
 
   const grievances = list.data ?? grievanceList;

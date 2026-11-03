@@ -28,7 +28,6 @@ export function CsatForm({
   readonly onSubmit: (values: CsatValues) => Promise<void>;
 }) {
   const t = useT();
-  const online = useOnline();
   const [score, setScore] = useState<number | null>(null);
   const [hoverScore, setHoverScore] = useState<number | null>(null);
   const [comment, setComment] = useState('');
@@ -37,6 +36,7 @@ export function CsatForm({
   const [formError, setFormError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [busy, setBusy] = useState(false);
+  const online = useOnline();
 
   const commentLength = Array.from(comment).length;
   const activeScore = hoverScore ?? score;

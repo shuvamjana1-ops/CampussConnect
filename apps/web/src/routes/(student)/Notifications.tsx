@@ -60,11 +60,11 @@ const SEED_NOTIFICATIONS: readonly NotificationItem[] = [
 export default function Notifications() {
   const t = useT();
   const { locale } = useI18n();
-  const online = useOnline();
   const queryClient = useQueryClient();
   const [prefs, setPrefs] = useState<Prefs | null>({ inApp: true, webPush: true, email: true });
   const [activeTab, setActiveTab] = useState<'all' | 'unread' | 'action'>('all');
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
+  const online = useOnline();
 
   const inbox = useQuery({
     queryKey: ['student', 'notifications'],
@@ -236,7 +236,7 @@ export default function Notifications() {
                 cursor: 'pointer',
               }}
             >
-              All ({items.length})
+              {`All (${items.length})`}
             </button>
             <button
               type="button"
@@ -254,7 +254,7 @@ export default function Notifications() {
                 cursor: 'pointer',
               }}
             >
-              Unread ({unreadCount})
+              {`Unread (${unreadCount})`}
             </button>
             <button
               type="button"
@@ -272,7 +272,7 @@ export default function Notifications() {
                 cursor: 'pointer',
               }}
             >
-              Action Required ({actionRequiredCount})
+              {`Action Required (${actionRequiredCount})`}
             </button>
           </div>
         </div>

@@ -307,9 +307,11 @@ html, body {
 }
 
 .cc-subnav-link.active {
-  color: var(--cc-indigo-900);
-  font-weight: 600;
-  border-bottom-color: var(--cc-indigo-900);
+  color: #1e3a8a;
+  font-weight: 700;
+  border-bottom-color: #f59e0b;
+  background: #fefce8;
+  border-radius: 6px 6px 0 0;
 }
 
 /* Page Layout Container */

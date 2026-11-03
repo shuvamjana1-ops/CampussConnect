@@ -19,7 +19,14 @@ const GROUP_PATHS: Readonly<Record<RouteGroup, string>> = {
 
 function Landing() {
   const { session, loading } = useSession();
-  if (loading) return <p role="status">Loading…</p>;
+  if (loading) {
+    return (
+      <div style={{ minHeight: '70vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: '40px', height: '40px', border: '3px solid #e2e8f0', borderTopColor: '#f59e0b', borderRadius: '50%', animation: 'cc-spin 0.8s linear infinite', marginBottom: '1rem' }} />
+        <p role="status" style={{ color: '#1e3a8a', fontWeight: 700 }}>Loading CampusConnect…</p>
+      </div>
+    );
+  }
   const first = session?.groups[0];
   return <Navigate to={first ? GROUP_PATHS[first] : '/sign-in'} replace />;
 }
@@ -40,7 +47,19 @@ export function App() {
       <Route path="/" element={<Landing />} />
       <Route element={<Layout title="CampusConnect" />}>
         <Route path="/sign-in" element={<SignIn />} />
-        <Route path="/forbidden" element={<p role="alert">You do not have access to this area.</p>} />
+        <Route
+          path="/forbidden"
+          element={
+            <div className="cc-container" style={{ textAlign: 'center', padding: '3rem 1.5rem' }}>
+              <div className="cc-card" style={{ maxWidth: '480px', margin: '0 auto', padding: '2rem 1.5rem', borderLeft: '4px solid #b91c1c' }}>
+                <span style={{ fontSize: '2.5rem', display: 'block', marginBottom: '0.75rem' }}>🔒</span>
+                <h2 style={{ fontSize: '1.35rem', fontWeight: 700, color: '#0f172a', margin: '0 0 0.5rem' }}>Access Restricted</h2>
+                <p role="alert" style={{ color: '#475569', margin: '0 0 1.25rem' }}>You do not have access to this area.</p>
+                <a href="/sign-in" className="cc-button" style={{ background: '#1e3a8a', color: '#ffffff' }}>Switch Persona / Sign In</a>
+              </div>
+            </div>
+          }
+        />
       </Route>
       {group('/student/*', 'student', 'My requests', <StudentHome />)}
       {group('/workbench/*', 'workbench', 'Workbench', <WorkbenchHome />)}

@@ -118,7 +118,7 @@ export default function NotificationFailuresPage() {
             <span>✉️</span> Send Test Notification
           </Button>
           <Button onPress={handleRetryAll} isDisabled={retryingIds.size > 0}>
-            <span>🔄</span> Retry All ({failures.length})
+            <span>🔄</span> {`Retry All (${failures.length})`}
           </Button>
         </div>
       </div>
