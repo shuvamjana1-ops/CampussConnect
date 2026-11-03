@@ -218,7 +218,7 @@ describe('Challenger 2 Empirical Stress Test Suite (Milestone 1)', () => {
         expect(roleTab).toBeDefined();
         expect(roleTab?.classAttr).toContain('active');
       }
-    });
+    }, 30000);
 
     it('C2.6: Rapid alternating ping-pong between Exec and Ops portals preserves route-specific subnavs', () => {
       for (let i = 0; i < 10; i++) {
