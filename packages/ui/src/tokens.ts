@@ -44,6 +44,46 @@ export const textPairs: readonly (readonly [string, string])[] = [
 
 export const spacing = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24 } as const;
 export const radius = { sm: 4, md: 8, pill: 999 } as const;
+
+/* Liquid Glass & Apple Specific Tokens */
+export const appleRadii = {
+  sm: 8,
+  btn: 12,
+  input: 12,
+  cardSm: 16,
+  card: 20,
+  cardLg: 24,
+  modal: 28,
+  pill: 9999,
+  dock: 9999,
+} as const;
+
+export const roleColors = {
+  admin: {
+    accent: '#6366f1',
+    primary: '#4338ca',
+    onAccent: '#ffffff',
+    glow: 'rgba(99, 102, 241, 0.35)',
+    surfaceLight: '#e0e7ff',
+    onSurfaceLight: '#312e81',
+  },
+  staff: {
+    accent: '#0d9488',
+    primary: '#0f766e',
+    onAccent: '#ffffff',
+    glow: 'rgba(20, 184, 166, 0.35)',
+    surfaceLight: '#ccfbf1',
+    onSurfaceLight: '#044e47',
+  },
+  student: {
+    accent: '#2563eb',
+    primary: '#1d4ed8',
+    onAccent: '#ffffff',
+    glow: 'rgba(37, 99, 235, 0.35)',
+    surfaceLight: '#eff6ff',
+    onSurfaceLight: '#1e3a8a',
+  },
+} as const;
 export const fontSizes = { sm: 14, md: 16, lg: 20 } as const;
 export const touchTarget = { minWidth: MIN_TOUCH_TARGET_PX, minHeight: MIN_TOUCH_TARGET_PX } as const;
 export const focusOutline = `3px solid ${colors.focusRing}`;
