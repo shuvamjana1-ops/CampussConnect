@@ -22,7 +22,7 @@ export interface TenantSummary {
   readonly name: string;
   readonly subdomain?: string;
   readonly tier?: 'Enterprise' | 'Standard' | 'Trial';
-  readonly region?: 'ap-south-1' | 'ap-south-2' | string;
+  readonly region?: 'ap-south-1' | 'ap-south-2' | (string & {});
   readonly status?: 'active' | 'provisioning' | 'suspended';
   readonly adminEmail?: string;
   readonly createdAt?: number;
@@ -175,7 +175,7 @@ export default function BreachPage() {
       return explicitName;
     }
     const match =
-      tenants.data?.tenants?.find((item) => item.id === tId) ??
+      tenants.data.tenants.find((item) => item.id === tId) ??
       localTenants.find((item) => item.id === tId);
     return match?.name ?? tId;
   };
@@ -197,7 +197,7 @@ export default function BreachPage() {
 
       return matchesSearch && matchesStatus;
     });
-  }, [breachSearch, breachStatusFilter, tenants.data?.tenants]);
+  }, [breachSearch, breachStatusFilter, tenants.data.tenants]);
 
   const declare = useMutation({
     mutationFn: async (body: {
@@ -212,7 +212,7 @@ export default function BreachPage() {
       } catch {
         const newId = 'brc_' + Date.now().toString();
         const matchedTenant =
-          tenants.data?.tenants?.find((item) => item.id === body.tenantId) ??
+          tenants.data.tenants.find((item) => item.id === body.tenantId) ??
           localTenants.find((item) => item.id === body.tenantId);
 
         const newNotice: BreachNotice = {
@@ -349,7 +349,7 @@ export default function BreachPage() {
                 type="search"
                 placeholder="Search notices by tenant, incident nature, data categories…"
                 value={breachSearch}
-                onChange={(e) => setBreachSearch(e.target.value)}
+                onChange={(e) => { setBreachSearch(e.target.value); }}
                 aria-label="Filter breach notices"
                 style={{ width: '100%', padding: '0.5rem 0.75rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
               />
@@ -357,7 +357,7 @@ export default function BreachPage() {
             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
               <select
                 value={breachStatusFilter}
-                onChange={(e) => setBreachStatusFilter(e.target.value as typeof breachStatusFilter)}
+                onChange={(e) => { setBreachStatusFilter(e.target.value as typeof breachStatusFilter); }}
                 aria-label="Filter by notice status"
                 style={{ padding: '0.5rem 0.75rem', borderRadius: '6px', border: '1px solid #cbd5e1', background: '#fff' }}
               >

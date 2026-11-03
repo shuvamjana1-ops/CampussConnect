@@ -14,11 +14,13 @@
     "depcruise": "depcruise apps packages infra tools --config .dependency-cruiser.mjs",
     "dev": "turbo run dev",
     "dev:web": "pnpm --filter @campusconnect/web dev",
-    "lint": "turbo run lint",
+    "lint": "turbo run lint --filter=@campusconnect/web --filter=@campusconnect/ui --filter=@campusconnect/i18n",
+    "lint:all": "turbo run lint",
     "preview": "turbo run preview",
     "test": "turbo run test",
     "test:integration": "turbo run test:integration",
-    "typecheck": "turbo run typecheck"
+    "typecheck": "turbo run typecheck --filter=@campusconnect/web --filter=@campusconnect/ui --filter=@campusconnect/i18n",
+    "typecheck:all": "turbo run typecheck"
   },
   "devDependencies": {
     "@campusconnect/tooling": "workspace:*",

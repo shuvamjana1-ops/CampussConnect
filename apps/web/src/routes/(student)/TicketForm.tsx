@@ -182,7 +182,7 @@ export default function TicketForm() {
             setSuggest({ kind: 'unavailable' });
           }
         })
-        .finally(() => clearTimeout(timeout));
+        .finally(() => { clearTimeout(timeout); });
     }, 500);
     return () => {
       clearTimeout(debounce);
@@ -512,7 +512,7 @@ export default function TicketForm() {
             <Button variant="secondary" isDisabled={busy} onPress={() => void continueAfterDuplicate()}>
               {t('duplicate.continue')}
             </Button>
-            <Button variant="secondary" onPress={() => setStep('edit')}>
+            <Button variant="secondary" onPress={() => { setStep('edit'); }}>
               {t('profanity.edit')}
             </Button>
           </div>
@@ -539,7 +539,7 @@ export default function TicketForm() {
             <Button isDisabled={busy} onPress={() => void confirmProfanity()}>
               {t('profanity.confirm')}
             </Button>
-            <Button variant="secondary" onPress={() => setStep('edit')}>
+            <Button variant="secondary" onPress={() => { setStep('edit'); }}>
               {t('profanity.edit')}
             </Button>
           </div>
@@ -604,7 +604,7 @@ export default function TicketForm() {
               role="radio"
               aria-checked={type === 'Complaint'}
               tabIndex={0}
-              onClick={() => setType('Complaint')}
+              onClick={() => { setType('Complaint'); }}
               onKeyDown={(e) => {
                 if (e.key === ' ' || e.key === 'Enter') {
                   e.preventDefault();
@@ -659,7 +659,7 @@ export default function TicketForm() {
               <Button
                 variant="secondary"
                 isDisabled={categoryId === suggest.value.categoryId}
-                onPress={() => setCategoryId(suggest.value.categoryId)}
+                onPress={() => { setCategoryId(suggest.value.categoryId); }}
               >
                 {t('form.suggestionAccept')}
               </Button>
@@ -676,7 +676,7 @@ export default function TicketForm() {
             id="ticket-category"
             className="cc-input"
             value={categoryId ?? ''}
-            onChange={(e) => setCategoryId(e.target.value === '' ? null : e.target.value)}
+            onChange={(e) => { setCategoryId(e.target.value === '' ? null : e.target.value); }}
           >
             <option value="">{t('form.categoryNone')}</option>
             {(categories.data ?? []).map((c) => (
@@ -705,7 +705,7 @@ export default function TicketForm() {
             rows={7}
             aria-invalid={descriptionError !== null}
             aria-describedby={descriptionError ? 'description-error description-hint' : 'description-hint'}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={(e) => { setDescription(e.target.value); }}
             placeholder="Please detail your issue, roll number, course code (if applicable), and any previous steps taken..."
             style={{ width: '100%', minHeight: '140px' }}
           />
@@ -736,7 +736,7 @@ export default function TicketForm() {
               <input
                 type="checkbox"
                 checked={confidential}
-                onChange={(e) => setConfidential(e.target.checked)}
+                onChange={(e) => { setConfidential(e.target.checked); }}
                 aria-describedby="confidential-hint"
                 style={{ minWidth: 20, minHeight: 20, marginTop: '2px' }}
               />
@@ -807,7 +807,7 @@ export default function TicketForm() {
                   </span>
                   <button
                     type="button"
-                    onClick={() => setFiles(files.filter((_, i) => i !== index))}
+                    onClick={() => { setFiles(files.filter((_, i) => i !== index)); }}
                     style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', fontSize: '1.1rem' }}
                     aria-label={t('form.attachmentRemove', { name: file.name })}
                   >

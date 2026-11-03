@@ -11,7 +11,7 @@ export type FieldErrors = Readonly<Record<string, string>>;
 /** Reads `errors: [{ path, message?, rule? }]` from a problem document into a map keyed by field path. */
 export function problemFieldErrors(error: unknown, fallback: string): FieldErrors {
   if (!(error instanceof ApiError)) return {};
-  const raw = error.problem?.['errors'];
+  const raw = error.problem?.errors;
   if (!Array.isArray(raw)) return {};
   const out: Record<string, string> = {};
   for (const item of raw as unknown[]) {
@@ -68,7 +68,7 @@ export function TextArea({
         value={value}
         aria-invalid={error !== undefined}
         {...(describedBy ? { 'aria-describedby': describedBy } : {})}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => { onChange(e.target.value); }}
       />
       {description !== undefined && (
         <p id={`${id}-d`} className="cc-field-description">
@@ -105,7 +105,7 @@ export function SelectField({
         value={value}
         aria-invalid={error !== undefined}
         {...(error ? { 'aria-describedby': `${id}-e` } : {})}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => { onChange(e.target.value); }}
       >
         {options.map((o) => (
           <option key={o.value} value={o.value}>

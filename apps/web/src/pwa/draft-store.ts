@@ -27,8 +27,8 @@ function openDb(): Promise<IDBDatabase> {
     request.onupgradeneeded = () => {
       request.result.createObjectStore(STORE, { keyPath: 'id' });
     };
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error ?? new Error('IndexedDB open failed'));
+    request.onsuccess = () => { resolve(request.result); };
+    request.onerror = () => { reject(request.error ?? new Error('IndexedDB open failed')); };
   });
 }
 
@@ -37,8 +37,8 @@ async function run<T>(mode: IDBTransactionMode, op: (store: IDBObjectStore) => I
   try {
     return await new Promise<T>((resolve, reject) => {
       const request = op(db.transaction(STORE, mode).objectStore(STORE));
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error ?? new Error('IndexedDB request failed'));
+      request.onsuccess = () => { resolve(request.result); };
+      request.onerror = () => { reject(request.error ?? new Error('IndexedDB request failed')); };
     });
   } finally {
     db.close();
@@ -58,11 +58,11 @@ export function subscribeDrafts(listener: () => void): () => void {
 }
 
 export async function getDraft(id: string): Promise<Draft | undefined> {
-  return (await run<Draft | undefined>('readonly', (s) => s.get(id))) ?? undefined;
+  return (await run<Draft | undefined>('readonly', (s) => s.get(id) as IDBRequest<Draft | undefined>)) ?? undefined;
 }
 
 export async function listDrafts(): Promise<Draft[]> {
-  const all = await run<Draft[]>('readonly', (s) => s.getAll());
+  const all = await run<Draft[]>('readonly', (s) => s.getAll() as IDBRequest<Draft[]>);
   return all.sort((a, b) => a.updatedAt - b.updatedAt);
 }
 

@@ -114,7 +114,7 @@ export default function NotificationFailuresPage() {
           </p>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-          <Button variant="secondary" onPress={() => setShowTestModal(!showTestModal)}>
+          <Button variant="secondary" onPress={() => { setShowTestModal(!showTestModal); }}>
             <span>✉️</span> Send Test Notification
           </Button>
           <Button onPress={handleRetryAll} isDisabled={retryingIds.size > 0}>
@@ -137,7 +137,7 @@ export default function NotificationFailuresPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
             <div>
               <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem' }}>Channel</label>
-              <select className="cc-input" value={testChannel} onChange={(e) => setTestChannel(e.target.value)}>
+              <select className="cc-input" value={testChannel} onChange={(e) => { setTestChannel(e.target.value); }}>
                 <option value="WhatsApp">WhatsApp (Business API)</option>
                 <option value="SMS">SMS (DLT Route)</option>
                 <option value="Email">Email (Amazon SES)</option>
@@ -146,12 +146,12 @@ export default function NotificationFailuresPage() {
             </div>
             <div>
               <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem' }}>Recipient Identifier</label>
-              <input className="cc-input" value={testRecipient} onChange={(e) => setTestRecipient(e.target.value)} />
+              <input className="cc-input" value={testRecipient} onChange={(e) => { setTestRecipient(e.target.value); }} />
             </div>
           </div>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             <Button onPress={handleSendTestNotification}>Dispatch Test</Button>
-            <Button variant="secondary" onPress={() => setShowTestModal(false)}>Cancel</Button>
+            <Button variant="secondary" onPress={() => { setShowTestModal(false); }}>Cancel</Button>
           </div>
         </div>
       )}
@@ -217,7 +217,7 @@ export default function NotificationFailuresPage() {
                       ) : (
                         <Button
                           variant="secondary"
-                          onPress={() => handleRetryOne(f.id)}
+                          onPress={() => { handleRetryOne(f.id); }}
                           isDisabled={isRetrying}
                         >
                           <span>🔄</span> {isRetrying ? 'Retrying...' : 'Retry Delivery'}

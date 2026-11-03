@@ -22,7 +22,7 @@ export function InstallPrompt() {
       event.preventDefault();
       setDeferred(event as BeforeInstallPromptEvent);
     };
-    const onInstalled = () => setDeferred(null);
+    const onInstalled = () => { setDeferred(null); };
     window.addEventListener('beforeinstallprompt', onPrompt);
     window.addEventListener('appinstalled', onInstalled);
     return () => {
@@ -38,12 +38,12 @@ export function InstallPrompt() {
         <span>Install CampusConnect on this device.</span>
         <Button
           onPress={() => {
-            void deferred.prompt().then(() => setDeferred(null));
+            void deferred.prompt().then(() => { setDeferred(null); });
           }}
         >
           Install
         </Button>
-        <Button variant="secondary" onPress={() => setDismissed(true)}>
+        <Button variant="secondary" onPress={() => { setDismissed(true); }}>
           Not now
         </Button>
       </div>
@@ -53,7 +53,7 @@ export function InstallPrompt() {
     return (
       <div role="region" aria-label="Install app">
         <span>To install: tap the Share button, then choose Add to Home Screen.</span>
-        <Button variant="secondary" onPress={() => setDismissed(true)}>
+        <Button variant="secondary" onPress={() => { setDismissed(true); }}>
           Dismiss
         </Button>
       </div>

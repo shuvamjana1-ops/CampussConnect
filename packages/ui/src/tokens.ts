@@ -1,4 +1,4 @@
-﻿// Design tokens. Every text/background pair below is checked at >= 4.5:1 by `contrastRatio`.
+// Design tokens. Every text/background pair below is checked at >= 4.5:1 by `contrastRatio`.
 export const MIN_TEXT_CONTRAST = 4.5;
 export const MIN_TOUCH_TARGET_PX = 44;
 
@@ -77,18 +77,18 @@ export const baseStyles = `
 ${Object.entries(colors)
   .map(([k, v]) => `  --cc-color-${k.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)}: ${v};`)
   .join('\n')}
-  --cc-touch-target: ${MIN_TOUCH_TARGET_PX}px;
+  --cc-touch-target: ${String(MIN_TOUCH_TARGET_PX)}px;
 }
-body { color: var(--cc-color-text); background: var(--cc-color-background); font-size: ${fontSizes.md}px; }
-.cc-button, .cc-input, .cc-select, .cc-tab { min-width: ${MIN_TOUCH_TARGET_PX}px; min-height: ${MIN_TOUCH_TARGET_PX}px; }
-.cc-button { padding: ${spacing.sm}px ${spacing.lg}px; border-radius: ${radius.md}px; border: 1px solid transparent; background: var(--cc-color-primary); color: var(--cc-color-on-primary); font-size: ${fontSizes.md}px; cursor: pointer; }
+body { color: var(--cc-color-text); background: var(--cc-color-background); font-size: ${String(fontSizes.md)}px; }
+.cc-button, .cc-input, .cc-select, .cc-tab { min-width: ${String(MIN_TOUCH_TARGET_PX)}px; min-height: ${String(MIN_TOUCH_TARGET_PX)}px; }
+.cc-button { padding: ${String(spacing.sm)}px ${String(spacing.lg)}px; border-radius: ${String(radius.md)}px; border: 1px solid transparent; background: var(--cc-color-primary); color: var(--cc-color-on-primary); font-size: ${String(fontSizes.md)}px; cursor: pointer; }
 .cc-button[data-disabled] { opacity: 0.6; cursor: not-allowed; }
 .cc-button[data-variant='secondary'] { background: var(--cc-color-background); color: var(--cc-color-text); border-color: var(--cc-color-border); }
 .cc-button[data-variant='danger'] { background: var(--cc-color-danger); color: var(--cc-color-on-danger); }
-.cc-input { box-sizing: border-box; padding: ${spacing.sm}px ${spacing.md}px; border: 1px solid var(--cc-color-border); border-radius: ${radius.sm}px; font-size: ${fontSizes.md}px; }
-.cc-field-error { color: var(--cc-color-danger); font-size: ${fontSizes.sm}px; }
-.cc-field-description { color: var(--cc-color-text-muted); font-size: ${fontSizes.sm}px; }
-.cc-badge { display: inline-flex; align-items: center; gap: ${spacing.xs}px; padding: 2px ${spacing.sm}px; border-radius: ${radius.pill}px; font-size: ${fontSizes.sm}px; }
+.cc-input { box-sizing: border-box; padding: ${String(spacing.sm)}px ${String(spacing.md)}px; border: 1px solid var(--cc-color-border); border-radius: ${String(radius.sm)}px; font-size: ${String(fontSizes.md)}px; }
+.cc-field-error { color: var(--cc-color-danger); font-size: ${String(fontSizes.sm)}px; }
+.cc-field-description { color: var(--cc-color-text-muted); font-size: ${String(fontSizes.sm)}px; }
+.cc-badge { display: inline-flex; align-items: center; gap: ${String(spacing.xs)}px; padding: 2px ${String(spacing.sm)}px; border-radius: ${String(radius.pill)}px; font-size: ${String(fontSizes.sm)}px; }
 .cc-badge[data-tone='info'] { background: var(--cc-color-info-bg); color: var(--cc-color-on-info); }
 .cc-badge[data-tone='success'] { background: var(--cc-color-success-bg); color: var(--cc-color-on-success); }
 .cc-badge[data-tone='warning'] { background: var(--cc-color-warning-bg); color: var(--cc-color-on-warning); }

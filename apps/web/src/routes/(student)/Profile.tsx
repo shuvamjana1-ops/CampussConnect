@@ -41,7 +41,7 @@ export default function Profile() {
       {
         onSuccess: () => {
           setSavedSuccess(true);
-          setTimeout(() => setSavedSuccess(false), 3000);
+          setTimeout(() => { setSavedSuccess(false); }, 3000);
         },
       },
     );
@@ -176,7 +176,7 @@ export default function Profile() {
                   {skill}
                   <button
                     type="button"
-                    onClick={() => handleRemoveSkill(skill)}
+                    onClick={() => { handleRemoveSkill(skill); }}
                     style={{ background: 'none', border: 'none', cursor: 'pointer', marginLeft: '4px', color: '#64748b' }}
                     aria-label={`Remove ${skill}`}
                   >
@@ -191,7 +191,7 @@ export default function Profile() {
                 className="cc-input"
                 placeholder="Add skill (e.g. Kotlin, Machine Learning)..."
                 value={newSkill}
-                onChange={(e) => setNewSkill(e.target.value)}
+                onChange={(e) => { setNewSkill(e.target.value); }}
               />
               <Button type="submit" variant="secondary">
                 Add
@@ -205,7 +205,7 @@ export default function Profile() {
             <select
               id="income-select"
               value={incomeBracket}
-              onChange={(e) => setIncomeBracket(e.target.value)}
+              onChange={(e) => { setIncomeBracket(e.target.value); }}
               className="cc-input"
             >
               <option value="bracket_below_2_5">Below ₹2.5 Lakhs / annum (EWS / BPL Eligible)</option>
@@ -224,7 +224,7 @@ export default function Profile() {
               <input
                 type="checkbox"
                 checked={dpdpConsent}
-                onChange={(e) => setDpdpConsent(e.target.checked)}
+                onChange={(e) => { setDpdpConsent(e.target.checked); }}
                 style={{ marginTop: '0.2rem', minWidth: '18px', minHeight: '18px' }}
               />
               <span>

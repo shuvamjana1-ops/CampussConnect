@@ -36,12 +36,10 @@ async function attempt(id: string): Promise<void> {
     });
     await deleteDraft(id);
   } catch (error) {
-    const { error: _previous, ...rest } = draft;
-    void _previous;
     if (attempts >= MAX_ATTEMPTS) {
-      await putDraft({ ...rest, status: 'failed', attempts, error: describe(error) });
+      await putDraft({ ...draft, status: 'failed', attempts, error: describe(error) });
     } else {
-      await putDraft({ ...rest, status: 'queued', attempts, error: describe(error) });
+      await putDraft({ ...draft, status: 'queued', attempts, error: describe(error) });
       const delay = RETRY_DELAYS_MS[attempts - 1] ?? RETRY_DELAYS_MS[RETRY_DELAYS_MS.length - 1] ?? 60_000;
       timers.set(
         id,
@@ -70,7 +68,7 @@ export async function submitDraft(id: string): Promise<void> {
 /** Retry button: restarts the schedule for a failed draft, reusing its idempotency key. */
 export async function retryDraft(id: string): Promise<void> {
   const draft = await getDraft(id);
-  if (!draft || draft.status !== 'failed') return;
+  if (draft?.status !== 'failed') return;
   await submitDraft(id);
 }
 
@@ -87,7 +85,7 @@ export async function flushQueue(): Promise<void> {
 
 async function requestBackgroundSync(): Promise<void> {
   try {
-    const registration = await navigator.serviceWorker?.ready;
+    const registration = await navigator.serviceWorker.ready;
     const sync = (registration as (ServiceWorkerRegistration & { sync?: { register(tag: string): Promise<void> } }) | undefined)?.sync;
     await sync?.register(SYNC_TAG);
   } catch {
@@ -110,13 +108,13 @@ export function startSyncManager(): () => void {
   window.addEventListener('online', trigger);
   window.addEventListener('focus', trigger);
   document.addEventListener('visibilitychange', onVisible);
-  navigator.serviceWorker?.addEventListener('message', onMessage);
+  navigator.serviceWorker.addEventListener('message', onMessage);
   trigger();
   return () => {
     window.removeEventListener('online', trigger);
     window.removeEventListener('focus', trigger);
     document.removeEventListener('visibilitychange', onVisible);
-    navigator.serviceWorker?.removeEventListener('message', onMessage);
+    navigator.serviceWorker.removeEventListener('message', onMessage);
     for (const id of [...timers.keys()]) clearTimer(id);
   };
 }

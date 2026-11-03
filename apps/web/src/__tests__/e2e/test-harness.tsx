@@ -13,12 +13,12 @@ import studentEn from '../../../../../packages/i18n/locales/en/student.json';
 import ticketsEn from '../../../../../packages/i18n/locales/en/tickets.json';
 
 const DICTIONARY: Record<string, Record<string, string>> = {
-  admin: adminEn as Record<string, string>,
-  common: commonEn as Record<string, string>,
-  exec: execEn as Record<string, string>,
-  ops: opsEn as Record<string, string>,
-  student: studentEn as Record<string, string>,
-  tickets: ticketsEn as Record<string, string>,
+  admin: adminEn,
+  common: commonEn,
+  exec: execEn,
+  ops: opsEn,
+  student: studentEn,
+  tickets: ticketsEn,
 };
 
 export function lookupTranslation(key: string): string {
@@ -236,7 +236,7 @@ const memoryStorage = (() => {
   };
 })();
 
-if (typeof globalThis.localStorage === 'undefined' || !globalThis.localStorage.setItem) {
+if (!globalThis.localStorage?.setItem) {
   Object.defineProperty(globalThis, 'localStorage', {
     value: memoryStorage,
     writable: true,

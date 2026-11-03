@@ -133,7 +133,7 @@ export default function AuditPage() {
         return { entries: [...DEFAULT_AUDIT_ENTRIES] };
       }
     },
-    onSuccess: (data) => setEntries(data.entries),
+    onSuccess: (data) => { setEntries(data.entries); },
   });
 
   const verify = useMutation({
@@ -151,17 +151,17 @@ export default function AuditPage() {
     },
   });
 
-  const set = (patch: Partial<Filters>) => setFilters({ ...filters, ...patch });
+  const set = (patch: Partial<Filters>) => { setFilters({ ...filters, ...patch }); };
 
   const onSearch = (e: FormEvent) => {
     e.preventDefault();
     const errors: Record<string, string> = {};
     const from = new Date(filters.from).getTime();
     const to = new Date(filters.to).getTime();
-    if (Number.isNaN(from)) errors['from'] = t('admin:audit.err.required');
-    if (Number.isNaN(to)) errors['to'] = t('admin:audit.err.required');
+    if (Number.isNaN(from)) errors.from = t('admin:audit.err.required');
+    if (Number.isNaN(to)) errors.to = t('admin:audit.err.required');
     if (!Number.isNaN(from) && !Number.isNaN(to) && (to < from || to - from > MAX_RANGE_MS)) {
-      errors['to'] = t('admin:audit.err.range');
+      errors.to = t('admin:audit.err.range');
     }
     setFieldErrors(errors);
     if (Object.keys(errors).length === 0) search.mutate({ from, to });
@@ -173,12 +173,12 @@ export default function AuditPage() {
     const body: { fromSeqNum?: number; toSeqNum?: number } = {};
     if (fromSeq.trim() !== '') {
       const n = parseInteger(fromSeq);
-      if (n === undefined || n < 1) errors['from'] = t('admin:audit.err.seq');
+      if (n === undefined || n < 1) errors.from = t('admin:audit.err.seq');
       else body.fromSeqNum = n;
     }
     if (toSeq.trim() !== '') {
       const n = parseInteger(toSeq);
-      if (n === undefined || n < 1) errors['to'] = t('admin:audit.err.seq');
+      if (n === undefined || n < 1) errors.to = t('admin:audit.err.seq');
       else body.toSeqNum = n;
     }
     setVerifyErrors(errors);
@@ -233,14 +233,14 @@ export default function AuditPage() {
       <form onSubmit={onSearch} noValidate aria-label={t('admin:audit.search')} style={{ background: 'var(--cc-white)', border: '1px solid var(--cc-color-border-light)', borderRadius: '12px', padding: '1.25rem', marginBottom: '1.5rem' }}>
         <h3 style={{ margin: '0 0 1rem', fontSize: '1rem', color: 'var(--cc-navy-900)' }}>Search Filter Parameters (Default 7-Day Window)</h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
-          <Field label={t('admin:audit.actor')} value={filters.actor} onChange={(v) => set({ actor: v })} />
-          <Field label={t('admin:audit.action')} value={filters.action} onChange={(v) => set({ action: v })} />
-          <Field label={t('admin:audit.target')} value={filters.target} onChange={(v) => set({ target: v })} />
+          <Field label={t('admin:audit.actor')} value={filters.actor} onChange={(v) => { set({ actor: v }); }} />
+          <Field label={t('admin:audit.action')} value={filters.action} onChange={(v) => { set({ action: v }); }} />
+          <Field label={t('admin:audit.target')} value={filters.target} onChange={(v) => { set({ target: v }); }} />
           <Field
             label={t('admin:audit.from')}
             type="datetime-local"
             value={filters.from}
-            onChange={(v) => set({ from: v })}
+            onChange={(v) => { set({ from: v }); }}
             {...errorProps(fieldErrors, 'from')}
           />
           <Field
@@ -248,7 +248,7 @@ export default function AuditPage() {
             type="datetime-local"
             description={t('admin:audit.rangeHint')}
             value={filters.to}
-            onChange={(v) => set({ to: v })}
+            onChange={(v) => { set({ to: v }); }}
             {...errorProps(fieldErrors, 'to')}
           />
         </div>

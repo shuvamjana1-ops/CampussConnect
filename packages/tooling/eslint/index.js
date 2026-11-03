@@ -3,6 +3,8 @@ import { defineConfig, globalIgnores } from 'eslint/config';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
+export { globals };
+
 /**
  * Shared ESLint flat config for every CampusConnect workspace.
  * TypeScript files are linted with type information from the workspace's tsconfig.json.
@@ -47,6 +49,12 @@ export function createConfig(options) {
       // Plain JavaScript (config files) is not part of a TypeScript project.
       files: ['**/*.{js,mjs,cjs}'],
       extends: [tseslint.configs.disableTypeChecked],
+    },
+    {
+      files: ['**/sw.js', '**/service-worker.js', '**/public/sw.js'],
+      languageOptions: {
+        globals: globals.serviceworker,
+      },
     },
   );
 }

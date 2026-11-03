@@ -55,7 +55,7 @@ export default function ProvisionPage() {
     initialData: () => ({ tenants: getLocalTenants() }),
   });
 
-  const tenantList = tenantsQuery.data?.tenants ?? [];
+  const tenantList = tenantsQuery.data.tenants;
 
   const filteredTenants = useMemo(() => {
     return tenantList.filter((item) => {
@@ -63,9 +63,9 @@ export default function ProvisionPage() {
       const matchesSearch =
         q === '' ||
         item.name.toLowerCase().includes(q) ||
-        (item.subdomain !== undefined && item.subdomain.toLowerCase().includes(q)) ||
+        (item.subdomain?.toLowerCase().includes(q) ?? false) ||
         item.id.toLowerCase().includes(q) ||
-        (item.adminEmail !== undefined && item.adminEmail.toLowerCase().includes(q));
+        (item.adminEmail?.toLowerCase().includes(q) ?? false);
 
       const matchesRegion = regionFilter === 'all' || (item.region ?? 'ap-south-1') === regionFilter;
       const matchesStatus = statusFilter === 'all' || (item.status ?? 'active') === statusFilter;
@@ -96,7 +96,7 @@ export default function ProvisionPage() {
         name: name.trim(),
         subdomain,
         tier: 'Standard',
-        region: region as 'ap-south-1' | 'ap-south-2',
+        region: region,
         status: 'active',
         adminEmail: adminEmail.trim(),
         createdAt: Date.now(),
@@ -210,7 +210,7 @@ export default function ProvisionPage() {
               type="search"
               placeholder="Search by institution name, subdomain, or admin email…"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => { setSearchTerm(e.target.value); }}
               aria-label="Filter tenant directory"
               style={{ width: '100%', padding: '0.5rem 0.75rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
             />
@@ -218,7 +218,7 @@ export default function ProvisionPage() {
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
             <select
               value={regionFilter}
-              onChange={(e) => setRegionFilter(e.target.value as typeof regionFilter)}
+              onChange={(e) => { setRegionFilter(e.target.value as typeof regionFilter); }}
               aria-label="Filter by cloud region"
               style={{ padding: '0.5rem 0.75rem', borderRadius: '6px', border: '1px solid #cbd5e1', background: '#fff' }}
             >
@@ -228,7 +228,7 @@ export default function ProvisionPage() {
             </select>
             <select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}
+              onChange={(e) => { setStatusFilter(e.target.value as typeof statusFilter); }}
               aria-label="Filter by tenant status"
               style={{ padding: '0.5rem 0.75rem', borderRadius: '6px', border: '1px solid #cbd5e1', background: '#fff' }}
             >

@@ -20,8 +20,8 @@ function openDb(): Promise<IDBDatabase> {
     request.onupgradeneeded = () => {
       request.result.createObjectStore(STORE, { keyPath: 'id' });
     };
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error ?? new Error('IndexedDB open failed'));
+    request.onsuccess = () => { resolve(request.result); };
+    request.onerror = () => { reject(request.error ?? new Error('IndexedDB open failed')); };
   });
 }
 
@@ -30,9 +30,9 @@ async function withStore<T>(mode: IDBTransactionMode, op: (store: IDBObjectStore
   try {
     const tx = db.transaction(STORE, mode);
     const done = new Promise<void>((resolve, reject) => {
-      tx.oncomplete = () => resolve();
-      tx.onerror = () => reject(tx.error ?? new Error('IndexedDB transaction failed'));
-      tx.onabort = () => reject(tx.error ?? new Error('IndexedDB transaction aborted'));
+      tx.oncomplete = () => { resolve(); };
+      tx.onerror = () => { reject(tx.error ?? new Error('IndexedDB transaction failed')); };
+      tx.onabort = () => { reject(tx.error ?? new Error('IndexedDB transaction aborted')); };
     });
     const result = await op(tx.objectStore(STORE));
     await done;
@@ -44,8 +44,8 @@ async function withStore<T>(mode: IDBTransactionMode, op: (store: IDBObjectStore
 
 function req<T>(request: IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => {
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error ?? new Error('IndexedDB request failed'));
+    request.onsuccess = () => { resolve(request.result); };
+    request.onerror = () => { reject(request.error ?? new Error('IndexedDB request failed')); };
   });
 }
 
@@ -65,7 +65,7 @@ function notify(): void {
 export async function cacheTicket(id: string, data: unknown, lastUpdatedAt: number): Promise<void> {
   await withStore('readwrite', async (store) => {
     await req(store.put({ id, data, lastUpdatedAt, viewedAt: Date.now() } satisfies CachedTicket));
-    const all = await req<CachedTicket[]>(store.getAll());
+    const all = await req<CachedTicket[]>(store.getAll() as IDBRequest<CachedTicket[]>);
     if (all.length <= MAX_CACHED_TICKETS) return;
     all.sort((a, b) => b.viewedAt - a.viewedAt);
     for (const stale of all.slice(MAX_CACHED_TICKETS)) await req(store.delete(stale.id));
@@ -76,7 +76,7 @@ export async function cacheTicket(id: string, data: unknown, lastUpdatedAt: numb
 /** Reads a cached Ticket and marks it as most recently viewed. */
 export async function getCachedTicket(id: string): Promise<CachedTicket | undefined> {
   const found = await withStore('readwrite', async (store) => {
-    const entry = await req<CachedTicket | undefined>(store.get(id));
+    const entry = await req<CachedTicket | undefined>(store.get(id) as IDBRequest<CachedTicket | undefined>);
     if (!entry) return undefined;
     const touched: CachedTicket = { ...entry, viewedAt: Date.now() };
     await req(store.put(touched));
@@ -88,6 +88,6 @@ export async function getCachedTicket(id: string): Promise<CachedTicket | undefi
 
 /** Cached Tickets, most recently viewed first. */
 export async function listCachedTickets(): Promise<CachedTicket[]> {
-  const all = await withStore('readonly', (store) => req<CachedTicket[]>(store.getAll()));
+  const all = await withStore('readonly', (store) => req<CachedTicket[]>(store.getAll() as IDBRequest<CachedTicket[]>));
   return all.sort((a, b) => b.viewedAt - a.viewedAt);
 }

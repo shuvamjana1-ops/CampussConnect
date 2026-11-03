@@ -207,7 +207,7 @@ describe('Tier 3: Cross-Feature Combinations (Opaque-Box)', () => {
     });
 
     it('T3.10: Shell branding and layout landmarks persist across all portal boundaries', () => {
-      const routes: Array<{ route: string; role: 'student' | 'workbench' | 'exec' | 'admin' | 'ops' }> = [
+      const routes: { route: string; role: 'student' | 'workbench' | 'exec' | 'admin' | 'ops' }[] = [
         { route: '/student', role: 'student' },
         { route: '/workbench', role: 'workbench' },
         { route: '/exec/overview', role: 'exec' },

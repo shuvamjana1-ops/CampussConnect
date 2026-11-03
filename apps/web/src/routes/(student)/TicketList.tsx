@@ -83,25 +83,25 @@ export default function TicketList() {
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
             <Button
               variant={activeFilter === 'all' ? 'primary' : 'secondary'}
-              onPress={() => setActiveFilter('all')}
+              onPress={() => { setActiveFilter('all'); }}
             >
               All ({tickets.length})
             </Button>
             <Button
               variant={activeFilter === 'open' ? 'primary' : 'secondary'}
-              onPress={() => setActiveFilter('open')}
+              onPress={() => { setActiveFilter('open'); }}
             >
               In Progress ({tickets.filter((t) => t.status !== 'closed' && t.status !== 'resolvedPending').length})
             </Button>
             <Button
               variant={activeFilter === 'pending' ? 'primary' : 'secondary'}
-              onPress={() => setActiveFilter('pending')}
+              onPress={() => { setActiveFilter('pending'); }}
             >
               Needs Confirmation ({tickets.filter((t) => t.status === 'resolvedPending').length})
             </Button>
             <Button
               variant={activeFilter === 'closed' ? 'primary' : 'secondary'}
-              onPress={() => setActiveFilter('closed')}
+              onPress={() => { setActiveFilter('closed'); }}
             >
               Closed ({tickets.filter((t) => t.status === 'closed').length})
             </Button>

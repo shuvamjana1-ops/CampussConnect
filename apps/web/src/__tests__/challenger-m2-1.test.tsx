@@ -254,23 +254,23 @@ describe('Challenger Milestone 2 Empirical Adversarial Stress Test Suite', () =>
         const errors: Record<string, string> = {};
         const from = new Date(fromStr).getTime();
         const to = new Date(toStr).getTime();
-        if (Number.isNaN(from)) errors['from'] = 'admin:audit.err.required';
-        if (Number.isNaN(to)) errors['to'] = 'admin:audit.err.required';
+        if (Number.isNaN(from)) errors.from = 'admin:audit.err.required';
+        if (Number.isNaN(to)) errors.to = 'admin:audit.err.required';
         if (!Number.isNaN(from) && !Number.isNaN(to) && (to < from || to - from > MAX_RANGE_MS)) {
-          errors['to'] = 'admin:audit.err.range';
+          errors.to = 'admin:audit.err.range';
         }
         return errors;
       };
 
       // 1. Missing or invalid date format
-      expect(validateRange('invalid-date', '2026-11-03T12:00')['from']).toBe('admin:audit.err.required');
-      expect(validateRange('2026-11-03T12:00', '')['to']).toBe('admin:audit.err.required');
+      expect(validateRange('invalid-date', '2026-11-03T12:00').from).toBe('admin:audit.err.required');
+      expect(validateRange('2026-11-03T12:00', '').to).toBe('admin:audit.err.required');
 
       // 2. Inverted range (to < from)
-      expect(validateRange('2026-11-05T12:00', '2026-11-01T12:00')['to']).toBe('admin:audit.err.range');
+      expect(validateRange('2026-11-05T12:00', '2026-11-01T12:00').to).toBe('admin:audit.err.range');
 
       // 3. Excessively large range (> 30 days)
-      expect(validateRange('2026-09-01T00:00', '2026-11-01T00:00')['to']).toBe('admin:audit.err.range');
+      expect(validateRange('2026-09-01T00:00', '2026-11-01T00:00').to).toBe('admin:audit.err.range');
 
       // 4. Valid 7-day range has zero errors
       expect(Object.keys(validateRange('2026-10-27T00:00', '2026-11-03T00:00')).length).toBe(0);
@@ -322,19 +322,19 @@ describe('Challenger Milestone 2 Empirical Adversarial Stress Test Suite', () =>
         const errors: Record<string, string> = {};
         if (fromSeq.trim() !== '') {
           const n = parseInteger(fromSeq);
-          if (n === undefined || n < 1) errors['from'] = 'admin:audit.err.seq';
+          if (n === undefined || n < 1) errors.from = 'admin:audit.err.seq';
         }
         if (toSeq.trim() !== '') {
           const n = parseInteger(toSeq);
-          if (n === undefined || n < 1) errors['to'] = 'admin:audit.err.seq';
+          if (n === undefined || n < 1) errors.to = 'admin:audit.err.seq';
         }
         return errors;
       };
 
-      expect(validateSeq('abc', '1046')['from']).toBe('admin:audit.err.seq');
-      expect(validateSeq('0', '1046')['from']).toBe('admin:audit.err.seq');
-      expect(validateSeq('-15', '1046')['from']).toBe('admin:audit.err.seq');
-      expect(validateSeq('1042', 'xyz')['to']).toBe('admin:audit.err.seq');
+      expect(validateSeq('abc', '1046').from).toBe('admin:audit.err.seq');
+      expect(validateSeq('0', '1046').from).toBe('admin:audit.err.seq');
+      expect(validateSeq('-15', '1046').from).toBe('admin:audit.err.seq');
+      expect(validateSeq('1042', 'xyz').to).toBe('admin:audit.err.seq');
       expect(Object.keys(validateSeq('1042', '1046')).length).toBe(0);
     });
   });

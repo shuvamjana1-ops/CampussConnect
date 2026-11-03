@@ -59,7 +59,7 @@ const PROFILE_KEY = 'campusconnect:student_profile';
 function loadProfile(): StudentProfile {
   try {
     const raw = localStorage.getItem(PROFILE_KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) return JSON.parse(raw) as StudentProfile;
   } catch {
     // fallback
   }
@@ -69,7 +69,7 @@ function loadProfile(): StudentProfile {
 export function useStudentProfile() {
   return useQuery<StudentProfile>({
     queryKey: ['student', 'profile'],
-    queryFn: async () => {
+    queryFn: () => {
       return loadProfile();
     },
   });
@@ -78,7 +78,7 @@ export function useStudentProfile() {
 export function useUpdateStudentProfile() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (updated: Partial<StudentProfile>) => {
+    mutationFn: (updated: Partial<StudentProfile>): Promise<StudentProfile> => {
       const current = loadProfile();
       const next: StudentProfile = {
         ...current,
@@ -86,7 +86,7 @@ export function useUpdateStudentProfile() {
         completenessPercent: updated.interests && updated.interests.length > 5 ? 92 : current.completenessPercent,
       };
       localStorage.setItem(PROFILE_KEY, JSON.stringify(next));
-      return next;
+      return Promise.resolve(next);
     },
     onSuccess: (data) => {
       queryClient.setQueryData(['student', 'profile'], data);

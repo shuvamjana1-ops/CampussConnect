@@ -87,13 +87,13 @@ function validate(f: FormState, t: (k: string) => string): FieldErrors {
     if (n === undefined || n < 1) errors[`slaMinutes.${p}`] = t('admin:config.err.sla');
   }
   if (validThreshold(f.confidence) === undefined) {
-    errors['confidenceThreshold'] = t('admin:config.err.threshold');
+    errors.confidenceThreshold = t('admin:config.err.threshold');
   }
   if (validThreshold(f.copilotConfidence) === undefined) {
-    errors['copilotConfidenceThreshold'] = t('admin:config.err.threshold');
+    errors.copilotConfidenceThreshold = t('admin:config.err.threshold');
   }
   const k = parseInteger(f.k);
-  if (k === undefined || k < 2 || k > 1000) errors['kAnonymity'] = t('admin:config.err.k');
+  if (k === undefined || k < 2 || k > 1000) errors.kAnonymity = t('admin:config.err.k');
   const days = splitList(f.workDays).map(parseInteger);
   if (days.length === 0 || days.some((d) => d === undefined || d < 0 || d > 6)) {
     errors['calendar.workDays'] = t('admin:config.err.workDays');
@@ -103,8 +103,8 @@ function validate(f: FormState, t: (k: string) => string): FieldErrors {
     errors['calendar.endTime'] = t('admin:config.err.time');
   }
   if (f.timezone.trim() === '') errors['calendar.timezone'] = t('admin:config.err.required');
-  if (splitList(f.categories).length === 0) errors['categories'] = t('admin:config.err.required');
-  if (splitList(f.departments).length === 0) errors['departments'] = t('admin:config.err.required');
+  if (splitList(f.categories).length === 0) errors.categories = t('admin:config.err.required');
+  if (splitList(f.departments).length === 0) errors.departments = t('admin:config.err.required');
   return errors;
 }
 
@@ -211,10 +211,10 @@ export default function ConfigPage() {
       setSaved(true);
     },
     // Failure keeps the entered values and the previously saved configuration (1.6).
-    onError: (error) => setErrors(problemFieldErrors(error, t('admin:config.err.invalid'))),
+    onError: (error) => { setErrors(problemFieldErrors(error, t('admin:config.err.invalid'))); },
   });
 
-  if (query.isPending && !query.data) return <p role="status">{t('loading')}</p>;
+  if (query.isPending) return <p role="status">{t('loading')}</p>;
   if (query.isError) {
     return <ErrorAlert>{describeError(query.error, t('admin:error.load'))}</ErrorAlert>;
   }
@@ -255,7 +255,7 @@ export default function ConfigPage() {
             label={`${p} (${t('admin:config.minutes')})`}
             value={form.sla[p]}
             inputMode="numeric"
-            onChange={(v) => update({ sla: { ...form.sla, [p]: v } })}
+            onChange={(v) => { update({ sla: { ...form.sla, [p]: v } }); }}
             {...errorProps(errors, `slaMinutes.${p}`)}
           />
         ))}
@@ -268,7 +268,7 @@ export default function ConfigPage() {
           description={t('admin:config.thresholdHint')}
           value={form.confidence}
           inputMode="decimal"
-          onChange={(v) => update({ confidence: v })}
+          onChange={(v) => { update({ confidence: v }); }}
           {...errorProps(errors, 'confidenceThreshold')}
         />
         <Field
@@ -276,7 +276,7 @@ export default function ConfigPage() {
           description={t('admin:config.thresholdHint')}
           value={form.copilotConfidence}
           inputMode="decimal"
-          onChange={(v) => update({ copilotConfidence: v })}
+          onChange={(v) => { update({ copilotConfidence: v }); }}
           {...errorProps(errors, 'copilotConfidenceThreshold')}
         />
         <Field
@@ -284,7 +284,7 @@ export default function ConfigPage() {
           description={t('admin:config.kHint')}
           value={form.k}
           inputMode="numeric"
-          onChange={(v) => update({ k: v })}
+          onChange={(v) => { update({ k: v }); }}
           {...errorProps(errors, 'kAnonymity')}
         />
       </fieldset>
@@ -294,28 +294,28 @@ export default function ConfigPage() {
         <Field
           label={t('admin:config.timezone')}
           value={form.timezone}
-          onChange={(v) => update({ timezone: v })}
+          onChange={(v) => { update({ timezone: v }); }}
           {...errorProps(errors, 'calendar.timezone')}
         />
         <Field
           label={t('admin:config.startTime')}
           description="HH:MM"
           value={form.startTime}
-          onChange={(v) => update({ startTime: v })}
+          onChange={(v) => { update({ startTime: v }); }}
           {...errorProps(errors, 'calendar.startTime')}
         />
         <Field
           label={t('admin:config.endTime')}
           description="HH:MM"
           value={form.endTime}
-          onChange={(v) => update({ endTime: v })}
+          onChange={(v) => { update({ endTime: v }); }}
           {...errorProps(errors, 'calendar.endTime')}
         />
         <Field
           label={t('admin:config.workDays')}
           description={t('admin:config.workDaysHint')}
           value={form.workDays}
-          onChange={(v) => update({ workDays: v })}
+          onChange={(v) => { update({ workDays: v }); }}
           {...errorProps(errors, 'calendar.workDays')}
         />
       </fieldset>
@@ -326,15 +326,15 @@ export default function ConfigPage() {
           label={t('admin:config.categories')}
           description={t('admin:config.onePerLine')}
           value={form.categories}
-          onChange={(v) => update({ categories: v })}
-          error={errors['categories']}
+          onChange={(v) => { update({ categories: v }); }}
+          error={errors.categories}
         />
         <TextArea
           label={t('admin:config.departments')}
           description={t('admin:config.onePerLine')}
           value={form.departments}
-          onChange={(v) => update({ departments: v })}
-          error={errors['departments']}
+          onChange={(v) => { update({ departments: v }); }}
+          error={errors.departments}
         />
       </fieldset>
 
@@ -346,8 +346,7 @@ export default function ConfigPage() {
               label={t('admin:config.category')}
               value={rule.category}
               options={[blank, ...categoryOptions]}
-              onChange={(v) =>
-                update({ rules: form.rules.map((r, j) => (j === i ? { ...r, category: v } : r)) })
+              onChange={(v) => { update({ rules: form.rules.map((r, j) => (j === i ? { ...r, category: v } : r)) }); }
               }
               error={errors[`routingRules.${i}.category`]}
             />
@@ -355,14 +354,13 @@ export default function ConfigPage() {
               label={t('admin:config.department')}
               value={rule.department}
               options={[blank, ...departmentOptions]}
-              onChange={(v) =>
-                update({ rules: form.rules.map((r, j) => (j === i ? { ...r, department: v } : r)) })
+              onChange={(v) => { update({ rules: form.rules.map((r, j) => (j === i ? { ...r, department: v } : r)) }); }
               }
               error={errors[`routingRules.${i}.department`]}
             />
             <Button
               variant="secondary"
-              onPress={() => update({ rules: form.rules.filter((_, j) => j !== i) })}
+              onPress={() => { update({ rules: form.rules.filter((_, j) => j !== i) }); }}
             >
               {t('admin:config.removeRule')}
             </Button>
@@ -370,7 +368,7 @@ export default function ConfigPage() {
         ))}
         <Button
           variant="secondary"
-          onPress={() => update({ rules: [...form.rules, { category: '', department: '' }] })}
+          onPress={() => { update({ rules: [...form.rules, { category: '', department: '' }] }); }}
         >
           {t('admin:config.addRule')}
         </Button>

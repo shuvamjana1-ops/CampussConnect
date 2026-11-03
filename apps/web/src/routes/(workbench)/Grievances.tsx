@@ -306,7 +306,7 @@ export default function Grievances() {
     initialData: grievanceList,
   });
 
-  const grievances = list.data ?? grievanceList;
+  const grievances = list.data;
 
   const handleRulingRecorded = (grievanceId: string, verdict: 'upheld' | 'partially_upheld' | 'rejected', rationale: string) => {
     setGrievanceList((prev) =>
@@ -370,9 +370,7 @@ export default function Grievances() {
         </div>
       )}
 
-      {list.isPending ? (
-        <p role="status">Loading L3 matters…</p>
-      ) : grievances.length === 0 ? (
+      {grievances.length === 0 ? (
         <div className="cc-empty-state">
           <div className="cc-empty-icon">✓</div>
           <div className="cc-empty-title">Zero Pending L3 Grievances</div>

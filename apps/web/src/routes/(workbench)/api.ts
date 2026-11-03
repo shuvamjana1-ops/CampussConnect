@@ -79,7 +79,7 @@ export function problemMessage(error: unknown): string {
 /** Per-Ticket failures returned by an atomic bulk reassignment (7.9). */
 export function failedItems(error: unknown): readonly FailedItem[] {
   if (!(error instanceof ApiError)) return [];
-  const raw = error.problem?.['errors'];
+  const raw = error.problem?.errors;
   if (!Array.isArray(raw)) return [];
   return raw
     .filter((e): e is { id: unknown; reason: unknown } => typeof e === 'object' && e !== null)

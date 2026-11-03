@@ -80,6 +80,6 @@ export function useShortcuts(
       handler();
     };
     window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
+    return () => { window.removeEventListener('keydown', onKeyDown); };
   }, [config]);
 }

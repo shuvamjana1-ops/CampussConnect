@@ -95,7 +95,7 @@ export default function Privacy() {
   const decide = useMutation({
     mutationFn: async (v: { purpose: string; decision: 'granted' | 'declined' | 'withdrawn' }) => {
       try {
-        await apiRequest<void>(`/me/consents/${encodeURIComponent(v.purpose)}`, {
+        await apiRequest<unknown>(`/me/consents/${encodeURIComponent(v.purpose)}`, {
           method: 'PUT',
           body: { decision: v.decision },
         });
@@ -107,13 +107,13 @@ export default function Privacy() {
       setMessage({ ok: true, text: t('privacy.consent.saved') });
       await queryClient.invalidateQueries({ queryKey: ['student', 'consents'] });
     },
-    onError: () => setMessage({ ok: false, text: online ? t('privacy.consent.failed') : t('needsConnection') }),
+    onError: () => { setMessage({ ok: false, text: online ? t('privacy.consent.failed') : t('needsConnection') }); },
   });
 
   const request = useMutation({
     mutationFn: async (kind: 'export' | 'erasure') => {
       try {
-        await apiRequest<void>('/me/data-requests', { method: 'POST', body: { kind } });
+        await apiRequest<unknown>('/me/data-requests', { method: 'POST', body: { kind } });
       } catch {
         // mock submit in preview
       }
@@ -123,7 +123,7 @@ export default function Privacy() {
       setConfirmErasure(false);
       await queryClient.invalidateQueries({ queryKey: ['student', 'data-requests'] });
     },
-    onError: () => setMessage({ ok: false, text: online ? t('privacy.request.failed') : t('needsConnection') }),
+    onError: () => { setMessage({ ok: false, text: online ? t('privacy.request.failed') : t('needsConnection') }); },
   });
 
   function run(action: () => void): void {
@@ -223,7 +223,7 @@ export default function Privacy() {
                     <Button
                       variant="secondary"
                       isDisabled={decide.isPending}
-                      onPress={() => run(() => decide.mutate({ purpose: c.purpose, decision: 'withdrawn' }))}
+                      onPress={() => { run(() => { decide.mutate({ purpose: c.purpose, decision: 'withdrawn' }); }); }}
                     >
                       {t('privacy.consent.withdraw')}
                     </Button>
@@ -231,7 +231,7 @@ export default function Privacy() {
                     <>
                       <Button
                         isDisabled={decide.isPending}
-                        onPress={() => run(() => decide.mutate({ purpose: c.purpose, decision: 'granted' }))}
+                        onPress={() => { run(() => { decide.mutate({ purpose: c.purpose, decision: 'granted' }); }); }}
                       >
                         {t('privacy.consent.grant')}
                       </Button>
@@ -239,7 +239,7 @@ export default function Privacy() {
                         <Button
                           variant="secondary"
                           isDisabled={decide.isPending}
-                          onPress={() => run(() => decide.mutate({ purpose: c.purpose, decision: 'declined' }))}
+                          onPress={() => { run(() => { decide.mutate({ purpose: c.purpose, decision: 'declined' }); }); }}
                         >
                           {t('privacy.consent.decline')}
                         </Button>
@@ -266,10 +266,10 @@ export default function Privacy() {
         </p>
 
         <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
-          <Button isDisabled={request.isPending} onPress={() => run(() => request.mutate('export'))}>
+          <Button isDisabled={request.isPending} onPress={() => { run(() => { request.mutate('export'); }); }}>
             📥 {t('privacy.request.export')}
           </Button>
-          <Button variant="danger" isDisabled={request.isPending} onPress={() => setConfirmErasure(true)}>
+          <Button variant="danger" isDisabled={request.isPending} onPress={() => { setConfirmErasure(true); }}>
             🗑️ {t('privacy.request.erasure')}
           </Button>
         </div>
@@ -280,10 +280,10 @@ export default function Privacy() {
               <strong style={{ display: 'block', marginBottom: '0.25rem' }}>Confirm Data Erasure Request?</strong>
               <p style={{ margin: '0 0 0.75rem', fontSize: '0.85rem' }}>{t('privacy.request.erasureConfirm')}</p>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <Button variant="danger" isDisabled={request.isPending} onPress={() => run(() => request.mutate('erasure'))}>
+                <Button variant="danger" isDisabled={request.isPending} onPress={() => { run(() => { request.mutate('erasure'); }); }}>
                   Yes, Request Erasure
                 </Button>
-                <Button variant="secondary" onPress={() => setConfirmErasure(false)}>
+                <Button variant="secondary" onPress={() => { setConfirmErasure(false); }}>
                   {t('action.cancel')}
                 </Button>
               </div>

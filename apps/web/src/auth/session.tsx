@@ -89,7 +89,7 @@ export function SessionProvider({ children }: { readonly children: ReactNode }) 
       } catch (error) {
         // If unauthenticated on server or running in local frontend demo mode, check local storage
         const savedRole = localStorage.getItem(STORAGE_KEY) as (RouteGroup | 'all') | null;
-        if (savedRole && DEMO_PROFILES[savedRole]) {
+        if (savedRole && savedRole in DEMO_PROFILES) {
           return DEMO_PROFILES[savedRole];
         }
         if (error instanceof ApiError && error.status === 401) {
@@ -103,7 +103,7 @@ export function SessionProvider({ children }: { readonly children: ReactNode }) 
 
   const signOut = useCallback(async () => {
     try {
-      await apiRequest<void>('/auth/logout', { method: 'POST' });
+      await apiRequest<unknown>('/auth/logout', { method: 'POST' });
     } catch {
       // Ignore network errors on logout in demo mode
     }

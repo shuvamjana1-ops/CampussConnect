@@ -134,13 +134,12 @@ export default function Queue() {
   const bulk = useMutation({
     mutationFn: async () => {
       try {
-        return await apiRequest<void>('/tickets/bulk-reassign', {
+        await apiRequest<unknown>('/tickets/bulk-reassign', {
           method: 'POST',
           body: { ticketIds: [...selected], assigneeId: assignee.trim(), reason: reason.trim() },
         });
       } catch {
         // Mock success in preview mode
-        return;
       }
     },
     onSuccess: () => {
@@ -158,10 +157,10 @@ export default function Queue() {
   });
 
   useShortcuts(config, {
-    next: () => setCursorIndex((i) => Math.min(i + 1, Math.max(rows.length - 1, 0))),
-    prev: () => setCursorIndex((i) => Math.max(i - 1, 0)),
+    next: () => { setCursorIndex((i) => Math.min(i + 1, Math.max(rows.length - 1, 0))); },
+    prev: () => { setCursorIndex((i) => Math.max(i - 1, 0)); },
     open: () => {
-      if (current) navigate(`/workbench/tickets/${current.id}`);
+      if (current) void navigate(`/workbench/tickets/${current.id}`);
     },
     assign: () => {
       if (!current) return;
@@ -178,7 +177,7 @@ export default function Queue() {
         bulkRef.current.scrollIntoView({ behavior: 'smooth' });
       }
     },
-    help: () => setShowHelp((v) => !v),
+    help: () => { setShowHelp((v) => !v); },
   });
 
   const selectedCount = selected.size;
@@ -196,7 +195,7 @@ export default function Queue() {
           </p>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-          <Button variant="secondary" onPress={() => setShowHelp((v) => !v)}>
+          <Button variant="secondary" onPress={() => { setShowHelp((v) => !v); }}>
             <span>⌨️</span> Shortcuts (?)
           </Button>
           <Link to="/workbench/grievances" className="cc-button cc-button-secondary">
@@ -208,7 +207,7 @@ export default function Queue() {
         </div>
       </div>
 
-      {showHelp && <ShortcutHelp config={config} onChange={setConfig} onClose={() => setShowHelp(false)} />}
+      {showHelp && <ShortcutHelp config={config} onChange={setConfig} onClose={() => { setShowHelp(false); }} />}
 
       {/* Filter and Triage Navigation Bar */}
       <div className="cc-card" style={{ marginBottom: '1.25rem', padding: '1rem' }}>
@@ -242,7 +241,7 @@ export default function Queue() {
               <button
                 key={p}
                 type="button"
-                onClick={() => setFilterPriority(p)}
+                onClick={() => { setFilterPriority(p); }}
                 style={{
                   padding: '0.25rem 0.6rem',
                   borderRadius: '4px',
@@ -266,7 +265,7 @@ export default function Queue() {
               className="cc-input"
               placeholder="Search / or filter queue..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => { setSearchQuery(e.target.value); }}
               aria-label="Search workbench queue"
             />
           </div>

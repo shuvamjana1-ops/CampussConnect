@@ -125,12 +125,12 @@ export default function TicketView() {
   const reply = useMutation({
     mutationFn: async () => {
       try {
-        return await apiRequest<void>(`/tickets/${encodeURIComponent(ticketId)}/messages`, {
+        await apiRequest<unknown>(`/tickets/${encodeURIComponent(ticketId)}/messages`, {
           method: 'POST',
           body: { body: body.trim(), visibility },
         });
       } catch {
-        return;
+        // Mock fallback
       }
     },
     onSuccess: () => {
@@ -138,18 +138,18 @@ export default function TicketView() {
       setError(null);
       void queryClient.invalidateQueries({ queryKey: ['workbench', 'ticket', ticketId] });
     },
-    onError: (err) => setError(problemMessage(err)),
+    onError: (err) => { setError(problemMessage(err)); },
   });
 
   const correctCategory = useMutation({
     mutationFn: async (chosenCategory: string) => {
       try {
-        return await apiRequest<void>(`/tickets/${encodeURIComponent(ticketId)}/category`, {
+        await apiRequest<unknown>(`/tickets/${encodeURIComponent(ticketId)}/category`, {
           method: 'PATCH',
           body: { category: chosenCategory, reason: 'Staff manual triage correction' },
         });
       } catch {
-        return;
+        // Mock fallback
       }
     },
     onSuccess: () => {
@@ -165,12 +165,12 @@ export default function TicketView() {
   const setEtaMutation = useMutation({
     mutationFn: async () => {
       try {
-        return await apiRequest<void>(`/tickets/${encodeURIComponent(ticketId)}/eta`, {
+        await apiRequest<unknown>(`/tickets/${encodeURIComponent(ticketId)}/eta`, {
           method: 'PATCH',
           body: { eta: new Date(eta).toISOString(), reason: 'Evaluation extension' },
         });
       } catch {
-        return;
+        // Mock fallback
       }
     },
     onSuccess: () => {
@@ -281,7 +281,7 @@ export default function TicketView() {
                 className="cc-input"
                 style={{ width: 'auto', minWidth: '220px' }}
                 value={categoryChoice || data.category}
-                onChange={(e) => setCategoryChoice(e.target.value)}
+                onChange={(e) => { setCategoryChoice(e.target.value); }}
               >
                 {data.categoryOptions.map((opt) => (
                   <option key={opt} value={opt}>
@@ -291,7 +291,7 @@ export default function TicketView() {
               </select>
               <Button
                 variant="secondary"
-                onPress={() => correctCategory.mutate(categoryChoice || data.category)}
+                onPress={() => { correctCategory.mutate(categoryChoice || data.category); }}
               >
                 Correct Routing
               </Button>
@@ -387,7 +387,7 @@ export default function TicketView() {
               <button
                 key={cr.id}
                 type="button"
-                onClick={() => setBody(cr.body)}
+                onClick={() => { setBody(cr.body); }}
                 className="cc-badge"
                 data-tone="neutral"
                 style={{ cursor: 'pointer', border: '1px solid #cbd5e1' }}
@@ -409,7 +409,7 @@ export default function TicketView() {
               rows={4}
               className="cc-input"
               value={body}
-              onChange={(e) => setBody(e.target.value)}
+              onChange={(e) => { setBody(e.target.value); }}
               placeholder="Write response to student or internal investigation note..."
               aria-label="Reply message body"
               style={{ minHeight: '100px' }}
@@ -423,7 +423,7 @@ export default function TicketView() {
                   type="radio"
                   name="visibility"
                   checked={visibility === 'public'}
-                  onChange={() => setVisibility('public')}
+                  onChange={() => { setVisibility('public'); }}
                 />
                 Public (Visible to Student)
               </label>
@@ -432,7 +432,7 @@ export default function TicketView() {
                   type="radio"
                   name="visibility"
                   checked={visibility === 'internal'}
-                  onChange={() => setVisibility('internal')}
+                  onChange={() => { setVisibility('internal'); }}
                 />
                 🔒 Internal Note Only
               </label>
@@ -459,7 +459,7 @@ export default function TicketView() {
                   description="e.g. 2026-11-06T17:00"
                 />
               </div>
-              <Button onPress={() => setEtaMutation.mutate()} isDisabled={!eta || setEtaMutation.isPending}>
+              <Button onPress={() => { setEtaMutation.mutate(); }} isDisabled={!eta || setEtaMutation.isPending}>
                 Update ETA
               </Button>
             </div>

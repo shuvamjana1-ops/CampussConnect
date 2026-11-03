@@ -24,7 +24,7 @@ export function NetworkOnlyAction({
   const online = useOnline();
   return (
     <>
-      <button type="button" aria-disabled={!online} onClick={() => (online ? onAction() : undefined)}>
+      <button type="button" aria-disabled={!online} onClick={() => { if (online) { onAction(); } }}>
         {children}
       </button>
       {online ? null : <span role="alert">{NEEDS_CONNECTION_MESSAGE}</span>}

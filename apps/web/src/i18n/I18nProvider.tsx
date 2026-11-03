@@ -41,7 +41,7 @@ export function I18nProvider({ children }: { readonly children: ReactNode }) {
   useEffect(() => {
     if (instance === null || profileLocale === null || profileLocale === instance.language) return;
     if (!availableLocales().some((l) => l.code === profileLocale)) return;
-    void changeLocale(instance, profileLocale).then(() => setLocaleState(profileLocale));
+    void changeLocale(instance, profileLocale).then(() => { setLocaleState(profileLocale); });
   }, [instance, profileLocale]);
 
   const setLocale = useCallback(
@@ -50,7 +50,7 @@ export function I18nProvider({ children }: { readonly children: ReactNode }) {
       await changeLocale(instance, code);
       setLocaleState(code);
       if (session !== null) {
-        await apiRequest<void>('/me/profile', { method: 'PATCH', body: { locale: code } }).catch(
+        await apiRequest<unknown>('/me/profile', { method: 'PATCH', body: { locale: code } }).catch(
           () => undefined, // Local storage already holds the choice; the profile syncs next time.
         );
       }

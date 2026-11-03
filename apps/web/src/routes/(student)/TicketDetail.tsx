@@ -76,7 +76,7 @@ export default function TicketDetail() {
                 actor: 'Ananya Das (Student)',
                 fromStatus: ticketNow.status,
                 toStatus: 'inProgress',
-                reason: `Disputed: ${String(body.reason ?? '')}`,
+                reason: typeof body.reason === 'string' ? `Disputed: ${body.reason}` : 'Disputed',
               },
             ],
           },
@@ -397,10 +397,10 @@ export default function TicketDetail() {
 
               {panel === 'none' && (
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <Button onPress={() => setPanel('confirm')}>
+                  <Button onPress={() => { setPanel('confirm'); }}>
                     ✓ {t('action.confirm')}
                   </Button>
-                  <Button variant="secondary" onPress={() => setPanel('dispute')}>
+                  <Button variant="secondary" onPress={() => { setPanel('dispute'); }}>
                     {t('action.dispute')}
                   </Button>
                 </div>
@@ -416,7 +416,7 @@ export default function TicketDetail() {
                 <div style={{ marginTop: '1rem', background: '#ffffff', padding: '1rem', borderRadius: '8px', border: '1px solid #a7f3d0' }}>
                   <CsatForm onSubmit={confirm} />
                   <div style={{ marginTop: '0.5rem' }}>
-                    <Button variant="secondary" onPress={() => setPanel('none')}>
+                    <Button variant="secondary" onPress={() => { setPanel('none'); }}>
                       {t('action.cancel')}
                     </Button>
                   </div>
@@ -436,7 +436,7 @@ export default function TicketDetail() {
                     maxLength={REASON_MAX * 2}
                     aria-invalid={reasonError !== null}
                     aria-describedby="dispute-hint"
-                    onChange={(e) => setReason(e.target.value)}
+                    onChange={(e) => { setReason(e.target.value); }}
                     placeholder="Explain why the resolution was incomplete or unsatisfactory..."
                     style={{ width: '100%', marginBottom: '0.35rem' }}
                   />
@@ -447,7 +447,7 @@ export default function TicketDetail() {
                     <Button type="submit" isDisabled={busy}>
                       {t('dispute.submit')}
                     </Button>
-                    <Button variant="secondary" onPress={() => setPanel('none')}>
+                    <Button variant="secondary" onPress={() => { setPanel('none'); }}>
                       {t('action.cancel')}
                     </Button>
                   </div>
@@ -477,13 +477,13 @@ export default function TicketDetail() {
                     <Button variant="danger" isDisabled={busy} onPress={() => void withdraw()}>
                       {t('action.withdrawYes')}
                     </Button>
-                    <Button variant="secondary" onPress={() => setPanel('none')}>
+                    <Button variant="secondary" onPress={() => { setPanel('none'); }}>
                       {t('action.cancel')}
                     </Button>
                   </div>
                 </div>
               ) : (
-                <Button variant="secondary" onPress={() => setPanel('withdraw')}>
+                <Button variant="secondary" onPress={() => { setPanel('withdraw'); }}>
                   {t('action.withdraw')}
                 </Button>
               )}

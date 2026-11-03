@@ -169,7 +169,10 @@ const LOCAL_KEY = 'campusconnect:saved_opportunities';
 function getSavedIds(): Set<string> {
   try {
     const raw = localStorage.getItem(LOCAL_KEY);
-    return raw ? new Set(JSON.parse(raw)) : new Set(['opp_merit_means_2026', 'opp_isro_summer_2026']);
+    const parsed: unknown = raw ? JSON.parse(raw) : null;
+    return Array.isArray(parsed)
+      ? new Set(parsed.filter((item): item is string => typeof item === 'string'))
+      : new Set(['opp_merit_means_2026', 'opp_isro_summer_2026']);
   } catch {
     return new Set(['opp_merit_means_2026', 'opp_isro_summer_2026']);
   }
@@ -182,7 +185,7 @@ function saveIds(ids: Set<string>): void {
 export function useOpportunities() {
   return useQuery<readonly Opportunity[]>({
     queryKey: ['student', 'opportunities'],
-    queryFn: async () => {
+    queryFn: () => {
       const saved = getSavedIds();
       return SEED_OPPORTUNITIES.map((opp) => ({
         ...opp,
@@ -196,7 +199,7 @@ export function useOpportunities() {
 export function useToggleSaveOpportunity() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (id: string) => {
+    mutationFn: (id: string): Promise<string> => {
       const saved = getSavedIds();
       if (saved.has(id)) {
         saved.delete(id);
@@ -204,7 +207,7 @@ export function useToggleSaveOpportunity() {
         saved.add(id);
       }
       saveIds(saved);
-      return id;
+      return Promise.resolve(id);
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['student', 'opportunities'] });

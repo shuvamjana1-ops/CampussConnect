@@ -24,8 +24,8 @@ export function useDrafts(): Draft[] {
 export function useOnline(): boolean {
   const [online, setOnline] = useState(navigator.onLine);
   useEffect(() => {
-    const up = (): void => setOnline(true);
-    const down = (): void => setOnline(false);
+    const up = (): void => { setOnline(true); };
+    const down = (): void => { setOnline(false); };
     window.addEventListener('online', up);
     window.addEventListener('offline', down);
     return () => {

@@ -60,25 +60,25 @@ export default function Opportunities() {
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
             <Button
               variant={activeTab === 'all' ? 'primary' : 'secondary'}
-              onPress={() => setActiveTab('all')}
+              onPress={() => { setActiveTab('all'); }}
             >
               All Opportunities ({opps.length})
             </Button>
             <Button
               variant={activeTab === 'Scholarship' ? 'primary' : 'secondary'}
-              onPress={() => setActiveTab('Scholarship')}
+              onPress={() => { setActiveTab('Scholarship'); }}
             >
               Scholarships ({opps.filter((o) => o.type === 'Scholarship').length})
             </Button>
             <Button
               variant={activeTab === 'Internship' ? 'primary' : 'secondary'}
-              onPress={() => setActiveTab('Internship')}
+              onPress={() => { setActiveTab('Internship'); }}
             >
               Internships ({opps.filter((o) => o.type === 'Internship').length})
             </Button>
             <Button
               variant={activeTab === 'saved' ? 'primary' : 'secondary'}
-              onPress={() => setActiveTab('saved')}
+              onPress={() => { setActiveTab('saved'); }}
             >
               Saved ({opps.filter((o) => o.isSaved).length})
             </Button>
@@ -147,7 +147,7 @@ export default function Opportunities() {
                   </div>
                   <button
                     type="button"
-                    onClick={() => toggleSave.mutate(opp.id)}
+                    onClick={() => { toggleSave.mutate(opp.id); }}
                     aria-label={opp.isSaved ? 'Remove from saved' : 'Save opportunity'}
                     style={{
                       background: 'none',
@@ -199,7 +199,7 @@ export default function Opportunities() {
               <div style={{ display: 'flex', gap: '0.5rem', borderTop: '1px solid #f1f5f9', paddingTop: '0.85rem' }}>
                 <Button
                   variant="secondary"
-                  onPress={() => setSelectedOpp(opp)}
+                  onPress={() => { setSelectedOpp(opp); }}
                 >
                   Why I Match & Docs
                 </Button>
@@ -234,7 +234,7 @@ export default function Opportunities() {
             justifyContent: 'center',
             padding: '1rem',
           }}
-          onClick={() => setSelectedOpp(null)}
+          onClick={() => { setSelectedOpp(null); }}
         >
           <div
             className="cc-card"
@@ -246,7 +246,7 @@ export default function Opportunities() {
               background: '#ffffff',
               padding: '1.75rem',
             }}
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => { e.stopPropagation(); }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
               <div>
@@ -267,7 +267,7 @@ export default function Opportunities() {
               </div>
               <button
                 type="button"
-                onClick={() => setSelectedOpp(null)}
+                onClick={() => { setSelectedOpp(null); }}
                 style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#64748b' }}
                 aria-label="Close dialog"
               >
@@ -393,7 +393,7 @@ export default function Opportunities() {
               >
                 Proceed to Application Portal ↗
               </a>
-              <Button variant="secondary" onPress={() => setSelectedOpp(null)}>
+              <Button variant="secondary" onPress={() => { setSelectedOpp(null); }}>
                 Close
               </Button>
             </div>
