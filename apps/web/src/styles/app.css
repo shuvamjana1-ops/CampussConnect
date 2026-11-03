@@ -1,4 +1,4 @@
-/* CampusFlow Next-Gen Design System */
+/* CampusConnect Next-Gen Design System */
 /* Clean, modern, responsive with Dark Mode and Strict Role Accent Themes */
 
 :root {
@@ -397,4 +397,29 @@ body {
   from { transform: translateY(12px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
+
+/* Floating Navigation Dock (macOS Liquid Glass) */
+.campusconnect-dock-container {
+  will-change: transform;
+}
+
+/* Dark Theme Dock High-Contrast Specification:
+   Ensures icons and tooltips are strictly black (#000000) over the translucent glass backdrop */
+[data-theme="dark"] .campusconnect-dock-container button,
+.dark .campusconnect-dock-container button {
+  color: #000000 !important;
+}
+
+[data-theme="dark"] .campusconnect-dock-container button svg,
+.dark .campusconnect-dock-container button svg {
+  color: #000000 !important;
+  stroke: #000000 !important;
+}
+
+[data-theme="dark"] .campusconnect-dock-container .dock-tooltip,
+.dark .campusconnect-dock-container .dock-tooltip {
+  color: #000000 !important;
+  background: rgba(255, 255, 255, 0.96) !important;
+}
+
 

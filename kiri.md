@@ -230,7 +230,7 @@ The objective of this engineering sprint was to take an initial hackathon protot
 |---|---|---|
 | `@campusconnect/contracts` | 92 / 92 | Schema sanitization, code-point bounds validation, problem details RFC compliance. |
 | `@campusconnect/ui` | 12 / 12 | Design system button primitives, role-based styling, accessible focus rings. |
-| `campusflow-enterprise-overhaul.test.tsx` | 14 / 14 | Module purges (Workbench, Executive, Operations removed), RBAC portal separation, sign-in doors. |
+| `campusconnect-enterprise-overhaul.test.tsx` | 14 / 14 | Module purges (Workbench, Executive, Operations removed), RBAC portal separation, sign-in doors. |
 | `institution-logo-section.test.tsx` | 10 / 10 | Logo customizer modal, emoji rejection regex, admin-only visibility. |
 | `student-ac-complaint-workflow.test.tsx` | 7 / 7 | AC marks discrepancy flagging, evaluator correction (`12/30` $\to$ `22/30`), AC personal data editor. |
 | `user-profile-and-details.test.tsx` | 5 / 5 | Profile photo upload, preset avatars, personal details form, layout header triggers. |

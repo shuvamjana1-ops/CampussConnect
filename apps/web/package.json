@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "lint": "eslint . --max-warnings=0",
     "test": "vitest run --passWithNoTests",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "check:types": "tsc --noEmit"
   },
   "dependencies": {
     "@campusconnect/contracts": "workspace:*",

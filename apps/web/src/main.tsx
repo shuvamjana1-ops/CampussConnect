@@ -10,6 +10,7 @@ import { registerServiceWorker } from './pwa/register';
 import { startSyncManager } from './pwa/sync-manager';
 import './styles.css';
 import './styles/app.css';
+import './styles/liquid-glass.css';
 
 const container = document.getElementById('root');
 if (container === null) throw new Error('Missing #root element');

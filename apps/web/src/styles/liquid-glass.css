@@ -1,0 +1,840 @@
+/**
+ * CampusConnect Liquid Glass Core Stylesheet
+ * macOS Sequoia / Apple VisionOS Glassmorphism
+ *
+ * Implements:
+ * 1. Three distinct glass material tiers (.glass, .glass-strong, .glass-subtle)
+ * 2. Soft layered elevation shadows & Apple radii (12px, 16-28px, 9999px)
+ * 3. Headings tight-tracking (-0.02em) with Apple SF Pro typography stack
+ * 4. Spring motion (cubic-bezier(0.32, 0.72, 0, 1), 200-400ms)
+ * 5. Role color palettes (Admin: Indigo/Purple, Staff: Teal/Green, Student: Blue/Orange/Pink)
+ * 6. Specular cursor tracking and floating blurred orbs wallpaper
+ * 7. Solid fallbacks & prefers-reduced-motion overrides
+ */
+
+/* ==========================================================================
+   1. Root CSS Variables (Light Mode Default)
+   ========================================================================== */
+:root {
+  /* System Typography Stack */
+  --font-system: -apple-system, "SF Pro Display", "SF Pro Text", Inter, system-ui, sans-serif;
+  --tracking-heading: -0.02em;
+  --tracking-normal: 0em;
+  --tracking-wide: 0.04em;
+
+  /* Apple Radii Hierarchy */
+  --radius-sm: 8px;
+  --radius-btn: 12px;
+  --radius-input: 12px;
+  --radius-card-sm: 16px;
+  --radius-card: 20px;
+  --radius-card-lg: 24px;
+  --radius-modal: 28px;
+  --radius-pill: 9999px;
+  --radius-dock: 9999px;
+
+  /* Spring Motion Tokens */
+  --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-smooth: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --duration-fast: 200ms;
+  --duration-normal: 300ms;
+  --duration-slow: 400ms;
+
+  /* Canvas & Light Mode Base */
+  --bg-canvas: #f8fafc;
+  --bg-page: #f8fafc;
+  --text-main: #0f172a;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --text-inverse: #ffffff;
+  --focus-ring: #2563eb;
+
+  /* Standard Glass Tier (.glass) */
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-blur: 24px;
+  --glass-saturate: 180%;
+  --glass-border: rgba(255, 255, 255, 0.45);
+  --glass-inset-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.50);
+  --glass-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.06), 0 2px 8px -1px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.40);
+  --glass-fallback: #ffffff;
+
+  /* Strong Glass Tier (.glass-strong) */
+  --glass-strong-bg: rgba(255, 255, 255, 0.88);
+  --glass-strong-blur: 38px;
+  --glass-strong-border: rgba(255, 255, 255, 0.60);
+  --glass-strong-inset-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  --glass-strong-shadow: 0 20px 48px -4px rgba(0, 0, 0, 0.14), 0 8px 16px -2px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  --glass-strong-fallback: #ffffff;
+
+  /* Subtle Glass Tier (.glass-subtle) */
+  --glass-subtle-bg: rgba(255, 255, 255, 0.45);
+  --glass-subtle-blur: 16px;
+  --glass-subtle-saturate: 150%;
+  --glass-subtle-border: rgba(255, 255, 255, 0.30);
+  --glass-subtle-inset-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  --glass-subtle-shadow: 0 2px 8px -1px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  --glass-subtle-fallback: #f1f5f9;
+
+  /* Role Palettes */
+  /* 1. Admin: Indigo / Purple */
+  --admin-accent: #6366f1;
+  --admin-accent-hover: #4f46e5;
+  --admin-primary: #4338ca;
+  --admin-glow: rgba(99, 102, 241, 0.35);
+  --admin-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  --admin-surface: rgba(99, 102, 241, 0.08);
+  --admin-badge-text: #312e81;
+  --admin-orb-1: rgba(79, 70, 229, 0.55);
+  --admin-orb-2: rgba(168, 85, 247, 0.50);
+  --admin-orb-3: rgba(59, 130, 246, 0.40);
+  --admin-orb-4: rgba(139, 92, 246, 0.35);
+
+  /* 2. Staff: Teal / Green (Replacing former "worker" nomenclature) */
+  --staff-accent: #0d9488;
+  --staff-accent-hover: #0f766e;
+  --staff-primary: #0f766e;
+  --staff-glow: rgba(20, 184, 166, 0.35);
+  --staff-gradient: linear-gradient(135deg, #0d9488 0%, #10b981 100%);
+  --staff-surface: rgba(13, 148, 136, 0.08);
+  --staff-badge-text: #044e47;
+  --staff-orb-1: rgba(13, 148, 136, 0.55);
+  --staff-orb-2: rgba(16, 185, 129, 0.50);
+  --staff-orb-3: rgba(6, 182, 212, 0.40);
+  --staff-orb-4: rgba(20, 184, 166, 0.35);
+
+  /* Backwards compatibility aliases for worker */
+  --worker-accent: var(--staff-accent);
+  --worker-primary: var(--staff-primary);
+  --worker-glow: var(--staff-glow);
+  --worker-light: var(--staff-surface);
+
+  /* 3. Student: Royal Blue / Sunset Orange / Rose Pink */
+  --student-accent: #2563eb;
+  --student-accent-hover: #1d4ed8;
+  --student-primary: #1d4ed8;
+  --student-secondary: #f97316;
+  --student-tertiary: #ec4899;
+  --student-glow: rgba(37, 99, 235, 0.35);
+  --student-gradient: linear-gradient(135deg, #2563eb 0%, #f97316 50%, #ec4899 100%);
+  --student-surface: rgba(37, 99, 235, 0.08);
+  --student-badge-text: #1e3a8a;
+  --student-orb-1: rgba(37, 99, 235, 0.55);
+  --student-orb-2: rgba(249, 115, 22, 0.50);
+  --student-orb-3: rgba(236, 72, 153, 0.40);
+  --student-orb-4: rgba(99, 102, 241, 0.35);
+
+  /* Dynamic Active Role Fallback (Default to Student) */
+  --accent: var(--student-accent);
+  --accent-hover: var(--student-accent-hover);
+  --accent-glow: var(--student-glow);
+  --accent-gradient: var(--student-gradient);
+  --accent-surface: var(--student-surface);
+  --orb-1: var(--student-orb-1);
+  --orb-2: var(--student-orb-2);
+  --orb-3: var(--student-orb-3);
+  --orb-4: var(--student-orb-4);
+}
+
+/* ==========================================================================
+   2. Dark Mode Overrides
+   ========================================================================== */
+[data-theme="dark"],
+.dark {
+  --bg-canvas: #0b0f19;
+  --bg-page: #0b0f19;
+  --text-main: #f8fafc;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --text-inverse: #0b0f19;
+  --focus-ring: #60a5fa;
+
+  /* Standard Glass Tier (Dark) */
+  --glass-bg: rgba(20, 20, 32, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-inset-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  --glass-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.45), 0 2px 8px -1px rgba(0, 0, 0, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  --glass-fallback: #14141e;
+
+  /* Strong Glass Tier (Dark) */
+  --glass-strong-bg: rgba(18, 18, 28, 0.82);
+  --glass-strong-border: rgba(255, 255, 255, 0.16);
+  --glass-strong-inset-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.20);
+  --glass-strong-shadow: 0 20px 48px -4px rgba(0, 0, 0, 0.65), 0 8px 16px -2px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  --glass-strong-fallback: #101118;
+
+  /* Subtle Glass Tier (Dark) */
+  --glass-subtle-bg: rgba(255, 255, 255, 0.06);
+  --glass-subtle-border: rgba(255, 255, 255, 0.08);
+  --glass-subtle-inset-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.10);
+  --glass-subtle-shadow: 0 2px 8px -1px rgba(0, 0, 0, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --glass-subtle-fallback: #182234;
+
+  /* Dark Mode Role Surfaces & Orbs */
+  --admin-badge-text: #e0e7ff;
+  --admin-orb-1: rgba(67, 56, 202, 0.45);
+  --admin-orb-2: rgba(126, 34, 206, 0.40);
+  --admin-orb-3: rgba(30, 64, 175, 0.35);
+  --admin-orb-4: rgba(109, 40, 217, 0.30);
+
+  --staff-badge-text: #ccfbf1;
+  --staff-orb-1: rgba(15, 118, 110, 0.45);
+  --staff-orb-2: rgba(4, 120, 87, 0.40);
+  --staff-orb-3: rgba(14, 116, 144, 0.35);
+  --staff-orb-4: rgba(13, 148, 136, 0.30);
+
+  --student-badge-text: #eff6ff;
+  --student-orb-1: rgba(29, 78, 216, 0.45);
+  --student-orb-2: rgba(194, 65, 12, 0.40);
+  --student-orb-3: rgba(190, 24, 93, 0.35);
+  --student-orb-4: rgba(79, 70, 229, 0.30);
+}
+
+/* ==========================================================================
+   3. Role Mapping Selectors
+   ========================================================================== */
+[data-role="admin"],
+.role-admin {
+  --accent: var(--admin-accent);
+  --accent-hover: var(--admin-accent-hover);
+  --accent-glow: var(--admin-glow);
+  --accent-gradient: var(--admin-gradient);
+  --accent-surface: var(--admin-surface);
+  --orb-1: var(--admin-orb-1);
+  --orb-2: var(--admin-orb-2);
+  --orb-3: var(--admin-orb-3);
+  --orb-4: var(--admin-orb-4);
+}
+
+[data-role="staff"],
+[data-role="worker"],
+.role-staff,
+.role-worker {
+  --accent: var(--staff-accent);
+  --accent-hover: var(--staff-accent-hover);
+  --accent-glow: var(--staff-glow);
+  --accent-gradient: var(--staff-gradient);
+  --accent-surface: var(--staff-surface);
+  --orb-1: var(--staff-orb-1);
+  --orb-2: var(--staff-orb-2);
+  --orb-3: var(--staff-orb-3);
+  --orb-4: var(--staff-orb-4);
+}
+
+[data-role="student"],
+.role-student {
+  --accent: var(--student-accent);
+  --accent-hover: var(--student-accent-hover);
+  --accent-glow: var(--student-glow);
+  --accent-gradient: var(--student-gradient);
+  --accent-surface: var(--student-surface);
+  --orb-1: var(--student-orb-1);
+  --orb-2: var(--student-orb-2);
+  --orb-3: var(--student-orb-3);
+  --orb-4: var(--student-orb-4);
+}
+
+/* ==========================================================================
+   4. Glass Material Classes
+   ========================================================================== */
+/* Standard Glass (.glass, .glass-panel, .cc-glass-card) */
+.glass,
+.glass-panel,
+.cc-glass-card {
+  position: relative;
+  background: var(--glass-fallback);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--glass-shadow);
+  color: var(--text-primary);
+  transition: transform var(--duration-normal) var(--ease-spring),
+              box-shadow var(--duration-normal) var(--ease-spring),
+              border-color var(--duration-fast) ease,
+              background-color var(--duration-fast) ease;
+  overflow: hidden;
+}
+
+/* Strong Glass (.glass-strong) for Sidebar, Modals, Command Palette */
+.glass-strong {
+  position: relative;
+  background: var(--glass-strong-fallback);
+  background: var(--glass-strong-bg);
+  backdrop-filter: blur(var(--glass-strong-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-strong-blur)) saturate(var(--glass-saturate));
+  border: 1px solid var(--glass-strong-border);
+  border-radius: var(--radius-modal);
+  box-shadow: var(--glass-strong-shadow);
+  color: var(--text-primary);
+}
+
+/* Subtle Glass (.glass-subtle) for Inputs, Tabs, Tracks, Hover */
+.glass-subtle {
+  position: relative;
+  background: var(--glass-subtle-fallback);
+  background: var(--glass-subtle-bg);
+  backdrop-filter: blur(var(--glass-subtle-blur)) saturate(var(--glass-subtle-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-subtle-blur)) saturate(var(--glass-subtle-saturate));
+  border: 1px solid var(--glass-subtle-border);
+  border-radius: var(--radius-btn);
+  box-shadow: var(--glass-subtle-shadow);
+  color: var(--text-primary);
+}
+
+/* Interactive Elevation Card */
+.glass-interactive,
+.cc-glass-card-interactive {
+  cursor: pointer;
+  user-select: none;
+}
+
+.glass-interactive:hover,
+.cc-glass-card-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 36px -4px rgba(15, 23, 42, 0.12), 0 6px 16px -2px rgba(15, 23, 42, 0.08), var(--glass-inset-highlight);
+  border-color: rgba(255, 255, 255, 0.65);
+}
+
+[data-theme="dark"] .glass-interactive:hover,
+[data-theme="dark"] .cc-glass-card-interactive:hover,
+.dark .glass-interactive:hover,
+.dark .cc-glass-card-interactive:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.28);
+  box-shadow: 0 20px 48px -4px rgba(0, 0, 0, 0.65), 0 8px 20px -2px rgba(0, 0, 0, 0.4), var(--glass-inset-highlight);
+}
+
+.glass-interactive:active,
+.cc-glass-card-interactive:active {
+  transform: translateY(0) scale(0.99);
+  transition-duration: 0.12s;
+}
+
+.cc-glass-card-interactive:focus-visible {
+  outline: 3px solid var(--accent, #3b82f6);
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   5. Cursor-Following Specular Highlights
+   ========================================================================== */
+.cc-glass-spotlight {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+  opacity: var(--spotlight-opacity, 0);
+  transition: opacity 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+  background: radial-gradient(
+    400px circle at var(--mouse-x, -9999px) var(--mouse-y, -9999px),
+    rgba(255, 255, 255, 0.25),
+    transparent 60%
+  );
+  will-change: opacity;
+}
+
+[data-theme="dark"] .cc-glass-spotlight,
+.dark .cc-glass-spotlight {
+  background: radial-gradient(
+    400px circle at var(--mouse-x, -9999px) var(--mouse-y, -9999px),
+    rgba(255, 255, 255, 0.16),
+    transparent 60%
+  );
+}
+
+.cc-glass-border-spotlight {
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  z-index: 2;
+  opacity: var(--spotlight-opacity, 0);
+  transition: opacity 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+  background: radial-gradient(
+    320px circle at var(--mouse-x, -9999px) var(--mouse-y, -9999px),
+    rgba(255, 255, 255, 0.8),
+    transparent 60%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  will-change: opacity;
+}
+
+[data-theme="dark"] .cc-glass-border-spotlight,
+.dark .cc-glass-border-spotlight {
+  background: radial-gradient(
+    320px circle at var(--mouse-x, -9999px) var(--mouse-y, -9999px),
+    rgba(255, 255, 255, 0.5),
+    transparent 60%
+  );
+}
+
+/* ==========================================================================
+   6. Reusable Component Primitives
+   ========================================================================== */
+/* Primary Pill Button with Dynamic Glow */
+.glass-button-primary,
+.campusconnect-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 22px;
+  background: var(--accent-gradient);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-system);
+  font-size: 0.925rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 16px -2px var(--accent-glow), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  transition: transform var(--duration-fast) var(--ease-spring),
+              box-shadow var(--duration-fast) var(--ease-spring),
+              filter var(--duration-fast) ease;
+  text-decoration: none;
+  user-select: none;
+}
+
+.glass-button-primary:hover:not(:disabled),
+.campusconnect-pill-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -2px var(--accent-glow), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  filter: brightness(1.05);
+}
+
+.glass-button-primary:active:not(:disabled),
+.campusconnect-pill-btn:active:not(:disabled) {
+  transform: translateY(0) scale(0.97) !important;
+}
+
+/* Secondary Glass Pill Button */
+.glass-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 22px;
+  background: var(--glass-subtle-bg);
+  backdrop-filter: blur(var(--glass-subtle-blur)) saturate(var(--glass-subtle-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-subtle-blur)) saturate(var(--glass-subtle-saturate));
+  color: var(--text-primary);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-system);
+  font-size: 0.925rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--glass-subtle-shadow);
+  transition: transform var(--duration-fast) var(--ease-spring),
+              box-shadow var(--duration-fast) var(--ease-spring),
+              background var(--duration-fast) ease;
+  text-decoration: none;
+}
+
+.glass-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: var(--glass-bg);
+  box-shadow: var(--glass-shadow);
+  border-color: rgba(255, 255, 255, 0.60);
+}
+
+.glass-button:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Glass Form Inputs */
+.glass-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 14px;
+  background: var(--glass-subtle-bg);
+  backdrop-filter: blur(var(--glass-subtle-blur));
+  -webkit-backdrop-filter: blur(var(--glass-subtle-blur));
+  border: 1px solid var(--glass-subtle-border);
+  border-radius: var(--radius-input);
+  color: var(--text-primary);
+  font-family: var(--font-system);
+  font-size: 0.95rem;
+  box-shadow: var(--glass-subtle-shadow);
+  outline: none;
+  transition: border-color var(--duration-fast) ease,
+              box-shadow var(--duration-fast) ease;
+}
+
+.glass-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow), var(--glass-inset-highlight);
+}
+
+/* Translucent Glass Table */
+.glass-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-table th {
+  background: var(--glass-subtle-bg);
+  color: var(--text-muted);
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--glass-border);
+  text-align: left;
+}
+
+.glass-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--glass-subtle-border);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.glass-table tr:last-child td {
+  border-bottom: none;
+}
+
+.glass-table tr:hover td,
+.campusconnect-table-row:hover td,
+.campusconnect-table-row:hover {
+  background: var(--glass-subtle-bg);
+}
+
+[data-theme='dark'] .campusconnect-table-row:hover,
+.dark .campusconnect-table-row:hover {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+/* Segmented Control Track & Pill */
+.glass-segmented-control {
+  display: inline-flex;
+  position: relative;
+  padding: 4px;
+  background: var(--glass-subtle-bg);
+  backdrop-filter: blur(var(--glass-subtle-blur));
+  -webkit-backdrop-filter: blur(var(--glass-subtle-blur));
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--glass-subtle-border);
+  box-shadow: var(--glass-subtle-shadow);
+}
+
+.glass-segmented-item {
+  position: relative;
+  z-index: 2;
+  padding: 6px 16px;
+  border-radius: var(--radius-pill);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color var(--duration-fast) ease;
+}
+
+.glass-segmented-item.active {
+  color: var(--text-primary);
+  background: var(--glass-bg);
+  box-shadow: 0 2px 8px -1px rgba(0, 0, 0, 0.10), var(--glass-inset-highlight);
+}
+
+/* Bottom Floating Dock with Magnification */
+.glass-dock {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 18px;
+  border-radius: var(--radius-dock);
+  background: var(--glass-strong-bg);
+  backdrop-filter: blur(var(--glass-strong-blur)) saturate(190%);
+  -webkit-backdrop-filter: blur(var(--glass-strong-blur)) saturate(190%);
+  border: 1px solid var(--glass-strong-border);
+  box-shadow: var(--glass-strong-shadow);
+}
+
+.glass-dock-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--glass-subtle-bg);
+  border: 1px solid var(--glass-subtle-border);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: transform var(--duration-fast) var(--ease-spring),
+              box-shadow var(--duration-fast) var(--ease-spring),
+              background-color var(--duration-fast) ease;
+}
+
+.glass-dock-item:hover {
+  transform: translateY(-8px) scale(1.22);
+  box-shadow: 0 12px 24px -2px rgba(0, 0, 0, 0.20), 0 0 16px var(--accent-glow);
+  background: var(--accent-surface);
+}
+
+/* Apple Headings Tight-Tracking */
+h1, h2, h3, h4, h5, h6,
+.glass-heading {
+  font-family: var(--font-system);
+  letter-spacing: var(--tracking-heading);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* ==========================================================================
+   7. Animated Floating Blurred Wallpaper Orbs & Mesh
+   ========================================================================== */
+.glass-wallpaper,
+.liquid-glass-wallpaper {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  overflow: hidden;
+  contain: strict;
+  user-select: none;
+  background-color: var(--bg-canvas);
+  pointer-events: none;
+  transition: background-color 0.4s ease;
+}
+
+.liquid-glass-wallpaper::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 15% 15%, rgba(255, 255, 255, 0.75) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 85%, rgba(241, 245, 249, 0.85) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+[data-theme="dark"] .liquid-glass-wallpaper,
+.dark .liquid-glass-wallpaper,
+.liquid-glass-wallpaper[data-theme-override="dark"] {
+  background-color: #07090e;
+}
+
+[data-theme="dark"] .liquid-glass-wallpaper::before,
+.dark .liquid-glass-wallpaper::before,
+.liquid-glass-wallpaper[data-theme-override="dark"]::before {
+  background:
+    radial-gradient(ellipse at 50% -20%, rgba(30, 41, 59, 0.45) 0%, transparent 70%),
+    radial-gradient(ellipse at 80% 100%, rgba(15, 23, 42, 0.6) 0%, transparent 70%);
+}
+
+.liquid-glass-mesh-overlay {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+  opacity: 0.6;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+[data-theme="dark"] .liquid-glass-mesh-overlay,
+.dark .liquid-glass-mesh-overlay {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  opacity: 0.35;
+}
+
+.glass-orb,
+.liquid-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(95px);
+  -webkit-filter: blur(95px);
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  pointer-events: none;
+  --orb-opacity: var(--orb-opacity-light, 0.3);
+  opacity: var(--orb-opacity);
+  transition: opacity 0.5s ease, background-color 0.5s ease;
+}
+
+[data-theme="dark"] .liquid-orb,
+.dark .liquid-orb,
+[data-theme-override="dark"] .liquid-orb {
+  --orb-opacity: var(--orb-opacity-dark, 0.52);
+  mix-blend-mode: screen;
+}
+
+.glass-orb-1 {
+  width: 520px;
+  height: 520px;
+  top: -100px;
+  left: -100px;
+  background: var(--orb-1);
+  animation: orbFloat1 22s ease-in-out infinite alternate;
+}
+
+.glass-orb-2 {
+  width: 480px;
+  height: 480px;
+  top: 30%;
+  right: -80px;
+  background: var(--orb-2);
+  animation: orbFloat2 26s ease-in-out infinite alternate;
+}
+
+.glass-orb-3 {
+  width: 550px;
+  height: 550px;
+  bottom: -120px;
+  left: 20%;
+  background: var(--orb-3);
+  animation: orbFloat3 28s ease-in-out infinite alternate;
+}
+
+.glass-orb-4 {
+  width: 420px;
+  height: 420px;
+  bottom: 25%;
+  right: 25%;
+  background: var(--orb-4);
+  animation: orbFloat4 24s ease-in-out infinite alternate;
+}
+
+@keyframes orbFloat1 {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  33% { transform: translate3d(85px, 65px, 0) scale(1.12); }
+  66% { transform: translate3d(-45px, 115px, 0) scale(0.94); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+
+@keyframes orbFloat2 {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  33% { transform: translate3d(-95px, 75px, 0) scale(0.92); }
+  66% { transform: translate3d(55px, -45px, 0) scale(1.14); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+
+@keyframes orbFloat3 {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  33% { transform: translate3d(75px, -85px, 0) scale(1.08); }
+  66% { transform: translate3d(-65px, -35px, 0) scale(0.95); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+
+@keyframes orbFloat4 {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  33% { transform: translate3d(-75px, -65px, 0) scale(1.10); }
+  66% { transform: translate3d(45px, 85px, 0) scale(0.96); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+
+/* Component Transition Keyframes */
+@keyframes cf-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes cf-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes cf-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Skeleton Loading Shimmer */
+@keyframes glass-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.glass-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--glass-subtle-bg) 25%,
+    rgba(255, 255, 255, 0.20) 50%,
+    var(--glass-subtle-bg) 75%
+  );
+  background-size: 200% 100%;
+  animation: glass-shimmer 2s infinite ease-in-out;
+  border-radius: var(--radius-btn);
+}
+
+/* ==========================================================================
+   8. Accessibility & Feature Queries
+   ========================================================================== */
+/* Accessible Focus Ring */
+:focus-visible,
+[data-focus-visible] {
+  outline: 3px solid var(--focus-ring) !important;
+  outline-offset: 2px !important;
+}
+
+/* Solid Fallback for Browsers Lacking Backdrop-Filter */
+@supports not (backdrop-filter: blur(20px)) {
+  .glass,
+  .glass-panel,
+  .cc-glass-card {
+    background: var(--glass-fallback) !important;
+  }
+  .glass-strong {
+    background: var(--glass-strong-fallback) !important;
+  }
+  .glass-subtle {
+    background: var(--glass-subtle-fallback) !important;
+  }
+}
+
+/* Reduced Motion Override */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .glass-orb,
+  .liquid-orb {
+    animation: none !important;
+    transform: translate3d(0, 0, 0) !important;
+  }
+  .cc-glass-card,
+  .cc-glass-card-interactive {
+    transform: none !important;
+    transition: none !important;
+  }
+  .cc-glass-card-interactive:hover,
+  .cc-glass-card-interactive:active {
+    transform: none !important;
+  }
+}

@@ -1,22 +1,33 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { useSearchParams } from 'react-router';
+import {
+  GraduationCap,
+  ClipboardList,
+  BookOpen,
+  CheckCircle2,
+  UserCheck,
+  Send,
+} from 'lucide-react';
 import { useSession } from '../../auth/session';
 import { AcademicSectionView } from '../../components/AcademicSectionView';
 import { ScholarshipDirectory } from '../../components/ScholarshipDirectory';
 import { UserProfileSection } from '../../components/UserProfileSection';
+import { GlassCard } from '../../components/GlassCard';
+import { StatTile } from '../../components/StatTile';
 import { useToast } from '../../components/Toast';
 import { isSupabaseConfigured, supabase, type DbTask } from '../../lib/supabase';
 import { complaintStore, type ComplaintData } from '../../services/complaintStore';
 
-export default function StudentDashboard() {
+export function StudentDashboard() {
   const { user, profile } = useSession();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get('tab') || 'dashboard';
   const { toast } = useToast();
+  const [, startTransition] = useTransition();
 
   const [complaints, setComplaints] = useState<readonly ComplaintData[]>(() => complaintStore.getComplaints());
   const [, setTasks] = useState<DbTask[]>([]);
-  const [, setLoading] = useState(true);
+  const [, setIsLoading] = useState(false);
 
   // New Grievance Form State
   const [title, setTitle] = useState('');
@@ -25,7 +36,7 @@ export default function StudentDashboard() {
   const [priority, setPriority] = useState<DbTask['priority']>('high');
   const [submitting, setSubmitting] = useState(false);
 
-  // Subscribe to complaintStore for real-time synchronization with AC & Admin/Worker updates
+  // Subscribe to complaintStore for real-time synchronization
   useEffect(() => {
     const unsubscribe = complaintStore.subscribe(() => {
       setComplaints(complaintStore.getComplaints());
@@ -35,7 +46,7 @@ export default function StudentDashboard() {
 
   useEffect(() => {
     async function loadStudentData() {
-      setLoading(true);
+      setIsLoading(true);
       try {
         if (isSupabaseConfigured && user) {
           const { data } = await supabase
@@ -48,7 +59,7 @@ export default function StudentDashboard() {
       } catch (e) {
         console.error('Error loading student data:', e);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     }
 
@@ -61,14 +72,25 @@ export default function StudentDashboard() {
 
     setSubmitting(true);
     try {
-      const priorityLabel = priority === 'urgent' ? 'Urgent (P0)' : priority === 'high' ? 'High (P1)' : 'Normal (P2)';
-      const typeLabel = category === 'Examination' || category === 'Academic' ? 'Academic' : category === 'Hostel' ? 'Hostel' : 'Infrastructure';
+      const priorityLabel =
+        priority === 'urgent' ? 'Urgent (P0)' : priority === 'high' ? 'High (P1)' : 'Normal (P2)';
+      const typeLabel =
+        category === 'Examination' || category === 'Academic'
+          ? 'Academic'
+          : category === 'Hostel'
+          ? 'Hostel'
+          : 'Infrastructure';
 
       const newComplaint = complaintStore.addComplaint({
         type: typeLabel,
         title,
         description,
-        department: category === 'Examination' ? 'Examination & Records Cell' : category === 'Hostel' ? 'Hostel Administration & Estates' : 'Campus Infrastructure & IT Services',
+        department:
+          category === 'Examination'
+            ? 'Examination & Records Cell'
+            : category === 'Hostel'
+            ? 'Hostel Administration & Estates'
+            : 'Campus Infrastructure & IT Services',
         priority: priorityLabel,
         currentStage: 'submitted',
         student: {
@@ -80,23 +102,22 @@ export default function StudentDashboard() {
           cgpa: '8.92',
           academicStatus: 'Good Standing',
         },
-        expectedResolutionTime: priority === 'urgent' ? 'Within 24 hours (Hall ticket cut-off)' : 'Within 48 hours',
+        expectedResolutionTime:
+          priority === 'urgent' ? 'Within 24 hours (Hall ticket cut-off)' : 'Within 48 hours',
       });
 
       if (isSupabaseConfigured && user) {
-        await supabase
-          .from('tasks')
-          .insert({
-            owner_id: user.id,
-            title,
-            description,
-            category,
-            priority,
-            status: 'pending',
-          });
+        await supabase.from('tasks').insert({
+          owner_id: user.id,
+          title,
+          description,
+          category,
+          priority,
+          status: 'pending',
+        });
       }
 
-      toast(`Grievance #${newComplaint.reference} lodged and dispatched to Admin and Worker panels!`, 'success');
+      toast(`Grievance #${newComplaint.reference} lodged and dispatched to Admin and Staff panels!`, 'success');
       setTitle('');
       setDescription('');
       setSearchParams({ tab: 'dashboard' });
@@ -107,167 +128,333 @@ export default function StudentDashboard() {
     }
   };
 
+  const activeComplaintsCount = complaints.filter((c) => c.currentStage !== 'resolved').length;
+
   return (
-    <div>
-      {/* Header */}
-      <div style={{ marginBottom: '2rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--student-primary)', fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', marginBottom: '0.4rem', letterSpacing: '0.05em' }}>
-          <span>🎓</span> STUDENT IDENTITY PORTAL · JIS UNIVERSITY
+    <div
+      className="cc-student-dashboard"
+      style={{
+        maxWidth: '1280px',
+        margin: '0 auto',
+        padding: '0 8px 3rem 8px',
+      }}
+    >
+      {/* Header Lockup */}
+      <GlassCard
+        material="glass"
+        style={{
+          padding: '24px 28px',
+          marginBottom: '24px',
+          borderLeft: '4px solid var(--student-primary, #1d4ed8)',
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
+          <div>
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '4px 12px',
+                borderRadius: '9999px',
+                background: 'rgba(37, 99, 235, 0.12)',
+                color: 'var(--student-primary, #1d4ed8)',
+                border: '1px solid rgba(37, 99, 235, 0.25)',
+                fontSize: '0.75rem',
+                fontWeight: 800,
+                letterSpacing: '0.04em',
+                marginBottom: '8px',
+              }}
+            >
+              <span>🎓</span>
+              <span>STUDENT IDENTITY PORTAL · JIS UNIVERSITY</span>
+            </div>
+
+            <h1
+              style={{
+                fontSize: '2rem',
+                fontWeight: 900,
+                letterSpacing: '-0.02em',
+                color: 'var(--text-main, #0f172a)',
+                margin: '0 0 6px 0',
+                lineHeight: 1.15,
+              }}
+            >
+              {profile?.full_name || 'Ananya Das'} · {profile?.department || 'Computer Science & Engineering'}
+            </h1>
+            <p
+              style={{
+                margin: 0,
+                color: 'var(--text-muted, #64748b)',
+                fontSize: '0.925rem',
+                maxWidth: '720px',
+                lineHeight: 1.45,
+              }}
+            >
+              Student Registration: <strong>JISU/2024/CSE/0842</strong> · RLS Encrypted Identity Sandbox · 4th Semester UG
+            </p>
+          </div>
+
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '6px 14px',
+              borderRadius: '9999px',
+              background: 'rgba(37, 99, 235, 0.12)',
+              color: '#1d4ed8',
+              border: '1px solid rgba(37, 99, 235, 0.25)',
+              fontSize: '0.785rem',
+              fontWeight: 700,
+            }}
+          >
+            <UserCheck size={14} />
+            <span>Active Student Standing</span>
+          </span>
         </div>
-        <h1 style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--text-main)', margin: '0 0 0.5rem', letterSpacing: '-0.02em' }}>
-          {profile?.full_name || 'Ananya Das'} · {profile?.department || 'Computer Science & Engineering'}
-        </h1>
-        <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.95rem' }}>
-          Student Registration: <strong>JISU/2024/CSE/0842</strong> · RLS Encrypted Identity Sandbox
-        </p>
+      </GlassCard>
+
+      {/* Metric Tiles */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+          gap: '16px',
+          marginBottom: '28px',
+        }}
+      >
+        <StatTile
+          label="Semester Attendance"
+          value="92.4%"
+          icon={<CheckCircle2 size={20} />}
+          trend={{ value: 'Eligible', isPositive: true }}
+          subtitle="Hall Ticket Examination Cleared"
+        />
+        <StatTile
+          label="Cumulative CGPA"
+          value="8.92 / 10"
+          icon={<GraduationCap size={20} />}
+          trend={{ value: 'Top 5%', isPositive: true }}
+          subtitle="First Class with Distinction"
+        />
+        <StatTile
+          label="Active Grievance Tickets"
+          value={activeComplaintsCount}
+          icon={<ClipboardList size={20} />}
+          trend={{ value: 'Live Triage', isPositive: activeComplaintsCount === 0 }}
+          subtitle="Direct SLA Tracking"
+        />
+        <StatTile
+          label="Academic Clearances"
+          value="CLEARED"
+          icon={<BookOpen size={20} />}
+          trend={{ value: '0 Holds', isPositive: true }}
+          subtitle="Library & Fees Dues Cleared"
+        />
       </div>
 
-      {/* Metrics Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>
-        <div className="cf-card" style={{ borderLeft: '4px solid #10b981' }}>
-          <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
-            Semester Attendance
-          </div>
-          <div style={{ fontSize: '2rem', fontWeight: 900, color: '#059669', margin: '0.4rem 0' }}>
-            92.4%
-          </div>
-          <div style={{ fontSize: '0.8rem', color: '#047857', fontWeight: 600 }}>
-            ✓ Hall Ticket Examination Eligible
-          </div>
-        </div>
-
-        <div className="cf-card" style={{ borderLeft: '4px solid var(--student-primary)' }}>
-          <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
-            Cumulative CGPA
-          </div>
-          <div style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--text-main)', margin: '0.4rem 0' }}>
-            8.92 / 10
-          </div>
-          <div style={{ fontSize: '0.8rem', color: 'var(--student-primary)', fontWeight: 600 }}>
-            Top 5% Batch Standing
-          </div>
-        </div>
-
-        <div className="cf-card" style={{ borderLeft: '4px solid var(--student-accent)' }}>
-          <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
-            Active Grievance Tickets
-          </div>
-          <div style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--student-accent)', margin: '0.4rem 0' }}>
-            {complaints.filter((c) => c.currentStage !== 'resolved').length}
-          </div>
-          <div style={{ fontSize: '0.8rem', color: '#c2410c', fontWeight: 600 }}>
-            Direct Triage & Live Tracking
-          </div>
-        </div>
-      </div>
-
-      {/* Tabs */}
-      <div style={{ display: 'flex', gap: '0.5rem', borderBottom: '1px solid var(--border-subtle)', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-        <button
-          type="button"
-          onClick={() => setSearchParams({ tab: 'dashboard' })}
-          className={`cf-btn ${activeTab === 'dashboard' ? 'cf-btn-student' : 'cf-btn-secondary'}`}
-          style={{ borderRadius: '8px 8px 0 0', borderBottom: 'none' }}
-        >
-          📋 My Grievances & Progress ({complaints.length})
-        </button>
-        <button
-          type="button"
-          onClick={() => setSearchParams({ tab: 'lodge' })}
-          className={`cf-btn ${activeTab === 'lodge' ? 'cf-btn-student' : 'cf-btn-secondary'}`}
-          style={{ borderRadius: '8px 8px 0 0', borderBottom: 'none' }}
-        >
-          ➕ Lodge New Ticket
-        </button>
-        <button
-          type="button"
-          onClick={() => setSearchParams({ tab: 'scholarships' })}
-          className={`cf-btn ${activeTab === 'scholarships' ? 'cf-btn-student' : 'cf-btn-secondary'}`}
-          style={{ borderRadius: '8px 8px 0 0', borderBottom: 'none' }}
-        >
-          🎯 Indian Scholarship Gateway
-        </button>
-        <button
-          type="button"
-          onClick={() => setSearchParams({ tab: 'ac' })}
-          className={`cf-btn ${activeTab === 'ac' ? 'cf-btn-student' : 'cf-btn-secondary'}`}
-          style={{ borderRadius: '8px 8px 0 0', borderBottom: 'none' }}
-        >
-          📊 Academic Section (AC) Log
-        </button>
-        <button
-          type="button"
-          onClick={() => setSearchParams({ tab: 'profile' })}
-          className={`cf-btn ${activeTab === 'profile' ? 'cf-btn-student' : 'cf-btn-secondary'}`}
-          style={{ borderRadius: '8px 8px 0 0', borderBottom: 'none' }}
-        >
-          👤 Profile Photo &amp; Details
-        </button>
+      {/* Segmented Control Tabs */}
+      <div
+        className="glass-subtle"
+        style={{
+          display: 'inline-flex',
+          padding: '4px',
+          borderRadius: '16px',
+          marginBottom: '24px',
+          gap: '4px',
+          maxWidth: '100%',
+          overflowX: 'auto',
+        }}
+      >
+        {[
+          { key: 'dashboard', label: `📋 My Grievances & Progress (${complaints.length})` },
+          { key: 'lodge', label: '➕ Lodge New Ticket' },
+          { key: 'scholarships', label: '🎯 Indian Scholarship Gateway' },
+          { key: 'ac', label: '📊 Academic Section (AC) Log' },
+          { key: 'profile', label: '👤 Profile Photo & Details' },
+        ].map((tab) => {
+          const isActive = activeTab === tab.key;
+          return (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => {
+                startTransition(() => {
+                  setSearchParams({ tab: tab.key });
+                });
+              }}
+              style={{
+                border: 'none',
+                background: isActive
+                  ? 'linear-gradient(135deg, var(--student-primary, #1d4ed8), var(--accent, #2563eb))'
+                  : 'transparent',
+                color: isActive ? '#ffffff' : 'var(--text-main, #0f172a)',
+                padding: '8px 18px',
+                borderRadius: '12px',
+                fontSize: '0.825rem',
+                fontWeight: isActive ? 700 : 600,
+                cursor: 'pointer',
+                boxShadow: isActive ? '0 4px 12px rgba(37, 99, 235, 0.35)' : 'none',
+                transition: 'all 180ms cubic-bezier(0.32, 0.72, 0, 1)',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Tab 1: Grievance Tracking */}
       {activeTab === 'dashboard' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           {complaints.length === 0 ? (
-            <div className="cf-card cf-empty-state">
-              <div className="cf-empty-icon">📭</div>
-              <h3 style={{ margin: '0 0 0.5rem' }}>No Active Grievance Tickets</h3>
-              <p style={{ margin: '0 0 1rem' }}>You currently have zero pending issues lodged.</p>
+            <GlassCard material="glass" style={{ padding: '40px', textAlign: 'center' }}>
+              <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>📭</div>
+              <h3 style={{ margin: '0 0 8px 0', fontSize: '1.25rem', fontWeight: 800 }}>
+                No Active Grievance Tickets
+              </h3>
+              <p style={{ margin: '0 0 18px 0', color: 'var(--text-muted, #64748b)', fontSize: '0.9rem' }}>
+                You currently have zero pending issues lodged. All academic records are up to date.
+              </p>
               <button
                 type="button"
                 onClick={() => setSearchParams({ tab: 'lodge' })}
-                className="cf-btn cf-btn-student"
+                style={{
+                  padding: '10px 22px',
+                  borderRadius: '12px',
+                  border: 'none',
+                  background: 'linear-gradient(135deg, var(--student-primary, #1d4ed8), var(--accent, #2563eb))',
+                  color: '#ffffff',
+                  fontWeight: 700,
+                  fontSize: '0.85rem',
+                  cursor: 'pointer',
+                }}
               >
                 + Lodge Your First Grievance
               </button>
-            </div>
+            </GlassCard>
           ) : (
             complaints.map((c) => {
-              const currentStep = c.currentStage === 'resolved' ? 4 : c.currentStage === 'assigned_to_staff' ? 3 : c.currentStage === 'under_review' ? 2 : 1;
+              const currentStep =
+                c.currentStage === 'resolved'
+                  ? 4
+                  : c.currentStage === 'assigned_to_staff'
+                  ? 3
+                  : c.currentStage === 'under_review'
+                  ? 2
+                  : 1;
               const isP0 = c.priority.includes('P0');
               const latestEvent = c.timeline[c.timeline.length - 1];
 
               return (
-                <div key={c.id} className="cf-card cf-card-hover">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1rem' }}>
+                <GlassCard key={c.id} material="glass" style={{ padding: '24px' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'flex-start',
+                      flexWrap: 'wrap',
+                      gap: '16px',
+                      marginBottom: '20px',
+                    }}
+                  >
                     <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                        <span className={`cf-status-badge ${isP0 ? 'cf-status-urgent' : 'cf-status-pending'}`}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
+                        <span
+                          style={{
+                            display: 'inline-block',
+                            padding: '2px 8px',
+                            borderRadius: '9999px',
+                            fontSize: '0.725rem',
+                            fontWeight: 700,
+                            background: isP0 ? 'rgba(239, 68, 68, 0.15)' : 'rgba(245, 158, 11, 0.15)',
+                            color: isP0 ? '#dc2626' : '#d97706',
+                          }}
+                        >
                           {c.priority}
                         </span>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted, #64748b)', textTransform: 'uppercase' }}>
                           Category: {c.type}
                         </span>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted, #64748b)', fontFamily: 'monospace' }}>
                           · {c.reference}
                         </span>
                         {c.assignedStaffName && (
-                          <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '4px', background: 'var(--bg-surface-subtle)', color: 'var(--text-main)', fontWeight: 600 }}>
+                          <span
+                            className="glass-subtle"
+                            style={{
+                              fontSize: '0.75rem',
+                              padding: '2px 10px',
+                              borderRadius: '9999px',
+                              color: 'var(--text-main, #0f172a)',
+                              fontWeight: 600,
+                            }}
+                          >
                             👨‍🏫 Assigned: {c.assignedStaffName}
                           </span>
                         )}
                       </div>
-                      <h3 style={{ margin: '0 0 6px', fontSize: '1.2rem', color: 'var(--text-main)', fontWeight: 800 }}>
+
+                      <h3 style={{ margin: '0 0 6px 0', fontSize: '1.25rem', color: 'var(--text-main, #0f172a)', fontWeight: 800 }}>
                         {c.title}
                       </h3>
-                      <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+                      <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-muted, #64748b)', lineHeight: 1.45 }}>
                         {c.description}
                       </p>
                     </div>
 
-                    <span className={`cf-status-badge cf-status-${c.currentStage === 'resolved' ? 'completed' : 'in_progress'}`} style={{ fontSize: '0.85rem', padding: '6px 12px' }}>
+                    <span
+                      style={{
+                        padding: '6px 14px',
+                        borderRadius: '9999px',
+                        fontSize: '0.8rem',
+                        fontWeight: 700,
+                        background: currentStep === 4 ? 'rgba(16, 185, 129, 0.15)' : 'rgba(37, 99, 235, 0.15)',
+                        color: currentStep === 4 ? '#059669' : '#1d4ed8',
+                        border: `1px solid ${currentStep === 4 ? 'rgba(16, 185, 129, 0.25)' : 'rgba(37, 99, 235, 0.25)'}`,
+                      }}
+                    >
                       {c.currentStage.replace(/_/g, ' ').toUpperCase()}
                     </span>
                   </div>
 
-                  {/* 4-Stage Visual Progression Bar */}
-                  <div style={{ background: 'var(--bg-surface-subtle)', padding: '1.25rem', borderRadius: '12px', border: '1px solid var(--border-subtle)', marginBottom: '1rem' }}>
-                    <div style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '1rem', letterSpacing: '0.05em', display: 'flex', justifyContent: 'space-between' }}>
+                  {/* 4-Stage Visual Progression Tracking Bar */}
+                  <div
+                    className="glass-subtle cc-stepper-track"
+                    style={{
+                      padding: '20px 24px',
+                      borderRadius: '16px',
+                      marginBottom: '16px',
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: '0.75rem',
+                        fontWeight: 800,
+                        textTransform: 'uppercase',
+                        color: 'var(--text-muted, #64748b)',
+                        marginBottom: '16px',
+                        letterSpacing: '0.05em',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                      }}
+                    >
                       <span>Case Resolution Pipeline</span>
                       <span>Target SLA: {c.expectedResolutionTime || 'Within 24 hours'}</span>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative' }}>
-                      {/* Connecting line */}
+
+                    <div
+                      className="cc-stepper-nodes"
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        position: 'relative',
+                      }}
+                    >
+                      {/* Connecting Line */}
                       <div
                         style={{
                           position: 'absolute',
@@ -275,7 +462,7 @@ export default function StudentDashboard() {
                           left: '20px',
                           right: '20px',
                           height: '3px',
-                          background: 'var(--border-strong)',
+                          background: 'rgba(0, 0, 0, 0.08)',
                           zIndex: 1,
                         }}
                       />
@@ -286,48 +473,104 @@ export default function StudentDashboard() {
                           left: '20px',
                           width: `${((currentStep - 1) / 3) * 100}%`,
                           height: '3px',
-                          background: currentStep === 4 ? '#059669' : 'var(--student-primary)',
+                          background: currentStep === 4 ? '#059669' : 'var(--student-primary, #1d4ed8)',
                           zIndex: 2,
-                          transition: 'width 0.4s ease',
+                          transition: 'width 0.4s cubic-bezier(0.32, 0.72, 0, 1)',
                         }}
                       />
 
                       {/* Step 1 */}
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 3, position: 'relative' }}>
-                        <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: currentStep >= 1 ? 'var(--student-primary)' : 'var(--bg-surface)', border: `2px solid ${currentStep >= 1 ? 'var(--student-primary)' : 'var(--border-strong)'}`, color: currentStep >= 1 ? '#ffffff' : 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.8rem' }}>
+                        <div
+                          style={{
+                            width: '32px',
+                            height: '32px',
+                            borderRadius: '50%',
+                            background: currentStep >= 1 ? 'var(--student-primary, #1d4ed8)' : '#ffffff',
+                            border: `2px solid ${currentStep >= 1 ? 'var(--student-primary, #1d4ed8)' : 'rgba(0,0,0,0.1)'}`,
+                            color: currentStep >= 1 ? '#ffffff' : 'var(--text-muted, #64748b)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontWeight: 800,
+                            fontSize: '0.8rem',
+                          }}
+                        >
                           ✓
                         </div>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 700, marginTop: '6px', color: 'var(--text-main)' }}>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700, marginTop: '8px', color: 'var(--text-main, #0f172a)' }}>
                           Submitted
                         </span>
                       </div>
 
                       {/* Step 2 */}
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 3, position: 'relative' }}>
-                        <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: currentStep >= 2 ? 'var(--student-primary)' : 'var(--bg-surface)', border: `2px solid ${currentStep >= 2 ? 'var(--student-primary)' : 'var(--border-strong)'}`, color: currentStep >= 2 ? '#ffffff' : 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.8rem' }}>
+                        <div
+                          style={{
+                            width: '32px',
+                            height: '32px',
+                            borderRadius: '50%',
+                            background: currentStep >= 2 ? 'var(--student-primary, #1d4ed8)' : '#ffffff',
+                            border: `2px solid ${currentStep >= 2 ? 'var(--student-primary, #1d4ed8)' : 'rgba(0,0,0,0.1)'}`,
+                            color: currentStep >= 2 ? '#ffffff' : 'var(--text-muted, #64748b)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontWeight: 800,
+                            fontSize: '0.8rem',
+                          }}
+                        >
                           {currentStep >= 2 ? '✓' : '2'}
                         </div>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 700, marginTop: '6px', color: currentStep >= 2 ? 'var(--text-main)' : 'var(--text-muted)' }}>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700, marginTop: '8px', color: currentStep >= 2 ? 'var(--text-main, #0f172a)' : 'var(--text-muted, #64748b)' }}>
                           Under Review
                         </span>
                       </div>
 
                       {/* Step 3 */}
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 3, position: 'relative' }}>
-                        <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: currentStep >= 3 ? 'var(--student-primary)' : 'var(--bg-surface)', border: `2px solid ${currentStep >= 3 ? 'var(--student-primary)' : 'var(--border-strong)'}`, color: currentStep >= 3 ? '#ffffff' : 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.8rem' }}>
+                        <div
+                          style={{
+                            width: '32px',
+                            height: '32px',
+                            borderRadius: '50%',
+                            background: currentStep >= 3 ? 'var(--student-primary, #1d4ed8)' : '#ffffff',
+                            border: `2px solid ${currentStep >= 3 ? 'var(--student-primary, #1d4ed8)' : 'rgba(0,0,0,0.1)'}`,
+                            color: currentStep >= 3 ? '#ffffff' : 'var(--text-muted, #64748b)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontWeight: 800,
+                            fontSize: '0.8rem',
+                          }}
+                        >
                           {currentStep >= 3 ? '✓' : '3'}
                         </div>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 700, marginTop: '6px', color: currentStep >= 3 ? 'var(--text-main)' : 'var(--text-muted)' }}>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700, marginTop: '8px', color: currentStep >= 3 ? 'var(--text-main, #0f172a)' : 'var(--text-muted, #64748b)' }}>
                           Assigned to Staff
                         </span>
                       </div>
 
                       {/* Step 4 */}
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 3, position: 'relative' }}>
-                        <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: currentStep >= 4 ? '#059669' : 'var(--bg-surface)', border: `2px solid ${currentStep >= 4 ? '#059669' : 'var(--border-strong)'}`, color: currentStep >= 4 ? '#ffffff' : 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.8rem' }}>
+                        <div
+                          style={{
+                            width: '32px',
+                            height: '32px',
+                            borderRadius: '50%',
+                            background: currentStep >= 4 ? '#059669' : '#ffffff',
+                            border: `2px solid ${currentStep >= 4 ? '#059669' : 'rgba(0,0,0,0.1)'}`,
+                            color: currentStep >= 4 ? '#ffffff' : 'var(--text-muted, #64748b)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontWeight: 800,
+                            fontSize: '0.8rem',
+                          }}
+                        >
                           {currentStep >= 4 ? '✓' : '4'}
                         </div>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 700, marginTop: '6px', color: currentStep >= 4 ? '#059669' : 'var(--text-muted)' }}>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700, marginTop: '8px', color: currentStep >= 4 ? '#059669' : 'var(--text-muted, #64748b)' }}>
                           Resolved
                         </span>
                       </div>
@@ -335,14 +578,22 @@ export default function StudentDashboard() {
                   </div>
 
                   {latestEvent && (
-                    <div style={{ padding: '10px 14px', background: 'var(--bg-surface-subtle)', borderRadius: '10px', fontSize: '0.875rem', borderLeft: `4px solid ${currentStep === 4 ? '#059669' : 'var(--student-primary)'}` }}>
-                      <strong style={{ color: currentStep === 4 ? '#065f46' : 'var(--student-primary)' }}>
+                    <div
+                      className="glass-subtle"
+                      style={{
+                        padding: '12px 16px',
+                        borderRadius: '12px',
+                        fontSize: '0.875rem',
+                        borderLeft: `4px solid ${currentStep === 4 ? '#059669' : 'var(--student-primary, #1d4ed8)'}`,
+                      }}
+                    >
+                      <strong style={{ color: currentStep === 4 ? '#065f46' : 'var(--student-primary, #1d4ed8)' }}>
                         Latest Update ({latestEvent.actor}):
                       </strong>{' '}
                       {latestEvent.description}
                     </div>
                   )}
-                </div>
+                </GlassCard>
               );
             })
           )}
@@ -351,24 +602,25 @@ export default function StudentDashboard() {
 
       {/* Tab 2: Lodge New Ticket */}
       {activeTab === 'lodge' && (
-        <div className="cf-card" style={{ maxWidth: '720px', margin: '0 auto' }}>
-          <h2 style={{ margin: '0 0 0.5rem', fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-main)' }}>
+        <GlassCard material="glass" style={{ maxWidth: '720px', margin: '0 auto', padding: '28px' }}>
+          <h2 style={{ margin: '0 0 6px 0', fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-main, #0f172a)' }}>
             Lodge Student Grievance / Service Docket
           </h2>
-          <p style={{ margin: '0 0 1.5rem', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+          <p style={{ margin: '0 0 24px 0', color: 'var(--text-muted, #64748b)', fontSize: '0.9rem' }}>
             Direct submission into JIS University workflow. The ticket will be assigned directly to faculty or estates staff.
           </p>
 
-          <form onSubmit={handleLodgeGrievance} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <form onSubmit={handleLodgeGrievance} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.35rem' }}>
+                <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 700, marginBottom: '6px' }}>
                   Classification
                 </label>
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="cf-select"
+                  className="glass-subtle"
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1px solid rgba(0, 0, 0, 0.1)' }}
                 >
                   <option value="Examination">Examination & Marks Correction</option>
                   <option value="Hostel">Hostel & Accommodation</option>
@@ -379,13 +631,14 @@ export default function StudentDashboard() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.35rem' }}>
+                <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 700, marginBottom: '6px' }}>
                   Priority Level
                 </label>
                 <select
                   value={priority}
                   onChange={(e) => setPriority(e.target.value as any)}
-                  className="cf-select"
+                  className="glass-subtle"
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1px solid rgba(0, 0, 0, 0.1)' }}
                 >
                   <option value="urgent">Urgent — Exam Hall Ticket Cutoff</option>
                   <option value="high">High — Infrastructure / Hostel Stoppage</option>
@@ -396,7 +649,7 @@ export default function StudentDashboard() {
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.35rem' }}>
+              <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 700, marginBottom: '6px' }}>
                 Subject / Title
               </label>
               <input
@@ -405,12 +658,13 @@ export default function StudentDashboard() {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g., Internal Assessment Marks Discrepancy in CS302"
-                className="cf-input"
+                className="glass-subtle"
+                style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1px solid rgba(0, 0, 0, 0.1)' }}
               />
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.35rem' }}>
+              <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 700, marginBottom: '6px' }}>
                 Detailed Description & Location Details
               </label>
               <textarea
@@ -419,26 +673,39 @@ export default function StudentDashboard() {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="State the room number, course code, evaluator name, and dates involved..."
-                className="cf-textarea"
+                className="glass-subtle"
+                style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1px solid rgba(0, 0, 0, 0.1)', fontFamily: 'inherit' }}
               />
             </div>
 
             <button
               type="submit"
               disabled={submitting}
-              className="cf-btn cf-btn-student"
-              style={{ alignSelf: 'flex-start', padding: '10px 24px', fontSize: '0.95rem' }}
+              style={{
+                alignSelf: 'flex-start',
+                padding: '12px 28px',
+                borderRadius: '12px',
+                border: 'none',
+                background: 'linear-gradient(135deg, var(--student-primary, #1d4ed8), var(--accent, #2563eb))',
+                color: '#ffffff',
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                cursor: submitting ? 'not-allowed' : 'pointer',
+                boxShadow: '0 4px 14px rgba(37, 99, 235, 0.35)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+              }}
             >
-              {submitting ? 'Submitting...' : '✓ Submit Ticket to Triage Queue'}
+              <Send size={15} />
+              <span>{submitting ? 'Submitting...' : 'Submit Ticket to Triage Queue'}</span>
             </button>
           </form>
-        </div>
+        </GlassCard>
       )}
 
       {/* Tab 3: Scholarships & Internships */}
-      {activeTab === 'scholarships' && (
-        <ScholarshipDirectory />
-      )}
+      {activeTab === 'scholarships' && <ScholarshipDirectory />}
 
       {/* Tab 4: Academic Section (AC) Log */}
       {activeTab === 'ac' && (
@@ -446,9 +713,9 @@ export default function StudentDashboard() {
       )}
 
       {/* Tab 5: Profile Photo & Details */}
-      {activeTab === 'profile' && (
-        <UserProfileSection />
-      )}
+      {activeTab === 'profile' && <UserProfileSection />}
     </div>
   );
 }
+
+export default StudentDashboard;

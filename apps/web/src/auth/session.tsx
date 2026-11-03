@@ -148,7 +148,7 @@ interface SessionState {
   readonly updateProfile: (updates: Partial<Profile>) => Promise<{ success: boolean; error?: string }>;
 }
 
-const SessionContext = createContext<SessionState | null>(null);
+export const SessionContext = createContext<SessionState | null>(null);
 
 export function SessionProvider({ children }: { readonly children: ReactNode }) {
   const defaultInitialUser = DEMO_USERS_MAP['student1@demo.com']!.profile;

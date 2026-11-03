@@ -2224,4 +2224,23 @@ html, body {
   animation: cc-popover-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Dark Theme Dock High-Contrast Specification */
+[data-theme="dark"] .campusconnect-dock-container button,
+.dark .campusconnect-dock-container button {
+  color: #000000 !important;
+}
+
+[data-theme="dark"] .campusconnect-dock-container button svg,
+.dark .campusconnect-dock-container button svg {
+  color: #000000 !important;
+  stroke: #000000 !important;
+}
+
+[data-theme="dark"] .campusconnect-dock-container .dock-tooltip,
+.dark .campusconnect-dock-container .dock-tooltip {
+  color: #000000 !important;
+  background: rgba(255, 255, 255, 0.96) !important;
+}
+
+
 
