@@ -97,7 +97,7 @@ describe('Milestone 3 Challenger 1: Empirical Adversarial & Pipeline Stress Suit
   // =========================================================================
   describe('2. Service Worker & Tooling ESLint Globals (@campusconnect/tooling/eslint & sw.js)', () => {
     it('C1.6: Verifies tooling/eslint re-exports globals with serviceworker and browser scopes', () => {
-      const typedGlobals = globals as unknown as Record<string, Record<string, boolean>>;
+      const typedGlobals = globals;
       expect(typedGlobals).toBeDefined();
       expect(typedGlobals.serviceworker).toBeDefined();
       expect(typedGlobals.browser).toBeDefined();

@@ -3,10 +3,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { apiRequest } from '../../api/client';
+import { TaskDelayPreloader } from '../../components/TaskDelayPreloader';
+import { supabaseDb, type DbTicket } from '../../db/supabase';
 import {
   formatDue,
   problemMessage,
-  type Band,
   type CannedReply,
   type TicketDetail,
 } from './api';
@@ -81,20 +82,27 @@ export default function TicketView() {
   const [aiConfirmed, setAiConfirmed] = useState(false);
   const [eta, setEta] = useState('');
 
+  // Status management state for Admin / Staff Handler
+  const [selectedStatus, setSelectedStatus] = useState<DbTicket['status']>('inProgress');
+  const [statusReason, setStatusReason] = useState('');
+  const [statusUpdateSuccess, setStatusUpdateSuccess] = useState<string | null>(null);
+  const [delayTask, setDelayTask] = useState<{ active: boolean; message: string }>({ active: false, message: '' });
+
   const ticketId = id ?? 'tkt_exam_101';
 
   const query = useQuery({
     queryKey: ['workbench', 'ticket', ticketId],
     queryFn: async () => {
+      let base: TicketDetail;
       try {
-        return await apiRequest<TicketDetail>(`/tickets/${encodeURIComponent(ticketId)}`);
+        base = await apiRequest<TicketDetail>(`/tickets/${encodeURIComponent(ticketId)}`);
       } catch {
-        const seed = SEED_DETAILS[ticketId] ?? {
+        base = SEED_DETAILS[ticketId] ?? {
           id: ticketId,
           version: 1,
           title: `Campus Ticket ${ticketId}`,
           description: 'Student campus request details.',
-          band: 'P1' as Band,
+          band: 'P1',
           status: 'inProgress' as const,
           category: 'Examination › Marks Correction',
           categoryOptions: ['Examination › Marks Correction', 'Estates › Maintenance'],
@@ -105,7 +113,42 @@ export default function TicketView() {
           resolutionDueAt: new Date(Date.now() + 86400000 * 2).toISOString(),
           messages: [],
         };
-        return seed;
+      }
+
+      // Check Supabase DBMS for real-time status and synchronized messages
+      try {
+        const dbTicket = await supabaseDb.getTicketById(ticketId);
+        const dbReplies = await supabaseDb.getReplies(ticketId);
+
+        const mergedMessages = [...base.messages];
+        for (const rep of dbReplies) {
+          if (!mergedMessages.some((m) => m.body === rep.message)) {
+            mergedMessages.push({
+              id: rep.id,
+              visibility: rep.visibility,
+              author: rep.senderName,
+              body: rep.message,
+              createdAt: rep.createdAt,
+            });
+          }
+        }
+
+        let mappedStatus = base.status;
+        if (dbTicket) {
+          if (dbTicket.status === 'received') mappedStatus = 'new';
+          else if (dbTicket.status === 'inProgress') mappedStatus = 'inProgress';
+          else if (dbTicket.status === 'waitingOnStudent') mappedStatus = 'awaitingStudent';
+          else if (dbTicket.status === 'resolved') mappedStatus = 'resolvedPending';
+          else mappedStatus = 'closed';
+        }
+
+        return {
+          ...base,
+          status: mappedStatus,
+          messages: mergedMessages,
+        };
+      } catch {
+        return base;
       }
     },
   });
@@ -124,19 +167,60 @@ export default function TicketView() {
 
   const reply = useMutation({
     mutationFn: async () => {
+      setDelayTask({ active: true, message: 'Syncing reply to student portal via Supabase DBMS…' });
       try {
-        await apiRequest<unknown>(`/tickets/${encodeURIComponent(ticketId)}/messages`, {
-          method: 'POST',
-          body: { body: body.trim(), visibility },
+        await supabaseDb.addReply({
+          ticketId,
+          senderRole: 'admin',
+          senderName: 'Rahul Mehta (Exam Officer)',
+          message: body.trim(),
+          visibility,
         });
-      } catch {
-        // Mock fallback
+
+        try {
+          await apiRequest<unknown>(`/tickets/${encodeURIComponent(ticketId)}/messages`, {
+            method: 'POST',
+            body: { body: body.trim(), visibility },
+          });
+        } catch {
+          // Handled gracefully in mock / preview environment
+        }
+      } finally {
+        setDelayTask({ active: false, message: '' });
       }
     },
     onSuccess: () => {
       setBody('');
       setError(null);
       void queryClient.invalidateQueries({ queryKey: ['workbench', 'ticket', ticketId] });
+      void queryClient.invalidateQueries({ queryKey: ['student'] });
+    },
+    onError: (err) => { setError(problemMessage(err)); },
+  });
+
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ newStatus, reason }: { newStatus: DbTicket['status']; reason: string }) => {
+      setDelayTask({ active: true, message: `Updating ticket status to ${newStatus} in Supabase DBMS…` });
+      try {
+        await supabaseDb.updateTicketStatus(ticketId, newStatus, reason, 'Rahul Mehta (Exam Staff)');
+        try {
+          await apiRequest<unknown>(`/tickets/${encodeURIComponent(ticketId)}/status`, {
+            method: 'PATCH',
+            body: { status: newStatus, reason },
+          });
+        } catch {
+          // Mock fallback
+        }
+      } finally {
+        setDelayTask({ active: false, message: '' });
+      }
+    },
+    onSuccess: (_, vars) => {
+      setStatusUpdateSuccess(`Status successfully updated to: ${vars.newStatus.toUpperCase()}`);
+      setStatusReason('');
+      void queryClient.invalidateQueries({ queryKey: ['workbench', 'ticket', ticketId] });
+      void queryClient.invalidateQueries({ queryKey: ['student'] });
+      setTimeout(() => { setStatusUpdateSuccess(null); }, 4000);
     },
     onError: (err) => { setError(problemMessage(err)); },
   });
@@ -242,6 +326,85 @@ export default function TicketView() {
             <span>✖</span> <span>{error}</span>
           </div>
         )}
+      </div>
+
+      {/* Admin Problem Status Management Center */}
+      <div className="cc-card" style={{ marginBottom: '1.25rem', border: '2px solid #2563eb', background: '#f8fafc' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span style={{ fontSize: '1.25rem' }}>🛡️</span>
+            <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, color: '#1e3a8a' }}>
+              Admin Problem Status Controls
+            </h3>
+            <span className="cc-badge" style={{ background: '#fef3c7', color: '#92400e', border: '1px solid #fde68a' }}>
+              Supabase DBMS Sync
+            </span>
+          </div>
+          <div style={{ fontSize: '0.825rem', color: '#64748b' }}>
+            Active Stage: <strong style={{ color: '#1e40af' }}>{data.status.toUpperCase()}</strong>
+          </div>
+        </div>
+
+        {statusUpdateSuccess && (
+          <div className="cc-alert cc-alert-success" style={{ marginBottom: '0.75rem' }}>
+            <span>✓</span> <span>{statusUpdateSuccess}</span>
+          </div>
+        )}
+
+        <div style={{ marginBottom: '0.75rem' }}>
+          <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: '#334155', marginBottom: '0.4rem' }}>
+            Select New Status for this Problem:
+          </label>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            {[
+              { id: 'received', label: '📥 Received' },
+              { id: 'inProgress', label: '⚙️ In Progress' },
+              { id: 'waitingOnStudent', label: '⏳ Waiting on Student' },
+              { id: 'resolved', label: '✅ Resolved' },
+              { id: 'closed', label: '🏁 Closed' },
+            ].map((st) => (
+              <button
+                key={st.id}
+                type="button"
+                onClick={() => { setSelectedStatus(st.id as DbTicket['status']); }}
+                style={{
+                  padding: '0.45rem 0.85rem',
+                  borderRadius: '6px',
+                  border: selectedStatus === st.id ? '2px solid #2563eb' : '1px solid #cbd5e1',
+                  background: selectedStatus === st.id ? '#eff6ff' : '#ffffff',
+                  color: selectedStatus === st.id ? '#1e40af' : '#334155',
+                  fontWeight: selectedStatus === st.id ? 700 : 500,
+                  fontSize: '0.85rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                {st.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{ flex: 1, minWidth: '260px' }}>
+            <input
+              type="text"
+              className="cc-input"
+              value={statusReason}
+              onChange={(e) => { setStatusReason(e.target.value); }}
+              placeholder="Action note / reason for student (e.g. Evaluator updated marks to 22/30)..."
+              style={{ width: '100%', fontSize: '0.85rem' }}
+            />
+          </div>
+          <Button
+            isDisabled={updateStatusMutation.isPending}
+            onPress={() => {
+              updateStatusMutation.mutate({ newStatus: selectedStatus, reason: statusReason });
+            }}
+          >
+            {updateStatusMutation.isPending ? 'Updating Status…' : 'Update Problem Status'}
+          </Button>
+        </div>
       </div>
 
       {/* AI Recommendation Review Card */}
@@ -466,6 +629,11 @@ export default function TicketView() {
           </div>
         )}
       </div>
+
+      <TaskDelayPreloader
+        active={delayTask.active || updateStatusMutation.isPending || reply.isPending}
+        message={delayTask.message || 'Processing workbench request…'}
+      />
     </article>
   );
 }

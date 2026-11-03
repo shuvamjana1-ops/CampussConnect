@@ -26,13 +26,13 @@ async function attempt(id: string): Promise<void> {
   if (!draft || draft.status === 'draft') return;
   inFlight.add(id);
   clearTimer(id);
-  const attempts = draft.attempts + 1;
+  const attempts = (draft.attempts ?? 0) + 1;
   try {
     await putDraft({ ...draft, status: 'submitting', attempts });
-    await apiRequest(draft.endpoint, {
+    await apiRequest(draft.endpoint ?? '/tickets', {
       method: 'POST',
       body: draft.payload,
-      headers: { 'Idempotency-Key': draft.idempotencyKey },
+      headers: { 'Idempotency-Key': draft.idempotencyKey ?? draft.id },
     });
     await deleteDraft(id);
   } catch (error) {

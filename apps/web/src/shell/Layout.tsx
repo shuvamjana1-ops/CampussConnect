@@ -1,9 +1,10 @@
-import { useMemo } from 'react';
-import { Button } from '@campusconnect/ui';
-import { NavLink, Outlet, useLocation, useNavigate } from 'react-router';
-import { useSession, type RouteGroup } from '../auth/session';
-import { LanguageSelector } from '../i18n/LanguageSelector';
-import { InstallPrompt } from '../pwa/InstallPrompt';
+import { useMemo } from "react";
+import { Button } from "@campusconnect/ui";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router";
+import { useSession, type RouteGroup } from "../auth/session";
+import { WelcomePreloader } from "../components/WelcomePreloader";
+import { LanguageSelector } from "../i18n/LanguageSelector";
+import { InstallPrompt } from "../pwa/InstallPrompt";
 
 interface RoleNav {
   readonly group: RouteGroup;
@@ -29,19 +30,31 @@ export function Layout({ title }: { readonly title: string }) {
   // If session has access to a role or if user has multi-role access
   const userGroups = session?.groups ?? [];
   const visibleRoles = ALL_ROLES.filter(
-    (r) => userGroups.includes(r.group) || userGroups.length > 1 || userGroups.includes('student'),
+    (r) =>
+      userGroups.includes(r.group) ||
+      userGroups.length > 1 ||
+      userGroups.includes("student"),
   );
 
   const currentPersona = useMemo(() => {
-    if (location.pathname.startsWith('/workbench')) return { name: 'Rahul Mehta', role: 'Exam Staff', initials: 'RM' };
-    if (location.pathname.startsWith('/exec')) return { name: 'Prof. Meera Iyer', role: 'Pro VC', initials: 'MI' };
-    if (location.pathname.startsWith('/admin')) return { name: 'Dr. Suresh Kumar', role: 'Registrar', initials: 'SK' };
-    if (location.pathname.startsWith('/ops')) return { name: 'DevOps Operator', role: 'Platform Ops', initials: 'DO' };
-    return { name: session?.displayName ?? 'Ananya Das', role: 'B.Tech CSE', initials: 'AD' };
+    if (location.pathname.startsWith("/workbench"))
+      return { name: "Rahul Mehta", role: "Exam Staff", initials: "RM" };
+    if (location.pathname.startsWith("/exec"))
+      return { name: "Prof. Meera Iyer", role: "Pro VC", initials: "MI" };
+    if (location.pathname.startsWith("/admin"))
+      return { name: "Dr. Suresh Kumar", role: "Registrar", initials: "SK" };
+    if (location.pathname.startsWith("/ops"))
+      return { name: "DevOps Operator", role: "Platform Ops", initials: "DO" };
+    return {
+      name: session?.displayName ?? "Ananya Das",
+      role: "B.Tech CSE",
+      initials: "AD",
+    };
   }, [location.pathname, session?.displayName]);
 
   return (
     <>
+      <WelcomePreloader />
       <header className="cc-header-container">
         <div className="cc-header-main">
           {/* Brand Lockup */}
@@ -51,7 +64,7 @@ export function Layout({ title }: { readonly title: string }) {
             </div>
             <div>
               <span className="cc-brand-title">CampusConnect</span>
-              <span className="cc-brand-sub">National Institute of Technology</span>
+              <span className="cc-brand-sub">JIS UNIVERSITY</span>
             </div>
           </NavLink>
 
@@ -64,7 +77,7 @@ export function Layout({ title }: { readonly title: string }) {
                   <NavLink
                     key={role.group}
                     to={role.path}
-                    className={`cc-role-tab ${isActive ? 'active' : ''}`}
+                    className={`cc-role-tab ${isActive ? "active" : ""}`}
                     onClick={() => {
                       switchRole(role.group);
                     }}
@@ -83,15 +96,30 @@ export function Layout({ title }: { readonly title: string }) {
 
             {session !== null ? (
               <>
-                <div className="cc-user-pill" title={`Active: ${currentPersona.name} (${currentPersona.role})`}>
+                <div
+                  className="cc-user-pill"
+                  title={`Active: ${currentPersona.name} (${currentPersona.role})`}
+                >
                   <div className="cc-avatar-circle" aria-hidden="true">
                     {currentPersona.initials}
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1 }}>
-                    <span style={{ fontWeight: 600, color: '#f8fafc', fontSize: '0.8rem' }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      lineHeight: 1.1,
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontWeight: 600,
+                        color: "#f8fafc",
+                        fontSize: "0.8rem",
+                      }}
+                    >
                       {currentPersona.name}
                     </span>
-                    <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>
+                    <span style={{ fontSize: "0.7rem", color: "#94a3b8" }}>
                       {currentPersona.role}
                     </span>
                   </div>
@@ -100,7 +128,7 @@ export function Layout({ title }: { readonly title: string }) {
                   variant="secondary"
                   onPress={() => {
                     void signOut();
-                    void navigate('/sign-in');
+                    void navigate("/sign-in");
                   }}
                 >
                   Switch / Exit
@@ -110,7 +138,7 @@ export function Layout({ title }: { readonly title: string }) {
               <Button
                 variant="secondary"
                 onPress={() => {
-                  void navigate('/sign-in');
+                  void navigate("/sign-in");
                 }}
               >
                 Sign in

@@ -6,7 +6,10 @@
   "type": "module",
   "exports": {
     "./dependency-cruiser": "./dependency-cruiser/config.mjs",
-    "./eslint": "./eslint/index.js",
+    "./eslint": {
+      "types": "./eslint/index.d.ts",
+      "default": "./eslint/index.js"
+    },
     "./tsconfig/base.json": "./tsconfig/base.json",
     "./vitest": {
       "types": "./vitest/preset.d.ts",

@@ -1,17 +1,19 @@
 import { uuidv7 } from './uuidv7';
 
 /** IndexedDB draft store. A draft keeps one idempotency key for its whole life, across every retry. */
-export type DraftStatus = 'draft' | 'queued' | 'submitting' | 'failed';
+export type DraftStatus = 'draft' | 'queued' | 'submitting' | 'failed' | 'pending';
 
 export interface Draft {
   readonly id: string;
   /** API path the draft is submitted to (POST). */
-  readonly endpoint: string;
-  readonly payload: unknown;
-  readonly idempotencyKey: string;
+  readonly endpoint?: string | undefined;
+  readonly payload?: unknown;
+  readonly data?: unknown;
+  readonly portal?: string | undefined;
+  readonly idempotencyKey?: string | undefined;
   readonly status: DraftStatus;
-  readonly attempts: number;
-  readonly error?: string;
+  readonly attempts?: number | undefined;
+  readonly error?: string | undefined;
   readonly updatedAt: number;
 }
 
