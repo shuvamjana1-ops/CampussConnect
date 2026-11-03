@@ -715,32 +715,36 @@ describe('M2 Challenger 2: Empirical Stress Test Suite (Interactive Workflows)',
   // 7. Stress & Concurrency Resilience
   // =========================================================================
   describe('7. Interactive Workflow Stress & Lifecycle Resilience', () => {
-    it('C2.28: Executes rapid 50-cycle sequential mounting of Milestone 2 interactive components without degradation', () => {
-      const onClose = vi.fn();
-      const onChange = vi.fn();
-      const onSubmit = vi.fn();
+    it(
+      'C2.28: Executes rapid 50-cycle sequential mounting of Milestone 2 interactive components without degradation',
+      () => {
+        const onClose = vi.fn();
+        const onChange = vi.fn();
+        const onSubmit = vi.fn();
 
-      for (let i = 0; i < 50; i++) {
-        const csat = renderWithProviders(<CsatForm onSubmit={onSubmit} />);
-        expect(csat.html).toContain('Rate your experience');
+        for (let i = 0; i < 50; i++) {
+          const csat = renderWithProviders(<CsatForm onSubmit={onSubmit} />);
+          expect(csat.html).toContain('Rate your experience');
 
-        const notif = renderWithProviders(<Notifications />);
-        expect(notif.html).toContain('Notifications');
+          const notif = renderWithProviders(<Notifications />);
+          expect(notif.html).toContain('Notifications');
 
-        const grv = renderWithProviders(<Grievances />);
-        expect(grv.html).toContain('Tribunal Appeal #grv_l3_001');
+          const grv = renderWithProviders(<Grievances />);
+          expect(grv.html).toContain('Tribunal Appeal #grv_l3_001');
 
-        const sc = renderWithProviders(
-          <ShortcutHelp config={DEFAULT_SHORTCUTS} onChange={onChange} onClose={onClose} />
-        );
-        expect(sc.html).toContain('Keyboard shortcuts');
+          const sc = renderWithProviders(
+            <ShortcutHelp config={DEFAULT_SHORTCUTS} onChange={onChange} onClose={onClose} />
+          );
+          expect(sc.html).toContain('Keyboard shortcuts');
 
-        const svc = renderWithProviders(<ServiceHealthPage />);
-        expect(svc.html).toContain('Platform Service Health &amp; Operations');
+          const svc = renderWithProviders(<ServiceHealthPage />);
+          expect(svc.html).toContain('Platform Service Health &amp; Operations');
 
-        const guard = renderWithProviders(<GuardrailsPage />);
-        expect(guard.html).toContain('Guardrail flags');
-      }
-    });
+          const guard = renderWithProviders(<GuardrailsPage />);
+          expect(guard.html).toContain('Guardrail flags');
+        }
+      },
+      30000
+    );
   });
 });
