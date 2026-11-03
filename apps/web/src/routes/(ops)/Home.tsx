@@ -37,14 +37,16 @@ export default function OpsHome() {
         </div>
       </div>
 
-      <Routes>
-        <Route index element={<Navigate to="health" replace />} />
-        <Route path="health" element={<ServiceHealthPage />} />
-        <Route path="tenants" element={<ProvisionPage />} />
-        <Route path="breaches" element={<BreachPage />} />
-        <Route path="guardrails" element={<GuardrailsPage />} />
-        <Route path="*" element={<Navigate to="health" replace />} />
-      </Routes>
+      <div className="cc-container">
+        <Routes>
+          <Route index element={<Navigate to="health" replace />} />
+          <Route path="health" element={<ServiceHealthPage />} />
+          <Route path="tenants" element={<ProvisionPage />} />
+          <Route path="breaches" element={<BreachPage />} />
+          <Route path="guardrails" element={<GuardrailsPage />} />
+          <Route path="*" element={<Navigate to="health" replace />} />
+        </Routes>
+      </div>
     </>
   );
 }

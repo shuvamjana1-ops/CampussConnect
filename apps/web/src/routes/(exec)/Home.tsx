@@ -23,12 +23,14 @@ export default function ExecHome() {
         </div>
       </div>
 
-      <Routes>
-        <Route index element={<Navigate to="overview" replace />} />
-        <Route path="overview" element={<ExecutiveOverview />} />
-        <Route path="reports" element={<ReportSchedulesPage />} />
-        <Route path="*" element={<Navigate to="overview" replace />} />
-      </Routes>
+      <div className="cc-container">
+        <Routes>
+          <Route index element={<Navigate to="overview" replace />} />
+          <Route path="overview" element={<ExecutiveOverview />} />
+          <Route path="reports" element={<ReportSchedulesPage />} />
+          <Route path="*" element={<Navigate to="overview" replace />} />
+        </Routes>
+      </div>
     </>
   );
 }

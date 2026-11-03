@@ -17,7 +17,7 @@ const ALL_ROLES: readonly RoleNav[] = [
   { group: 'workbench', label: 'Workbench', path: '/workbench', icon: '🛠️' },
   { group: 'exec', label: 'Executive', path: '/exec/overview', icon: '📊' },
   { group: 'admin', label: 'Admin', path: '/admin/config', icon: '⚙️' },
-  { group: 'ops', label: 'Operations', path: '/ops/tenants', icon: '📡' },
+  { group: 'ops', label: 'Operations', path: '/ops/health', icon: '📡' },
 ];
 
 export function Layout({ title }: { readonly title: string }) {
@@ -37,7 +37,7 @@ export function Layout({ title }: { readonly title: string }) {
     if (location.pathname.startsWith('/exec')) return { name: 'Prof. Meera Iyer', role: 'Pro VC', initials: 'MI' };
     if (location.pathname.startsWith('/admin')) return { name: 'Dr. Suresh Kumar', role: 'Registrar', initials: 'SK' };
     if (location.pathname.startsWith('/ops')) return { name: 'DevOps Operator', role: 'Platform Ops', initials: 'DO' };
-    return { name: session?.displayName || 'Ananya Das', role: 'B.Tech CSE', initials: 'AD' };
+    return { name: session?.displayName ?? 'Ananya Das', role: 'B.Tech CSE', initials: 'AD' };
   }, [location.pathname, session?.displayName]);
 
   return (
@@ -100,7 +100,7 @@ export function Layout({ title }: { readonly title: string }) {
                   variant="secondary"
                   onPress={() => {
                     void signOut();
-                    navigate('/sign-in');
+                    void navigate('/sign-in');
                   }}
                 >
                   Switch / Exit
@@ -110,7 +110,7 @@ export function Layout({ title }: { readonly title: string }) {
               <Button
                 variant="secondary"
                 onPress={() => {
-                  navigate('/sign-in');
+                  void navigate('/sign-in');
                 }}
               >
                 Sign in

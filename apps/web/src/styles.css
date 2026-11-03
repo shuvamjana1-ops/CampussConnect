@@ -1,35 +1,25 @@
 /* CampusConnect Design System
-   Restrained Navy/Indigo foundation with Teal and warm Saffron accents.
-   Polished, trustworthy, modern, accessible (WCAG AA >= 4.5:1 text contrast).
+   Color Palette: Royal/Navy Blue, Crisp White, and Radiant Golden Yellow.
+   Accessible (WCAG AA >= 4.5:1 text contrast), modern, trustworthy, high-impact.
 */
 
 :root {
-  /* Brand Navy & Indigo Foundation */
-  --cc-navy-950: #0a0f1d;
-  --cc-navy-900: #0f172a;
-  --cc-navy-800: #1e293b;
-  --cc-navy-700: #334155;
-  --cc-indigo-900: #1e3a8a;
-  --cc-indigo-800: #1e40af;
-  --cc-indigo-600: #2563eb;
-  --cc-indigo-50: #eff6ff;
+  /* Core Blue Palette */
+  --cc-blue-950: #0a1128;
+  --cc-blue-900: #0f1e4a;
+  --cc-blue-800: #1e3a8a;
+  --cc-blue-700: #1d4ed8;
+  --cc-blue-600: #2563eb;
+  --cc-blue-500: #3b82f6;
+  --cc-blue-400: #60a5fa;
+  --cc-blue-300: #93c5fd;
+  --cc-blue-100: #dbeafe;
+  --cc-blue-50: #eff6ff;
 
-  /* Accent: Teal */
-  --cc-teal-800: #115e59;
-  --cc-teal-700: #0f766e;
-  --cc-teal-600: #0d9488;
-  --cc-teal-50: #f0fdfa;
-
-  /* Accent: Warm Saffron */
-  --cc-saffron-800: #92400e;
-  --cc-saffron-700: #b45309;
-  --cc-saffron-600: #d97706;
-  --cc-saffron-500: #f59e0b;
-  --cc-saffron-50: #fffbeb;
-
-  /* Neutrals & Surfaces */
+  /* Core White & Neutral Palette */
   --cc-white: #ffffff;
-  --cc-slate-50: #f8fafc;
+  --cc-surface-white: #ffffff;
+  --cc-surface-light: #f8fafc;
   --cc-slate-100: #f1f5f9;
   --cc-slate-200: #e2e8f0;
   --cc-slate-300: #cbd5e1;
@@ -40,43 +30,80 @@
   --cc-slate-800: #1e293b;
   --cc-slate-900: #0f172a;
 
-  /* Semantic UI Tokens */
+  /* Core Yellow / Gold Palette */
+  --cc-yellow-900: #78350f;
+  --cc-yellow-800: #92400e;
+  --cc-yellow-700: #b45309;
+  --cc-yellow-600: #d97706;
+  --cc-yellow-500: #f59e0b;
+  --cc-yellow-400: #fbbf24;
+  --cc-yellow-300: #fde047;
+  --cc-yellow-200: #fef08a;
+  --cc-yellow-100: #fef9c3;
+  --cc-yellow-50: #fefce8;
+
+  /* Aliases for backwards compatibility */
+  --cc-navy-950: var(--cc-blue-950);
+  --cc-navy-900: var(--cc-blue-900);
+  --cc-navy-800: var(--cc-blue-800);
+  --cc-navy-700: #1e293b;
+  --cc-indigo-900: var(--cc-blue-900);
+  --cc-indigo-800: var(--cc-blue-800);
+  --cc-indigo-600: var(--cc-blue-600);
+  --cc-indigo-50: var(--cc-blue-50);
+
+  /* Accent: Yellow/Gold mapping */
+  --cc-saffron-800: var(--cc-yellow-800);
+  --cc-saffron-700: var(--cc-yellow-700);
+  --cc-saffron-600: var(--cc-yellow-600);
+  --cc-saffron-500: var(--cc-yellow-500);
+  --cc-saffron-50: var(--cc-yellow-50);
+
+  /* Replaced teal with blue/yellow */
+  --cc-teal-800: var(--cc-blue-800);
+  --cc-teal-700: var(--cc-blue-700);
+  --cc-teal-600: var(--cc-blue-600);
+  --cc-teal-50: var(--cc-blue-50);
+
+  /* Semantic UI Tokens: Blue, White, and Yellow */
   --cc-color-text: #0f172a;
-  --cc-color-text-muted: #475569;
+  --cc-color-text-muted: #334155;
   --cc-color-text-light: #64748b;
   --cc-color-background: #ffffff;
   --cc-color-surface: #f8fafc;
   --cc-color-border: #cbd5e1;
   --cc-color-border-light: #e2e8f0;
-  --cc-color-primary: #1e3a8a;
+  --cc-color-primary: #1e40af;
   --cc-color-on-primary: #ffffff;
-  --cc-color-focus-ring: #0284c7;
+  --cc-color-accent: #f59e0b;
+  --cc-color-on-accent: #0f172a;
+  --cc-color-focus-ring: #2563eb;
 
   /* Status Colors */
   --cc-color-info-bg: #eff6ff;
   --cc-color-on-info: #1e3a8a;
-  --cc-color-success-bg: #ecfdf5;
-  --cc-color-on-success: #065f46;
-  --cc-color-warning-bg: #fffbeb;
+  --cc-color-success-bg: #eff6ff;
+  --cc-color-on-success: #1d4ed8;
+  --cc-color-warning-bg: #fefce8;
   --cc-color-on-warning: #854d0e;
   --cc-color-danger-bg: #fef2f2;
   --cc-color-on-danger-bg: #991b1b;
   --cc-color-danger: #b91c1c;
   --cc-color-on-danger: #ffffff;
-  --cc-color-neutral-bg: #f1f5f9;
-  --cc-color-on-neutral: #1e293b;
-  --cc-color-ai-bg: #f5f3ff;
-  --cc-color-on-ai: #5b21b6;
+  --cc-color-neutral-bg: #f8fafc;
+  --cc-color-on-neutral: #0f172a;
+  --cc-color-ai-bg: #fefce8;
+  --cc-color-on-ai: #78350f;
 
   /* Elevation */
-  --cc-shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
-  --cc-shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
-  --cc-shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.03);
+  --cc-shadow-sm: 0 1px 3px 0 rgba(10, 17, 40, 0.06);
+  --cc-shadow-md: 0 4px 8px -1px rgba(10, 17, 40, 0.1), 0 2px 4px -2px rgba(10, 17, 40, 0.06);
+  --cc-shadow-lg: 0 12px 20px -3px rgba(10, 17, 40, 0.12), 0 4px 6px -4px rgba(10, 17, 40, 0.04);
 
   /* Radius */
-  --cc-radius-sm: 6px;
-  --cc-radius-md: 10px;
-  --cc-radius-lg: 16px;
+  --cc-radius-sm: 8px;
+  --cc-radius-md: 12px;
+  --cc-radius-lg: 18px;
   --cc-radius-pill: 9999px;
 
   /* Sizing */
@@ -114,21 +141,21 @@ html, body {
   white-space: nowrap;
 }
 
-/* App Header & Navigation */
+/* App Header & Navigation - Royal Blue with Yellow Accent */
 .cc-header-container {
-  background: var(--cc-navy-950);
+  background: linear-gradient(180deg, #0a1128 0%, #0f1e4a 100%);
   color: var(--cc-white);
-  border-bottom: 1px solid var(--cc-navy-800);
+  border-bottom: 2px solid #f59e0b;
   position: sticky;
   top: 0;
   z-index: 50;
-  box-shadow: var(--cc-shadow-md);
+  box-shadow: 0 4px 20px -2px rgba(10, 17, 40, 0.4);
 }
 
 .cc-header-main {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 0.75rem 1.25rem;
+  padding: 0.85rem 1.25rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -139,36 +166,37 @@ html, body {
 .cc-brand-lockup {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.85rem;
   text-decoration: none;
   color: var(--cc-white);
 }
 
 .cc-brand-logo {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: var(--cc-radius-md);
-  background: linear-gradient(135deg, var(--cc-indigo-600), var(--cc-teal-600));
+  background: linear-gradient(135deg, #1e40af 0%, #f59e0b 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   color: var(--cc-white);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 .cc-brand-title {
-  font-size: 1.15rem;
-  font-weight: 700;
+  font-size: 1.25rem;
+  font-weight: 800;
   letter-spacing: -0.02em;
   color: var(--cc-white);
 }
 
 .cc-brand-sub {
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--cc-slate-400);
+  font-size: 0.775rem;
+  font-weight: 600;
+  color: #fde047;
   display: block;
 }
 
@@ -176,72 +204,75 @@ html, body {
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  background: var(--cc-navy-900);
-  padding: 0.25rem;
+  background: rgba(10, 17, 40, 0.6);
+  padding: 0.3rem;
   border-radius: var(--cc-radius-pill);
-  border: 1px solid var(--cc-navy-800);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .cc-role-tab {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.4rem 0.85rem;
+  gap: 0.45rem;
+  padding: 0.45rem 0.95rem;
   border-radius: var(--cc-radius-pill);
-  font-size: 0.825rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  color: var(--cc-slate-300);
+  color: #cbd5e1;
   text-decoration: none;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
   min-height: 36px;
 }
 
 .cc-role-tab:hover {
   color: var(--cc-white);
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .cc-role-tab.active {
-  background: var(--cc-indigo-600);
-  color: var(--cc-white);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  background: #f59e0b;
+  color: #0f172a;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
 }
 
 .cc-header-actions {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.85rem;
 }
 
 .cc-user-pill {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  background: var(--cc-navy-800);
-  padding: 0.35rem 0.75rem;
+  gap: 0.6rem;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+  padding: 0.35rem 0.85rem;
   border-radius: var(--cc-radius-pill);
   font-size: 0.825rem;
-  color: var(--cc-slate-200);
-  border: 1px solid var(--cc-navy-700);
+  color: #f8fafc;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .cc-avatar-circle {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
-  background: var(--cc-saffron-600);
-  color: var(--cc-white);
+  background: #f59e0b;
+  color: #0f172a;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.7rem;
-  font-weight: 700;
+  font-size: 0.75rem;
+  font-weight: 800;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 /* Secondary Sub-navigation Bar */
 .cc-subnav-bar {
   background: var(--cc-white);
-  border-bottom: 1px solid var(--cc-slate-200);
+  border-bottom: 2px solid var(--cc-slate-200);
   box-shadow: var(--cc-shadow-sm);
 }
 
@@ -983,5 +1014,371 @@ html, body {
   background: #f8fafc;
   color: #475569;
   border: 1px solid #e2e8f0;
+}
+
+/* ==========================================================================
+   3D Depth & Extraordinary Effects Engine
+   ========================================================================== */
+
+/* 3D Perspective Containers */
+.cc-perspective-container {
+  perspective: 1200px;
+}
+
+/* 3D Interactive Card with Specular Shine */
+.cc-card-3d {
+  position: relative;
+  background: var(--cc-white);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: var(--cc-radius-md);
+  padding: 1.35rem;
+  box-shadow:
+    0 1px 3px rgba(15, 23, 42, 0.04),
+    0 8px 24px -4px rgba(15, 23, 42, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  transform-style: preserve-3d;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.35s ease;
+  overflow: hidden;
+}
+
+.cc-card-3d::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0) 42%,
+    rgba(255, 255, 255, 0.45) 50%,
+    rgba(255, 255, 255, 0) 58%,
+    transparent 70%
+  );
+  transform: rotate(-25deg) translateY(-100%);
+  transition: transform 0.75s ease;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.cc-card-3d:hover {
+  transform: translateY(-6px) translateZ(12px) rotateX(1.5deg) rotateY(-1.5deg);
+  border-color: rgba(37, 99, 235, 0.3);
+  box-shadow:
+    0 20px 35px -8px rgba(15, 23, 42, 0.12),
+    0 10px 16px -6px rgba(15, 23, 42, 0.06),
+    0 0 0 1px rgba(37, 99, 235, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.cc-card-3d:hover::after {
+  transform: rotate(-25deg) translateY(100%);
+}
+
+/* Layered 3D Children */
+.cc-depth-sm {
+  transform: translateZ(10px);
+}
+.cc-depth-md {
+  transform: translateZ(22px);
+}
+.cc-depth-lg {
+  transform: translateZ(36px);
+}
+
+/* Extraordinary 3D Hero Banner with Mesh Glow */
+.cc-hero-3d {
+  position: relative;
+  background:
+    radial-gradient(circle at 85% 15%, rgba(13, 148, 136, 0.35) 0%, transparent 45%),
+    radial-gradient(circle at 15% 85%, rgba(217, 119, 6, 0.25) 0%, transparent 40%),
+    linear-gradient(135deg, #090d16 0%, #0f172a 45%, #1e3a8a 100%);
+  color: var(--cc-white);
+  padding: 2.25rem;
+  border-radius: var(--cc-radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    0 24px 48px -12px rgba(15, 23, 42, 0.35),
+    0 12px 24px -8px rgba(15, 23, 42, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  overflow: hidden;
+  margin-bottom: 1.75rem;
+  transform-style: preserve-3d;
+}
+
+/* Ambient animated background orbs */
+.cc-hero-glow-orb {
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+  opacity: 0.45;
+  animation: cc-float-orb 12s infinite alternate ease-in-out;
+}
+
+@keyframes cc-float-orb {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(40px, -20px) scale(1.15); }
+  100% { transform: translate(-30px, 30px) scale(0.95); }
+}
+
+/* 3D Floating Holographic Campus Emblem */
+.cc-emblem-3d-wrapper {
+  position: relative;
+  width: 110px;
+  height: 110px;
+  perspective: 800px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cc-emblem-3d-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px dashed rgba(245, 158, 11, 0.75);
+  animation: cc-spin-ring 18s linear infinite;
+  box-shadow: 0 0 25px rgba(245, 158, 11, 0.35);
+}
+
+.cc-emblem-3d-ring-inner {
+  position: absolute;
+  inset: 12px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(96, 165, 250, 0.65);
+  animation: cc-spin-ring 12s linear infinite reverse;
+}
+
+@keyframes cc-spin-ring {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.cc-emblem-3d-core {
+  width: 72px;
+  height: 72px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #1e40af 0%, #f59e0b 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.25rem;
+  color: #ffffff;
+  box-shadow:
+    0 12px 24px rgba(0, 0, 0, 0.4),
+    0 0 25px rgba(245, 158, 11, 0.5),
+    inset 0 2px 2px rgba(255, 255, 255, 0.5),
+    inset 0 -3px 4px rgba(10, 17, 40, 0.4);
+  animation: cc-float-core 4s ease-in-out infinite alternate;
+  transform: translateZ(30px);
+}
+
+@keyframes cc-float-core {
+  0% { transform: translateY(0px) rotateY(0deg); }
+  100% { transform: translateY(-8px) rotateY(15deg); }
+}
+
+/* 3D Tactile Stat Widget */
+.cc-stat-box-3d {
+  position: relative;
+  background: var(--cc-white);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: var(--cc-radius-md);
+  padding: 1.35rem 1.25rem;
+  box-shadow:
+    0 4px 6px -1px rgba(10, 17, 40, 0.05),
+    0 10px 20px -5px rgba(10, 17, 40, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  transform-style: preserve-3d;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.cc-stat-box-3d::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 5px;
+  background: linear-gradient(180deg, #1e40af, #3b82f6);
+  border-radius: 4px 0 0 4px;
+}
+
+.cc-stat-box-3d[data-accent='teal']::before,
+.cc-stat-box-3d[data-accent='blue']::before {
+  background: linear-gradient(180deg, #1d4ed8, #60a5fa);
+}
+
+.cc-stat-box-3d[data-accent='saffron']::before,
+.cc-stat-box-3d[data-accent='yellow']::before {
+  background: linear-gradient(180deg, #f59e0b, #fde047);
+}
+
+.cc-stat-box-3d:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow:
+    0 16px 28px -6px rgba(10, 17, 40, 0.12),
+    0 8px 12px -4px rgba(10, 17, 40, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+.cc-stat-value-3d {
+  font-size: 2.15rem;
+  font-weight: 800;
+  color: var(--cc-navy-950);
+  line-height: 1.05;
+  margin-bottom: 0.35rem;
+  letter-spacing: -0.03em;
+  text-shadow: 0 1px 1px rgba(15, 23, 42, 0.08);
+}
+
+/* 3D Tactile Push Buttons - Blue, White, and Yellow */
+.cc-btn-3d {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.35rem;
+  font-size: 0.925rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(180deg, #2563eb 0%, #1e40af 100%);
+  border: 1px solid #172554;
+  border-radius: var(--cc-radius-sm);
+  cursor: pointer;
+  box-shadow:
+    0 4px 0 #0f172a,
+    0 8px 18px rgba(30, 58, 138, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: all 0.12s ease-in-out;
+  text-decoration: none;
+}
+
+.cc-btn-3d:hover:not(:disabled) {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+  box-shadow:
+    0 5px 0 #0f172a,
+    0 10px 22px rgba(30, 58, 138, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.cc-btn-3d:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow:
+    0 1px 0 #0f172a,
+    0 3px 8px rgba(30, 58, 138, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.cc-btn-3d-yellow,
+.cc-btn-3d-saffron {
+  background: linear-gradient(180deg, #facc15 0%, #f59e0b 100%);
+  color: #0f172a;
+  font-weight: 700;
+  border-color: #b45309;
+  box-shadow:
+    0 4px 0 #78350f,
+    0 8px 18px rgba(245, 158, 11, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.cc-btn-3d-yellow:hover:not(:disabled),
+.cc-btn-3d-saffron:hover:not(:disabled) {
+  background: linear-gradient(180deg, #fde047 0%, #fbbf24 100%);
+  box-shadow:
+    0 5px 0 #78350f,
+    0 10px 22px rgba(245, 158, 11, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+.cc-btn-3d-yellow:active:not(:disabled),
+.cc-btn-3d-saffron:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow:
+    0 1px 0 #78350f,
+    0 3px 8px rgba(245, 158, 11, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.cc-btn-3d-white {
+  background: #ffffff;
+  color: #1e3a8a;
+  font-weight: 700;
+  border: 1px solid #cbd5e1;
+  box-shadow:
+    0 4px 0 #cbd5e1,
+    0 8px 16px rgba(10, 17, 40, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+.cc-btn-3d-white:hover:not(:disabled) {
+  background: #f8fafc;
+  color: #1d4ed8;
+  box-shadow:
+    0 5px 0 #cbd5e1,
+    0 10px 20px rgba(10, 17, 40, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+.cc-btn-3d-white:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow:
+    0 1px 0 #cbd5e1,
+    0 3px 8px rgba(10, 17, 40, 0.08);
+}
+
+/* 3D Stepper Spheres - Blue, White, and Yellow */
+.cc-step-circle-3d {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 60%),
+    linear-gradient(145deg, #f1f5f9, #cbd5e1);
+  color: #475569;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.95rem;
+  margin-bottom: 0.4rem;
+  box-shadow:
+    0 4px 8px rgba(10, 17, 40, 0.12),
+    inset 0 1px 1px rgba(255, 255, 255, 0.9),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cc-step-item.active .cc-step-circle-3d {
+  background:
+    radial-gradient(circle at 32% 32%, #ffffff 0%, rgba(254, 240, 138, 0.6) 35%, transparent 55%),
+    linear-gradient(145deg, #facc15, #f59e0b);
+  color: #0f172a;
+  box-shadow:
+    0 6px 16px rgba(245, 158, 11, 0.55),
+    0 0 0 4px rgba(250, 204, 21, 0.3),
+    inset 0 1px 2px rgba(255, 255, 255, 0.95),
+    inset 0 -3px 4px rgba(120, 53, 15, 0.3);
+  transform: scale(1.15);
+}
+
+.cc-step-item.completed .cc-step-circle-3d {
+  background:
+    radial-gradient(circle at 32% 32%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.25) 35%, transparent 55%),
+    linear-gradient(145deg, #3b82f6, #1d4ed8);
+  color: #ffffff;
+  box-shadow:
+    0 4px 10px rgba(29, 78, 216, 0.4),
+    inset 0 1px 2px rgba(255, 255, 255, 0.9),
+    inset 0 -2px 3px rgba(10, 17, 40, 0.3);
 }
 

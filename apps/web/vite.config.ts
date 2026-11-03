@@ -4,5 +4,8 @@ import { defineConfig } from 'vite';
 export default defineConfig({
   plugins: [react()],
   build: { target: 'es2023', sourcemap: true },
-  server: { port: 5173 },
+  server: {
+    port: 5173,
+    host: true,
+  },
 });

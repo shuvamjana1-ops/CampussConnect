@@ -4,6 +4,11 @@
     "transit": {
       "dependsOn": ["^transit"]
     },
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": ["dist/**"]
+    },
     "typecheck": {
       "dependsOn": ["transit"]
     },
@@ -16,6 +21,14 @@
     "test:integration": {
       "dependsOn": ["transit"],
       "cache": false
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "preview": {
+      "cache": false,
+      "persistent": true
     }
   }
 }

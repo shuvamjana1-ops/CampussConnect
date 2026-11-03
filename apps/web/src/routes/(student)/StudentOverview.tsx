@@ -20,70 +20,85 @@ export default function StudentOverview() {
   const topMatches = [...oppList].sort((a, b) => b.matchScore - a.matchScore).slice(0, 2);
 
   return (
-    <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-      {/* Welcome Banner */}
-      <div
-        className="cc-card"
-        style={{
-          background: 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%)',
-          color: '#ffffff',
-          padding: '1.75rem',
-          marginBottom: '1.5rem',
-          border: 'none',
-        }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
-          <div>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255,255,255,0.12)', padding: '0.25rem 0.75rem', borderRadius: '999px', fontSize: '0.8rem', marginBottom: '0.75rem' }}>
+    <div style={{ maxWidth: '1100px', margin: '0 auto' }} className="cc-perspective-container">
+      {/* 3D Extraordinary Hero Banner */}
+      <div className="cc-hero-3d">
+        <div
+          className="cc-hero-glow-orb"
+          style={{ top: '-80px', right: '10%', background: 'rgba(56, 189, 248, 0.4)' }}
+          aria-hidden="true"
+        />
+        <div
+          className="cc-hero-glow-orb"
+          style={{ bottom: '-100px', left: '5%', background: 'rgba(245, 158, 11, 0.25)' }}
+          aria-hidden="true"
+        />
+
+        <div style={{ position: 'relative', zIndex: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '2rem' }}>
+          <div style={{ maxWidth: '620px' }} className="cc-depth-sm">
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(10px)', padding: '0.35rem 0.95rem', borderRadius: '999px', fontSize: '0.825rem', marginBottom: '1rem', border: '1px solid rgba(255,255,255,0.2)' }}>
               <span>🎓</span>
-              <span>2024BCSE042 · Semester 4 · CGPA 8.42</span>
+              <span style={{ fontWeight: 600, color: '#f8fafc' }}>2024BCSE042 · Semester 4 · CGPA 8.42</span>
+              <span style={{ background: '#f59e0b', color: '#0f172a', fontSize: '0.7rem', padding: '2px 8px', borderRadius: '999px', fontWeight: 800 }}>VERIFIED</span>
             </div>
-            <h2 style={{ margin: '0 0 0.5rem', fontSize: '1.65rem', fontWeight: 700, color: '#ffffff' }}>
+            <h2 style={{ margin: '0 0 0.65rem', fontSize: '2rem', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.03em', lineHeight: 1.2 }}>
               Namaste, {session?.displayName ?? 'Student'}
             </h2>
-            <p style={{ margin: 0, color: '#cbd5e1', fontSize: '0.95rem', maxWidth: '600px', lineHeight: 1.5 }}>
-              Track your campus requests, stay ahead of academic deadlines, and discover institutional scholarships matched to your profile.
+            <p style={{ margin: '0 0 1.5rem', color: '#cbd5e1', fontSize: '1rem', lineHeight: 1.55 }}>
+              Track your campus requests with committed SLA guarantees, dispute academic evaluations, and discover institution-verified scholarships.
             </p>
+            <div style={{ display: 'flex', gap: '0.85rem', flexWrap: 'wrap' }}>
+              <Link to="/student/new" className="cc-btn-3d cc-btn-3d-yellow">
+                <span style={{ fontSize: '1.2rem', lineHeight: 1 }}>+</span> Raise Request / Grievance
+              </Link>
+              <Link to="/student/opportunities" className="cc-btn-3d cc-btn-3d-white">
+                <span>🎯</span> Explore Matched Aid ({oppList.length})
+              </Link>
+            </div>
           </div>
-          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-            <Link to="/student/new" className="cc-button cc-button-saffron">
-              <span>+</span> Raise a Request / Grievance
-            </Link>
+
+          {/* 3D Floating Campus Emblem */}
+          <div className="cc-emblem-3d-wrapper cc-depth-lg" aria-hidden="true" title="National Institute of Technology">
+            <div className="cc-emblem-3d-ring" />
+            <div className="cc-emblem-3d-ring-inner" />
+            <div className="cc-emblem-3d-core">
+              🏛️
+            </div>
           </div>
         </div>
       </div>
 
       {/* Emergency / Broadcast Notice Banner */}
-      <div className="cc-alert cc-alert-warning" role="region" aria-label="Campus Notice">
-        <span style={{ fontSize: '1.25rem' }} aria-hidden="true">
+      <div className="cc-alert cc-alert-warning cc-depth-sm" role="region" aria-label="Campus Notice" style={{ boxShadow: '0 4px 12px rgba(245, 158, 11, 0.15)', borderLeft: '4px solid #f59e0b' }}>
+        <span style={{ fontSize: '1.4rem' }} aria-hidden="true">
           📢
         </span>
         <div style={{ flex: 1 }}>
-          <strong style={{ display: 'block', marginBottom: '0.2rem' }}>
+          <strong style={{ display: 'block', marginBottom: '0.2rem', color: '#78350f' }}>
             Campus Notice: End-Semester Hall Ticket & Marksheet Verification
           </strong>
           <span>
             Hall ticket cut-off is in 3 days. If you notice any discrepancy in internal marks or course credits, please submit a grievance to the Examination Cell immediately.
           </span>
         </div>
-        <Link to="/student/new" className="cc-badge" data-tone="warning" style={{ alignSelf: 'center', whiteSpace: 'nowrap' }}>
+        <Link to="/student/new" className="cc-badge" data-tone="warning" style={{ alignSelf: 'center', whiteSpace: 'nowrap', fontWeight: 700, background: '#fef08a', color: '#78350f' }}>
           File Grievance →
         </Link>
       </div>
 
-      {/* Quick Stat Cards */}
-      <div className="cc-grid-4">
-        <div className="cc-stat-box">
+      {/* 3D Tactile Stat Cards - Blue, White, and Yellow */}
+      <div className="cc-grid-4" style={{ marginBottom: '1.75rem' }}>
+        <div className="cc-stat-box-3d" data-accent="blue">
           <div className="cc-stat-label">Active Requests</div>
-          <div className="cc-stat-value">{activeTickets.length}</div>
+          <div className="cc-stat-value-3d" style={{ color: '#1e40af' }}>{activeTickets.length}</div>
           <div className="cc-stat-hint">
-            <span style={{ color: '#0d9488' }}>●</span> Tracked with committed SLA
+            <span style={{ color: '#2563eb', fontWeight: 700 }}>●</span> SLA Committed & Tracked
           </div>
         </div>
 
-        <div className="cc-stat-box" data-accent="saffron">
+        <div className="cc-stat-box-3d" data-accent="yellow">
           <div className="cc-stat-label">Action Required</div>
-          <div className="cc-stat-value" style={{ color: needsActionTickets.length > 0 ? '#b45309' : '#0f172a' }}>
+          <div className="cc-stat-value-3d" style={{ color: needsActionTickets.length > 0 ? '#b45309' : '#0f172a' }}>
             {needsActionTickets.length}
           </div>
           <div className="cc-stat-hint">
@@ -91,19 +106,19 @@ export default function StudentOverview() {
           </div>
         </div>
 
-        <div className="cc-stat-box" data-accent="teal">
+        <div className="cc-stat-box-3d" data-accent="blue">
           <div className="cc-stat-label">Matched Opportunities</div>
-          <div className="cc-stat-value">{oppList.length}</div>
+          <div className="cc-stat-value-3d" style={{ color: '#1e40af' }}>{oppList.length}</div>
           <div className="cc-stat-hint">
-            <span>⭐</span> {savedOpps.length} saved in your tracker
+            <span style={{ color: '#f59e0b' }}>★</span> {savedOpps.length} saved in your tracker
           </div>
         </div>
 
-        <div className="cc-stat-box">
+        <div className="cc-stat-box-3d" data-accent="yellow">
           <div className="cc-stat-label">Profile Completeness</div>
-          <div className="cc-stat-value">84%</div>
+          <div className="cc-stat-value-3d" style={{ color: '#b45309' }}>84%</div>
           <div className="cc-stat-hint">
-            <Link to="/student/profile" style={{ color: '#1e3a8a', textDecoration: 'none', fontWeight: 600 }}>
+            <Link to="/student/profile" style={{ color: '#1e40af', textDecoration: 'none', fontWeight: 700 }}>
               Update profile →
             </Link>
           </div>
@@ -113,7 +128,7 @@ export default function StudentOverview() {
       {/* 2-Column Section: Active Requests & Recommended Opportunities */}
       <div className="cc-grid-2">
         {/* Active Requests Card */}
-        <div className="cc-card">
+        <div className="cc-card-3d">
           <div className="cc-card-header">
             <h3 className="cc-card-title">
               <span>📋</span> Recent Requests & Grievances
@@ -177,7 +192,7 @@ export default function StudentOverview() {
         </div>
 
         {/* Recommended Opportunities Card */}
-        <div className="cc-card">
+        <div className="cc-card-3d">
           <div className="cc-card-header">
             <h3 className="cc-card-title">
               <span>🎯</span> Recommended for You

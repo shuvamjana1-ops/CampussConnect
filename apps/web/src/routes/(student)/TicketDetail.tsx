@@ -241,7 +241,7 @@ export default function TicketDetail() {
           </div>
         </div>
 
-        {/* 5-Step Visual Stepper */}
+        {/* 5-Step 3D Spherical Stepper */}
         <ol className="cc-stepper" aria-label="Resolution pipeline stages">
           {[
             { step: 1, label: 'Submitted' },
@@ -254,7 +254,7 @@ export default function TicketDetail() {
               key={s.step}
               className={`cc-step-item ${currentStep === s.step ? 'active' : currentStep > s.step ? 'completed' : ''}`}
             >
-              <div className="cc-step-circle">
+              <div className="cc-step-circle-3d">
                 {currentStep > s.step ? '✓' : s.step}
               </div>
               <span className="cc-step-label">{s.label}</span>

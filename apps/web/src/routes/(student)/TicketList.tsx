@@ -130,18 +130,18 @@ export default function TicketList() {
           </Link>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }} className="cc-perspective-container">
           {filteredTickets.map((ticket) => (
             <div
               key={ticket.id}
-              className="cc-card cc-card-interactive"
+              className="cc-card-3d"
               style={{
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 flexWrap: 'wrap',
                 gap: '1rem',
-                padding: '1.15rem',
+                padding: '1.25rem',
               }}
             >
               <div style={{ flex: 1, minWidth: '260px' }}>

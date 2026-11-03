@@ -1,6 +1,7 @@
 import { Badge, Button } from '@campusconnect/ui';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router';
 import { apiRequest } from '../../api/client';
 import { useI18n } from '../../i18n/I18nProvider';
 import { useOnline } from '../../pwa/DraftStatus';
@@ -62,6 +63,7 @@ export default function Notifications() {
   const online = useOnline();
   const queryClient = useQueryClient();
   const [prefs, setPrefs] = useState<Prefs | null>({ inApp: true, webPush: true, email: true });
+  const [activeTab, setActiveTab] = useState<'all' | 'unread' | 'action'>('all');
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
 
   const inbox = useQuery({
@@ -91,22 +93,59 @@ export default function Notifications() {
     if (stored.data) setPrefs(stored.data);
   }, [stored.data]);
 
+  // Optimistic Mark Read Mutation
   const markRead = useMutation({
     mutationFn: async (id: string) => {
       try {
-        await apiRequest<void>(`/notifications/${encodeURIComponent(id)}/read`, { method: 'POST' });
+        await apiRequest<unknown>(`/notifications/${encodeURIComponent(id)}/read`, { method: 'POST' });
       } catch {
-        // mock read update in preview mode
+        // Fallback in standalone mode
       }
     },
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['student', 'notifications'] }),
-    onError: () => setMessage({ ok: false, text: online ? t('error.generic') : t('needsConnection') }),
+    onMutate: async (id: string) => {
+      await queryClient.cancelQueries({ queryKey: ['student', 'notifications'] });
+      queryClient.setQueryData<readonly NotificationItem[]>(['student', 'notifications'], (old) => {
+        if (!old) return old;
+        return old.map((n) => (n.id === id ? { ...n, read: true } : n));
+      });
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['student', 'notifications'] });
+    },
+    onError: () => {
+      setMessage({ ok: false, text: online ? t('error.generic') : t('needsConnection') });
+    },
+  });
+
+  // Optimistic Mark ALL as Read Mutation
+  const markAllRead = useMutation({
+    mutationFn: async () => {
+      try {
+        await apiRequest<unknown>('/notifications/read-all', { method: 'POST' });
+      } catch {
+        // Fallback in standalone mode
+      }
+    },
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: ['student', 'notifications'] });
+      queryClient.setQueryData<readonly NotificationItem[]>(['student', 'notifications'], (old) => {
+        if (!old) return old;
+        return old.map((n) => ({ ...n, read: true }));
+      });
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['student', 'notifications'] });
+      setMessage({ ok: true, text: 'All notifications marked as read.' });
+    },
+    onError: () => {
+      setMessage({ ok: false, text: online ? t('error.generic') : t('needsConnection') });
+    },
   });
 
   const savePrefs = useMutation({
     mutationFn: async (next: Prefs) => {
       try {
-        await apiRequest<void>('/me/notification-prefs', { method: 'PUT', body: next });
+        await apiRequest<unknown>('/me/notification-prefs', { method: 'PUT', body: next });
       } catch {
         // mock save in preview mode
       }
@@ -135,6 +174,13 @@ export default function Notifications() {
 
   const items = inbox.data ?? SEED_NOTIFICATIONS;
   const unreadCount = items.filter((n) => !n.read).length;
+  const actionRequiredCount = items.filter((n) => Boolean(n.ticketId) && !n.read).length;
+
+  const filteredItems = items.filter((n) => {
+    if (activeTab === 'unread') return !n.read;
+    if (activeTab === 'action') return Boolean(n.ticketId) && !n.read;
+    return true;
+  });
 
   return (
     <section aria-labelledby="notifications-title" style={{ maxWidth: '840px', margin: '0 auto' }}>
@@ -147,9 +193,18 @@ export default function Notifications() {
             Direct alerts regarding ticket updates, emergency broadcasts, and opportunity matches.
           </p>
         </div>
-        <div>
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+          <Button
+            variant="secondary"
+            isDisabled={unreadCount === 0 || markAllRead.isPending}
+            onPress={() => {
+              markAllRead.mutate();
+            }}
+          >
+            ✓ Mark All as Read
+          </Button>
           <span className="cc-badge" data-tone={unreadCount > 0 ? 'warning' : 'success'}>
-            {unreadCount > 0 ? `${unreadCount} Unread Notifications` : 'All caught up'}
+            {unreadCount > 0 ? `${String(unreadCount)} Unread Notifications` : 'All caught up'}
           </span>
         </div>
       </div>
@@ -161,23 +216,84 @@ export default function Notifications() {
         </div>
       )}
 
-      {/* Notifications List */}
+      {/* Notifications Inbox with Filter Tabs */}
       <div className="cc-card" style={{ marginBottom: '1.5rem', padding: '1rem' }}>
-        <h3 style={{ margin: '0 0 1rem', fontSize: '1.05rem', fontWeight: 600, color: '#0f172a' }}>
-          Inbox ({items.length})
-        </h3>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem' }}>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab('all');
+              }}
+              style={{
+                padding: '0.4rem 0.85rem',
+                borderRadius: '6px',
+                border: `1px solid ${activeTab === 'all' ? '#1e3a8a' : '#e2e8f0'}`,
+                background: activeTab === 'all' ? '#1e3a8a' : '#f8fafc',
+                color: activeTab === 'all' ? '#ffffff' : '#475569',
+                fontWeight: 600,
+                fontSize: '0.85rem',
+                cursor: 'pointer',
+              }}
+            >
+              All ({items.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab('unread');
+              }}
+              style={{
+                padding: '0.4rem 0.85rem',
+                borderRadius: '6px',
+                border: `1px solid ${activeTab === 'unread' ? '#1e3a8a' : '#e2e8f0'}`,
+                background: activeTab === 'unread' ? '#1e3a8a' : '#f8fafc',
+                color: activeTab === 'unread' ? '#ffffff' : '#475569',
+                fontWeight: 600,
+                fontSize: '0.85rem',
+                cursor: 'pointer',
+              }}
+            >
+              Unread ({unreadCount})
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab('action');
+              }}
+              style={{
+                padding: '0.4rem 0.85rem',
+                borderRadius: '6px',
+                border: `1px solid ${activeTab === 'action' ? '#1e3a8a' : '#e2e8f0'}`,
+                background: activeTab === 'action' ? '#1e3a8a' : '#f8fafc',
+                color: activeTab === 'action' ? '#ffffff' : '#475569',
+                fontWeight: 600,
+                fontSize: '0.85rem',
+                cursor: 'pointer',
+              }}
+            >
+              Action Required ({actionRequiredCount})
+            </button>
+          </div>
+        </div>
 
         {inbox.isPending ? (
           <p role="status">{t('common.loading')}</p>
-        ) : items.length === 0 ? (
+        ) : filteredItems.length === 0 ? (
           <div className="cc-empty-state" style={{ padding: '2rem 1rem' }}>
             <div className="cc-empty-icon">🔔</div>
-            <div className="cc-empty-title">{t('notifications.empty')}</div>
-            <p className="cc-empty-desc">You are completely up to date with campus notices.</p>
+            <div className="cc-empty-title">
+              {activeTab === 'unread' ? 'No unread notifications' : activeTab === 'action' ? 'No actions required' : t('notifications.empty')}
+            </div>
+            <p className="cc-empty-desc">
+              {activeTab === 'all'
+                ? 'You are completely up to date with campus notices.'
+                : 'All matters requiring your confirmation or response have been attended to.'}
+            </p>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {items.map((n) => (
+            {filteredItems.map((n) => (
               <div
                 key={n.id}
                 style={{
@@ -199,6 +315,11 @@ export default function Notifications() {
                         {t('notifications.unread')}
                       </Badge>
                     )}
+                    {n.ticketId && !n.read && (
+                      <Badge tone="warning" icon="⚠">
+                        Action Required
+                      </Badge>
+                    )}
                   </div>
                   <p style={{ margin: '0 0 0.5rem', fontSize: '0.875rem', color: '#475569', lineHeight: 1.45 }}>
                     {n.body}
@@ -208,15 +329,33 @@ export default function Notifications() {
                   </time>
                 </div>
 
-                {!n.read && (
-                  <Button
-                    variant="secondary"
-                    isDisabled={markRead.isPending}
-                    onPress={() => markRead.mutate(n.id)}
-                  >
-                    {t('notifications.markRead')}
-                  </Button>
-                )}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', flexShrink: 0 }}>
+                  {n.ticketId && (
+                    <Link
+                      to={`/student/tickets/${n.ticketId}`}
+                      className="cc-button cc-button-secondary"
+                      style={{
+                        textAlign: 'center',
+                        textDecoration: 'none',
+                        fontSize: '0.8rem',
+                        padding: '0.35rem 0.65rem',
+                      }}
+                    >
+                      View Request →
+                    </Link>
+                  )}
+                  {!n.read && (
+                    <Button
+                      variant="secondary"
+                      isDisabled={markRead.isPending}
+                      onPress={() => {
+                        markRead.mutate(n.id);
+                      }}
+                    >
+                      {t('notifications.markRead')}
+                    </Button>
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -255,7 +394,9 @@ export default function Notifications() {
                 type="checkbox"
                 checked={prefs?.[channel] ?? false}
                 disabled={prefs === null || savePrefs.isPending}
-                onChange={(e) => toggle(channel, e.target.checked)}
+                onChange={(e) => {
+                  toggle(channel, e.target.checked);
+                }}
                 style={{ minWidth: 20, minHeight: 20 }}
               />
               <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#0f172a' }}>

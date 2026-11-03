@@ -9,8 +9,13 @@
     "node": "^22.13.0"
   },
   "scripts": {
+    "build": "turbo run build",
+    "build:web": "pnpm --filter @campusconnect/web build",
     "depcruise": "depcruise apps packages infra tools --config .dependency-cruiser.mjs",
+    "dev": "turbo run dev",
+    "dev:web": "pnpm --filter @campusconnect/web dev",
     "lint": "turbo run lint",
+    "preview": "turbo run preview",
     "test": "turbo run test",
     "test:integration": "turbo run test:integration",
     "typecheck": "turbo run typecheck"

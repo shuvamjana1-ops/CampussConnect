@@ -1,6 +1,94 @@
-import { TextField } from '@campusconnect/ui';
+import { Badge, TextField } from '@campusconnect/ui';
 import { useState } from 'react';
 import { Link } from 'react-router';
+
+interface HelplineItem {
+  readonly id: string;
+  readonly title: string;
+  readonly number: string;
+  readonly tel: string;
+  readonly desc: string;
+  readonly badge: string;
+  readonly badgeTone: 'danger' | 'warning' | 'info' | 'ai';
+  readonly bgColor: string;
+  readonly borderColor: string;
+  readonly titleColor: string;
+}
+
+const HELPLINES: readonly HelplineItem[] = [
+  {
+    id: 'security',
+    title: 'Campus Security Control',
+    number: '+91-11-2659-1000',
+    tel: '+911126591000',
+    desc: 'Main Gate / Quick Response Team (24x7)',
+    badge: 'Immediate Response',
+    badgeTone: 'danger',
+    bgColor: '#fef2f2',
+    borderColor: '#fecaca',
+    titleColor: '#991b1b',
+  },
+  {
+    id: 'health',
+    title: 'Health Center & Ambulance',
+    number: '+91-11-2659-1500',
+    tel: '+911126591500',
+    desc: 'Emergency Medical Ward & Pharmacy',
+    badge: 'Medical Ward',
+    badgeTone: 'info',
+    bgColor: '#eff6ff',
+    borderColor: '#bfdbfe',
+    titleColor: '#1e3a8a',
+  },
+  {
+    id: 'womens_nat',
+    title: "Women's National Helpline",
+    number: '1091',
+    tel: '1091',
+    desc: 'National 24x7 Emergency for Women in Distress',
+    badge: 'Toll-Free 24x7',
+    badgeTone: 'danger',
+    bgColor: '#fdf2f8',
+    borderColor: '#fbcfe8',
+    titleColor: '#9d174d',
+  },
+  {
+    id: 'womens_icc',
+    title: "Women's Cell / ICC",
+    number: '+91-11-2659-1800',
+    tel: '+911126591800',
+    desc: 'Internal Complaints Committee & Gender Cell',
+    badge: 'Confidential',
+    badgeTone: 'ai',
+    bgColor: '#f5f3ff',
+    borderColor: '#ddd6fe',
+    titleColor: '#5b21b6',
+  },
+  {
+    id: 'anti_ragging',
+    title: 'National Anti-Ragging',
+    number: '1800-180-5522',
+    tel: '18001805522',
+    desc: 'Toll-Free 24x7 UGC Anti-Ragging Helpline',
+    badge: 'Statutory Zero-Tolerance',
+    badgeTone: 'warning',
+    bgColor: '#fffbeb',
+    borderColor: '#fde68a',
+    titleColor: '#92400e',
+  },
+  {
+    id: 'tele_manas',
+    title: 'Mental Health (Tele-MANAS)',
+    number: '14416',
+    tel: '14416',
+    desc: 'MoHFW National Tele-Mental Health 24x7 Counsel',
+    badge: 'Confidential Care',
+    badgeTone: 'info',
+    bgColor: '#ecfdf5',
+    borderColor: '#a7f3d0',
+    titleColor: '#065f46',
+  },
+];
 
 interface FaqItem {
   readonly q: string;
@@ -43,14 +131,28 @@ const FAQS: readonly FaqItem[] = [
 
 export default function CampusHelp() {
   const [search, setSearch] = useState('');
-  const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [expandedQ, setExpandedQ] = useState<string | null>(FAQS[0]?.q ?? null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  const filteredFaqs = FAQS.filter(
-    (f) =>
+  const categories = ['All', 'Examination', 'Grievance', 'Hostel', 'Scholarships'] as const;
+
+  const handleCopy = (id: string, text: string) => {
+    void navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    setTimeout(() => {
+      setCopiedId(null);
+    }, 2000);
+  };
+
+  const filteredFaqs = FAQS.filter((f) => {
+    const matchesSearch =
       f.q.toLowerCase().includes(search.toLowerCase()) ||
       f.a.toLowerCase().includes(search.toLowerCase()) ||
-      f.category.toLowerCase().includes(search.toLowerCase()),
-  );
+      f.category.toLowerCase().includes(search.toLowerCase());
+    const matchesCategory = selectedCategory === 'All' || f.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   return (
     <div style={{ maxWidth: '960px', margin: '0 auto' }}>
@@ -76,53 +178,92 @@ export default function CampusHelp() {
           padding: '1.25rem',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-          <span style={{ fontSize: '1.5rem' }}>🚨</span>
-          <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: '#991b1b' }}>
-            24x7 Campus Emergency & Safety Helplines
-          </h3>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span style={{ fontSize: '1.5rem' }}>🚨</span>
+            <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: '#991b1b' }}>
+              24x7 Campus Emergency & Safety Helplines
+            </h3>
+          </div>
+          <Badge tone="danger" icon="●">
+            Active 24/7 Response
+          </Badge>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-          <div style={{ background: '#fef2f2', padding: '0.75rem', borderRadius: '8px', border: '1px solid #fecaca' }}>
-            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#991b1b', textTransform: 'uppercase' }}>
-              Campus Security Control
-            </div>
-            <div style={{ fontSize: '1.15rem', fontWeight: 700, color: '#0f172a', margin: '0.2rem 0' }}>
-              +91-11-2659-1000
-            </div>
-            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Main Gate / Quick Response Team</div>
-          </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
+          {HELPLINES.map((h) => (
+            <div
+              key={h.id}
+              style={{
+                background: h.bgColor,
+                padding: '0.9rem',
+                borderRadius: '8px',
+                border: `1px solid ${h.borderColor}`,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+              }}
+            >
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: h.titleColor, textTransform: 'uppercase' }}>
+                    {h.title}
+                  </div>
+                  <span className="cc-badge" data-tone={h.badgeTone} style={{ fontSize: '0.7rem' }}>
+                    {h.badge}
+                  </span>
+                </div>
+                <div style={{ fontSize: '1.2rem', fontWeight: 700, color: '#0f172a', margin: '0.2rem 0' }}>
+                  {h.number}
+                </div>
+                <div style={{ fontSize: '0.775rem', color: '#64748b', marginBottom: '0.75rem' }}>
+                  {h.desc}
+                </div>
+              </div>
 
-          <div style={{ background: '#eff6ff', padding: '0.75rem', borderRadius: '8px', border: '1px solid #bfdbfe' }}>
-            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#1e3a8a', textTransform: 'uppercase' }}>
-              Health Center & Ambulance
+              {/* 1-Click Call and Copy Actions */}
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginTop: 'auto' }}>
+                <a
+                  href={`tel:${h.tel}`}
+                  className="cc-button"
+                  style={{
+                    flex: 1,
+                    textAlign: 'center',
+                    textDecoration: 'none',
+                    fontSize: '0.8rem',
+                    padding: '0.4rem 0.6rem',
+                    background: '#ffffff',
+                    border: '1px solid #cbd5e1',
+                    color: '#0f172a',
+                    borderRadius: '6px',
+                    fontWeight: 600,
+                  }}
+                >
+                  📞 Call Now
+                </a>
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleCopy(h.id, h.number);
+                  }}
+                  className="cc-button"
+                  style={{
+                    flex: 1,
+                    fontSize: '0.8rem',
+                    padding: '0.4rem 0.6rem',
+                    background: copiedId === h.id ? '#ecfdf5' : '#ffffff',
+                    borderColor: copiedId === h.id ? '#10b981' : '#cbd5e1',
+                    color: copiedId === h.id ? '#047857' : '#0f172a',
+                    borderRadius: '6px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                  }}
+                >
+                  {copiedId === h.id ? '✓ Copied' : '📋 Copy'}
+                </button>
+              </div>
             </div>
-            <div style={{ fontSize: '1.15rem', fontWeight: 700, color: '#0f172a', margin: '0.2rem 0' }}>
-              +91-11-2659-1500
-            </div>
-            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Emergency Medical Ward & Pharmacy</div>
-          </div>
-
-          <div style={{ background: '#f5f3ff', padding: '0.75rem', borderRadius: '8px', border: '1px solid #ddd6fe' }}>
-            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#5b21b6', textTransform: 'uppercase' }}>
-              Women's Cell / ICC
-            </div>
-            <div style={{ fontSize: '1.15rem', fontWeight: 700, color: '#0f172a', margin: '0.2rem 0' }}>
-              +91-11-2659-1800
-            </div>
-            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Internal Complaints Committee</div>
-          </div>
-
-          <div style={{ background: '#fffbeb', padding: '0.75rem', borderRadius: '8px', border: '1px solid #fde68a' }}>
-            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#92400e', textTransform: 'uppercase' }}>
-              National Anti-Ragging
-            </div>
-            <div style={{ fontSize: '1.15rem', fontWeight: 700, color: '#0f172a', margin: '0.2rem 0' }}>
-              1800-180-5522
-            </div>
-            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Toll-Free 24x7 UGC Helpline</div>
-          </div>
+          ))}
         </div>
       </div>
 
@@ -187,19 +328,45 @@ export default function CampusHelp() {
         </div>
       </div>
 
-      {/* Frequently Asked Questions */}
+      {/* Frequently Asked Questions with Category Filter and Accessible Accordion */}
       <div className="cc-card">
         <div className="cc-card-header">
-          <h3 className="cc-card-title">
-            <span>❓</span> Frequently Asked Questions
-          </h3>
-          <div style={{ width: '240px' }}>
-            <TextField
-              label="Search FAQs"
-              value={search}
-              onChange={setSearch}
-            />
+          <div>
+            <h3 className="cc-card-title">
+              <span>❓</span> Frequently Asked Questions
+            </h3>
+            <span style={{ fontSize: '0.825rem', color: '#64748b' }}>
+              Instant answers regarding marks corrections, hall tickets, and grievance privacy.
+            </span>
           </div>
+          <div style={{ width: '240px' }}>
+            <TextField label="Search FAQs" value={search} onChange={setSearch} />
+          </div>
+        </div>
+
+        {/* Category Pills */}
+        <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              type="button"
+              onClick={() => {
+                setSelectedCategory(cat);
+              }}
+              style={{
+                padding: '0.3rem 0.75rem',
+                borderRadius: '999px',
+                border: `1px solid ${selectedCategory === cat ? '#1e3a8a' : '#e2e8f0'}`,
+                background: selectedCategory === cat ? '#1e3a8a' : '#f8fafc',
+                color: selectedCategory === cat ? '#ffffff' : '#475569',
+                fontSize: '0.8rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
+            >
+              {cat}
+            </button>
+          ))}
         </div>
 
         {filteredFaqs.length === 0 ? (
@@ -208,52 +375,70 @@ export default function CampusHelp() {
           </p>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {filteredFaqs.map((faq, idx) => (
-              <div
-                key={idx}
-                style={{
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '8px',
-                  background: expandedIndex === idx ? '#f8fafc' : '#ffffff',
-                  overflow: 'hidden',
-                }}
-              >
-                <button
-                  type="button"
-                  onClick={() => setExpandedIndex(expandedIndex === idx ? null : idx)}
+            {filteredFaqs.map((faq, idx) => {
+              const isExpanded = expandedQ === faq.q;
+              return (
+                <div
+                  key={faq.q}
                   style={{
-                    width: '100%',
-                    padding: '0.85rem 1rem',
-                    textAlign: 'left',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    gap: '1rem',
-                    minHeight: '44px',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '8px',
+                    background: isExpanded ? '#f8fafc' : '#ffffff',
+                    overflow: 'hidden',
                   }}
-                  aria-expanded={expandedIndex === idx}
                 >
-                  <div>
-                    <span className="cc-badge" data-tone="neutral" style={{ marginRight: '0.5rem', fontSize: '0.75rem' }}>
-                      {faq.category}
+                  <button
+                    type="button"
+                    id={`faq-btn-${String(idx)}`}
+                    aria-controls={`faq-panel-${String(idx)}`}
+                    aria-expanded={isExpanded}
+                    onClick={() => {
+                      setExpandedQ(isExpanded ? null : faq.q);
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '0.85rem 1rem',
+                      textAlign: 'left',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      gap: '1rem',
+                      minHeight: '44px',
+                    }}
+                  >
+                    <div>
+                      <span className="cc-badge" data-tone="neutral" style={{ marginRight: '0.5rem', fontSize: '0.75rem' }}>
+                        {faq.category}
+                      </span>
+                      <strong style={{ fontSize: '0.925rem', color: '#0f172a' }}>{faq.q}</strong>
+                    </div>
+                    <span style={{ color: '#64748b', fontSize: '1.1rem', flexShrink: 0 }}>
+                      {isExpanded ? '−' : '+'}
                     </span>
-                    <strong style={{ fontSize: '0.925rem', color: '#0f172a' }}>{faq.q}</strong>
-                  </div>
-                  <span style={{ color: '#64748b', fontSize: '1.1rem', flexShrink: 0 }}>
-                    {expandedIndex === idx ? '−' : '+'}
-                  </span>
-                </button>
+                  </button>
 
-                {expandedIndex === idx && (
-                  <div style={{ padding: '0 1rem 1rem', fontSize: '0.875rem', color: '#475569', lineHeight: 1.5, borderTop: '1px solid #f1f5f9' }}>
-                    {faq.a}
-                  </div>
-                )}
-              </div>
-            ))}
+                  {isExpanded && (
+                    <div
+                      id={`faq-panel-${String(idx)}`}
+                      role="region"
+                      aria-labelledby={`faq-btn-${String(idx)}`}
+                      style={{
+                        padding: '0 1rem 1rem',
+                        fontSize: '0.875rem',
+                        color: '#475569',
+                        lineHeight: 1.5,
+                        borderTop: '1px solid #f1f5f9',
+                      }}
+                    >
+                      {faq.a}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

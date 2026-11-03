@@ -114,23 +114,31 @@ export default function Opportunities() {
           </Button>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '1.25rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '1.25rem' }} className="cc-perspective-container">
           {filteredOpps.map((opp) => (
             <div
               key={opp.id}
-              className="cc-card cc-card-interactive"
+              className="cc-card-3d"
               style={{
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
-                borderLeft: `4px solid ${opp.matchScore >= 90 ? '#0d9488' : '#2563eb'}`,
+                borderLeft: `5px solid ${opp.matchScore >= 90 ? '#f59e0b' : '#1e40af'}`,
               }}
             >
               <div>
                 {/* Card Top: Badges & Bookmark */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
                   <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
-                    <span className="cc-badge" data-tone={opp.matchScore >= 90 ? 'success' : 'info'}>
+                    <span
+                      className="cc-badge"
+                      style={{
+                        background: opp.matchScore >= 90 ? '#fef08a' : '#eff6ff',
+                        color: opp.matchScore >= 90 ? '#78350f' : '#1e40af',
+                        fontWeight: 700,
+                        border: `1px solid ${opp.matchScore >= 90 ? '#fde047' : '#bfdbfe'}`,
+                      }}
+                    >
                       ★ {opp.matchScore}% Match
                     </span>
                     <span className="cc-badge" data-tone="neutral">
@@ -145,9 +153,10 @@ export default function Opportunities() {
                       background: 'none',
                       border: 'none',
                       cursor: 'pointer',
-                      fontSize: '1.25rem',
+                      fontSize: '1.35rem',
                       padding: '4px',
-                      color: opp.isSaved ? '#d97706' : '#94a3b8',
+                      color: opp.isSaved ? '#f59e0b' : '#cbd5e1',
+                      transition: 'transform 0.15s ease',
                     }}
                     title={opp.isSaved ? 'Saved to tracker' : 'Save opportunity'}
                   >
@@ -156,7 +165,7 @@ export default function Opportunities() {
                 </div>
 
                 {/* Title & Provider */}
-                <h3 style={{ margin: '0 0 0.25rem', fontSize: '1.1rem', fontWeight: 600, color: '#0f172a' }}>
+                <h3 style={{ margin: '0 0 0.25rem', fontSize: '1.1rem', fontWeight: 700, color: '#0f172a' }}>
                   {opp.title}
                 </h3>
                 <div style={{ fontSize: '0.825rem', color: '#64748b', marginBottom: '0.75rem' }}>
@@ -173,10 +182,10 @@ export default function Opportunities() {
                     marginBottom: '0.85rem',
                   }}
                 >
-                  <div style={{ fontSize: '0.925rem', fontWeight: 700, color: '#0f766e', marginBottom: '0.2rem' }}>
+                  <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#1e40af', marginBottom: '0.2rem' }}>
                     {opp.awardText}
                   </div>
-                  <div style={{ fontSize: '0.8rem', color: opp.daysRemaining <= 10 ? '#b45309' : '#64748b', fontWeight: opp.daysRemaining <= 10 ? 600 : 400 }}>
+                  <div style={{ fontSize: '0.8rem', color: opp.daysRemaining <= 10 ? '#b45309' : '#64748b', fontWeight: opp.daysRemaining <= 10 ? 700 : 400 }}>
                     ⏳ Deadline: {new Date(opp.deadline).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })} ({opp.daysRemaining} days left)
                   </div>
                 </div>
@@ -199,7 +208,7 @@ export default function Opportunities() {
                   target="_blank"
                   rel="noreferrer"
                   className="cc-button"
-                  style={{ flex: 1, textDecoration: 'none' }}
+                  style={{ flex: 1, textDecoration: 'none', background: '#f59e0b', color: '#0f172a', fontWeight: 700, border: '1px solid #d97706' }}
                 >
                   Apply Official Portal ↗
                 </a>

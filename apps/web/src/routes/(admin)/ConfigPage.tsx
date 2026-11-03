@@ -187,14 +187,15 @@ export default function ConfigPage() {
       }
     },
   });
-  const [form, setForm] = useState<FormState | null>(null);
+  const [form, setForm] = useState<FormState>(() => toForm(query.data ?? DEFAULT_TENANT_CONFIG));
   const [errors, setErrors] = useState<FieldErrors>({});
   const [saved, setSaved] = useState(false);
+  const [isTouched, setIsTouched] = useState(false);
 
-  // Seed the form once; later refetches never overwrite what the admin is typing.
+  // Synchronize with remote query data if available and user has not typed into the form
   useEffect(() => {
-    if (form === null && query.data !== undefined) setForm(toForm(query.data));
-  }, [form, query.data]);
+    if (!isTouched && query.data !== undefined) setForm(toForm(query.data));
+  }, [isTouched, query.data]);
 
   const save = useMutation({
     mutationFn: async (payload: TenantConfig) => {
@@ -213,12 +214,13 @@ export default function ConfigPage() {
     onError: (error) => setErrors(problemFieldErrors(error, t('admin:config.err.invalid'))),
   });
 
-  if (query.isPending) return <p role="status">{t('loading')}</p>;
-  if (query.isError || form === null) {
+  if (query.isPending && !query.data) return <p role="status">{t('loading')}</p>;
+  if (query.isError) {
     return <ErrorAlert>{describeError(query.error, t('admin:error.load'))}</ErrorAlert>;
   }
 
   const update = (patch: Partial<FormState>) => {
+    setIsTouched(true);
     setForm({ ...form, ...patch });
     setSaved(false);
   };

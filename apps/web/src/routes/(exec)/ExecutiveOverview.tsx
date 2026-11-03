@@ -74,7 +74,7 @@ export default function ExecutiveOverview() {
   const [broadcastSent, setBroadcastSent] = useState(false);
 
   return (
-    <div className="cc-container">
+    <div>
       {/* Page Header */}
       <div className="cc-page-header">
         <div>
@@ -97,74 +97,87 @@ export default function ExecutiveOverview() {
         </div>
       )}
 
-      {/* North Star KPI Card (PRD §1.4 VOTR) */}
-      <div
-        className="cc-card"
-        style={{
-          background: 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%)',
-          color: '#ffffff',
-          marginBottom: '1.5rem',
-          padding: '1.75rem',
-          border: 'none',
-        }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1.5rem' }}>
-          <div style={{ maxWidth: '640px' }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255,255,255,0.12)', padding: '0.25rem 0.75rem', borderRadius: '999px', fontSize: '0.8rem', marginBottom: '0.75rem' }}>
+      {/* North Star KPI Card with 3D Depth (PRD §1.4 VOTR) */}
+      <div className="cc-hero-3d">
+        <div
+          className="cc-hero-glow-orb"
+          style={{ top: '-80px', right: '15%', background: 'rgba(56, 189, 248, 0.45)' }}
+          aria-hidden="true"
+        />
+        <div
+          className="cc-hero-glow-orb"
+          style={{ bottom: '-90px', left: '10%', background: 'rgba(245, 158, 11, 0.3)' }}
+          aria-hidden="true"
+        />
+
+        <div style={{ position: 'relative', zIndex: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '2rem' }}>
+          <div style={{ maxWidth: '640px' }} className="cc-depth-sm">
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)', padding: '0.35rem 0.95rem', borderRadius: '999px', fontSize: '0.825rem', marginBottom: '0.85rem', border: '1px solid rgba(255,255,255,0.2)' }}>
               <span>⭐</span>
-              <span>North Star Metric · Verified Resolution Quality</span>
+              <span style={{ fontWeight: 600 }}>North Star Metric · Verified Resolution Quality</span>
             </div>
-            <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.75rem', fontWeight: 700, color: '#ffffff' }}>
+            <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.95rem', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.03em' }}>
               Verified On-Time Resolution Rate (VOTR)
             </h3>
-            <p style={{ margin: 0, color: '#cbd5e1', fontSize: '0.95rem', lineHeight: 1.5 }}>
-              Share of student tickets resolved within SLA without dispute or reopening within 7 days. Measures genuine outcome quality, not rushed closures.
+            <p style={{ margin: 0, color: '#cbd5e1', fontSize: '1rem', lineHeight: 1.55 }}>
+              Share of campus tickets resolved on time without dispute or reopening within 7 days. Measures genuine institutional service quality, not rushed closures.
             </p>
           </div>
 
-          <div style={{ textAlign: 'right', background: 'rgba(255,255,255,0.08)', padding: '1rem 1.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.15)' }}>
-            <div style={{ fontSize: '0.85rem', color: '#93c5fd', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <div
+            className="cc-depth-lg"
+            style={{
+              textAlign: 'center',
+              background: 'rgba(255,255,255,0.1)',
+              backdropFilter: 'blur(16px)',
+              padding: '1.25rem 2rem',
+              borderRadius: '16px',
+              border: '1px solid rgba(255,255,255,0.25)',
+              boxShadow: '0 12px 30px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.5)',
+            }}
+          >
+            <div style={{ fontSize: '0.8rem', color: '#fde047', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700 }}>
               Current Performance
             </div>
-            <div style={{ fontSize: '2.75rem', fontWeight: 800, color: '#38bdf8', lineHeight: 1.1, margin: '0.25rem 0' }}>
+            <div style={{ fontSize: '3.25rem', fontWeight: 900, color: '#facc15', lineHeight: 1.05, margin: '0.35rem 0', textShadow: '0 0 25px rgba(245, 158, 11, 0.5)' }}>
               78.4%
             </div>
-            <div style={{ fontSize: '0.85rem', color: '#a7f3d0' }}>
+            <div style={{ fontSize: '0.875rem', color: '#fef08a', fontWeight: 600 }}>
               ▲ +7.2% vs last month (Target: 80.0%)
             </div>
           </div>
         </div>
       </div>
 
-      {/* KPI Metrics Grid */}
+      {/* 3D KPI Metrics Grid - Blue, White, and Yellow */}
       <div className="cc-grid-4">
-        <div className="cc-stat-box">
+        <div className="cc-stat-box-3d" data-accent="blue">
           <div className="cc-stat-label">Total Requests (MTD)</div>
-          <div className="cc-stat-value">1,428</div>
+          <div className="cc-stat-value-3d" style={{ color: '#1e40af' }}>1,428</div>
           <div className="cc-stat-hint">
-            <span style={{ color: '#0d9488' }}>1,195 resolved</span> · 233 in queue
+            <span style={{ color: '#2563eb', fontWeight: 700 }}>1,195 resolved</span> · 233 in queue
           </div>
         </div>
 
-        <div className="cc-stat-box" data-accent="teal">
+        <div className="cc-stat-box-3d" data-accent="yellow">
           <div className="cc-stat-label">Median First Response</div>
-          <div className="cc-stat-value">2.2 hrs</div>
+          <div className="cc-stat-value-3d" style={{ color: '#b45309' }}>2.2 hrs</div>
           <div className="cc-stat-hint">
-            <span>✓</span> Target: &le; 4.0 business hours
+            <span style={{ color: '#f59e0b' }}>★</span> Target: &le; 4.0 business hours
           </div>
         </div>
 
-        <div className="cc-stat-box" data-accent="saffron">
+        <div className="cc-stat-box-3d" data-accent="yellow">
           <div className="cc-stat-label">SLA Compliance</div>
-          <div className="cc-stat-value">86.8%</div>
+          <div className="cc-stat-value-3d" style={{ color: '#b45309' }}>86.8%</div>
           <div className="cc-stat-hint">
             <span>▲</span> Target &ge; 85% achieved
           </div>
         </div>
 
-        <div className="cc-stat-box" data-accent="danger">
+        <div className="cc-stat-box-3d" data-accent="danger">
           <div className="cc-stat-label">Dispute & Escalation Rate</div>
-          <div className="cc-stat-value">3.8%</div>
+          <div className="cc-stat-value-3d" style={{ color: '#b91c1c' }}>3.8%</div>
           <div className="cc-stat-hint">
             <span>●</span> 1 L3 Ombudsperson review active
           </div>
@@ -210,12 +223,16 @@ export default function ExecutiveOverview() {
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <Button
                 variant="secondary"
-                onPress={() => setSelectedCluster('hostel_b')}
+                onPress={() => {
+                  setSelectedCluster('hostel_b');
+                }}
               >
                 Inspect Cluster (k=42)
               </Button>
               <Button
-                onPress={() => setBroadcastSent(true)}
+                onPress={() => {
+                  setBroadcastSent(true);
+                }}
               >
                 📢 Broadcast Update to Residents
               </Button>
@@ -241,7 +258,9 @@ export default function ExecutiveOverview() {
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <Button
                 variant="secondary"
-                onPress={() => setSelectedCluster('cs302')}
+                onPress={() => {
+                  setSelectedCluster('cs302');
+                }}
               >
                 View Department Triage
               </Button>
@@ -334,12 +353,16 @@ export default function ExecutiveOverview() {
             justifyContent: 'center',
             padding: '1rem',
           }}
-          onClick={() => setSelectedCluster(null)}
+          onClick={() => {
+            setSelectedCluster(null);
+          }}
         >
           <div
             className="cc-card"
             style={{ maxWidth: '600px', width: '100%', background: '#ffffff', padding: '1.75rem' }}
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
           >
             <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.25rem', color: '#0f172a' }}>
               Cluster Anomaly Details: {selectedCluster === 'hostel_b' ? 'Mandakini Block B Water Pressure' : 'CS302 Assessment Marks'}
@@ -355,7 +378,12 @@ export default function ExecutiveOverview() {
               </div>
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
-              <Button variant="secondary" onPress={() => setSelectedCluster(null)}>
+              <Button
+                variant="secondary"
+                onPress={() => {
+                  setSelectedCluster(null);
+                }}
+              >
                 Close
               </Button>
             </div>

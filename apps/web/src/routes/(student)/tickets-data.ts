@@ -1,7 +1,20 @@
 import { useQuery } from '@tanstack/react-query';
-import { apiRequest } from '../../api/client';
+import { ApiError, apiRequest } from '../../api/client';
 import { cacheTicket, getCachedTicket, listCachedTickets } from '../../pwa/ticket-cache';
 import { isNetworkError, type Category, type TicketDetail, type TicketSummary } from './api';
+
+/**
+ * Determines whether a query error should fall back to seed/offline data.
+ * Catches offline fetch exceptions (no response) AND HTTP 404 / 500+ status codes
+ * encountered when the dev server is served without an active backend.
+ */
+export function shouldFallbackToSeed(error: unknown): boolean {
+  if (isNetworkError(error)) return true;
+  if (error instanceof ApiError) {
+    return error.status === 404 || error.status >= 500;
+  }
+  return false;
+}
 
 /** Data plus, when it came from the offline cache, the time it was last updated (20.2). */
 export interface Cached<T> {
@@ -132,7 +145,7 @@ export function useTicketList() {
         const page = await apiRequest<{ readonly items: readonly TicketSummary[] }>('/tickets?scope=mine');
         return { data: page.items, offlineAsOf: null };
       } catch (error) {
-        if (!isNetworkError(error)) throw error;
+        if (!shouldFallbackToSeed(error)) throw error;
         const cached = await listCachedTickets();
         if (cached.length > 0) {
           return {
@@ -159,7 +172,7 @@ export function useTicket(id: string) {
         await cacheTicket(id, ticket, updatedMs(ticket)).catch(() => undefined);
         return { data: ticket, offlineAsOf: null };
       } catch (error) {
-        if (!isNetworkError(error)) throw error;
+        if (!shouldFallbackToSeed(error)) throw error;
         const cached = await getCachedTicket(id);
         if (cached) {
           return { data: cached.data as TicketDetail, offlineAsOf: cached.lastUpdatedAt };
