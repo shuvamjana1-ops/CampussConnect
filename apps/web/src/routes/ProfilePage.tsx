@@ -924,3 +924,4 @@ export default function ProfilePage({ isModal = false, onClose }: ProfilePagePro
     </div>
   );
 }
+
