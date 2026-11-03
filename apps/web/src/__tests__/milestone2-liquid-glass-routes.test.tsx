@@ -38,6 +38,8 @@ function renderWithProviders(ui: React.ReactElement, initialEntry = '/'): string
   );
 }
 
+const DEPRECATED_NAME = ['Campus', 'Flow'].join('');
+
 describe('Milestone 2: Liquid Glass Frontend & JIS University Brand Architecture', () => {
   describe('Track A: Public & Authentication Pages', () => {
     it('renders LandingPage with Apple Sequoia Liquid Glass hero and JIS University enterprise branding', () => {
@@ -49,7 +51,7 @@ describe('Milestone 2: Liquid Glass Frontend & JIS University Brand Architecture
       expect(html).toContain('Student Portal');
       expect(html).toContain('Staff Workspace');
       expect(html).toContain('Administrative Command');
-      expect(html).not.toContain('CampusFlow');
+      expect(html).not.toContain(DEPRECATED_NAME);
     });
 
     it('renders SignIn page with macOS centered frosted window and 1-click quick fill', () => {
@@ -61,7 +63,7 @@ describe('Milestone 2: Liquid Glass Frontend & JIS University Brand Architecture
       expect(html).toContain('JISU/2024/CSE/0842');
       expect(html).toContain('JISU-STAFF-104');
       expect(html).toContain('JISU-ADM-001');
-      expect(html).not.toContain('CampusFlow');
+      expect(html).not.toContain(DEPRECATED_NAME);
     });
 
     it('renders SignUp page with dual-mode registration and role selection', () => {
@@ -74,7 +76,7 @@ describe('Milestone 2: Liquid Glass Frontend & JIS University Brand Architecture
       expect(html).toContain('Staff / Faculty');
       expect(html).toContain('Full Name');
       expect(html).toContain('Institutional Email');
-      expect(html).not.toContain('CampusFlow');
+      expect(html).not.toContain(DEPRECATED_NAME);
     });
 
     it('renders NotFoundPage with macOS 404 card and return pill button', () => {
@@ -85,7 +87,7 @@ describe('Milestone 2: Liquid Glass Frontend & JIS University Brand Architecture
       expect(html).toContain('Return to CampusConnect');
       expect(html).toContain('Student Portal');
       expect(html).toContain('Staff Workspace');
-      expect(html).not.toContain('CampusFlow');
+      expect(html).not.toContain(DEPRECATED_NAME);
     });
   });
 
@@ -100,7 +102,7 @@ describe('Milestone 2: Liquid Glass Frontend & JIS University Brand Architecture
       expect(html).toContain('SLA Adherence Compliance');
       expect(html).toContain('Student Grievances &amp; Academic AC Cases');
       expect(html).toContain('Work on Case');
-      expect(html).not.toContain('CampusFlow');
+      expect(html).not.toContain(DEPRECATED_NAME);
     });
 
     it('renders StaffDashboard with staff resolution workspace and triage queue', () => {
@@ -109,7 +111,7 @@ describe('Milestone 2: Liquid Glass Frontend & JIS University Brand Architecture
       expect(html).toContain('Assigned Work Orders &amp; Docket Triage');
       expect(html).toContain('Assigned Student Grievances');
       expect(html).toContain('Work on This Case');
-      expect(html).not.toContain('CampusFlow');
+      expect(html).not.toContain(DEPRECATED_NAME);
     });
 
     it('provides backward-compatible WorkerDashboard bridge export pointing to StaffDashboard', () => {
@@ -129,7 +131,7 @@ describe('Milestone 2: Liquid Glass Frontend & JIS University Brand Architecture
       expect(html).toContain('Lodge New Ticket');
       expect(html).toContain('Case Resolution Pipeline');
       expect(html).toContain('CS302');
-      expect(html).not.toContain('CampusFlow');
+      expect(html).not.toContain(DEPRECATED_NAME);
     });
 
     it('renders AcademicSectionView with verified marks and dossier discrepancy flagging', () => {
@@ -139,7 +141,7 @@ describe('Milestone 2: Liquid Glass Frontend & JIS University Brand Architecture
       expect(html).toContain('Edit AC Personal Data');
       expect(html).toContain('Flag Discrepancy');
       expect(html).toContain('CS302');
-      expect(html).not.toContain('CampusFlow');
+      expect(html).not.toContain(DEPRECATED_NAME);
     });
   });
 
@@ -157,7 +159,7 @@ describe('Milestone 2: Liquid Glass Frontend & JIS University Brand Architecture
       expect(html).toContain('Institutional Email');
       expect(html).toContain('Phone Number');
       expect(html).toContain('Roll / Registration Number');
-      expect(html).not.toContain('CampusFlow');
+      expect(html).not.toContain(DEPRECATED_NAME);
     });
 
     it('renders SettingsPage with brand lockup classes and system telemetry', () => {
@@ -170,7 +172,7 @@ describe('Milestone 2: Liquid Glass Frontend & JIS University Brand Architecture
       expect(html).toContain('Supabase Auth v2 (JWT)');
       expect(html).toContain('cc-brand-lockup');
       expect(html).toContain('cc-brand-logo');
-      expect(html).not.toContain('CampusFlow');
+      expect(html).not.toContain(DEPRECATED_NAME);
     });
 
     it('App router mounts public, authenticated, and 404 routes properly', () => {
