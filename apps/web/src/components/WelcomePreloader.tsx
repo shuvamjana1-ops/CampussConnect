@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { BrandLogo } from '../branding/BrandLogo';
 
 interface Props {
   readonly onFinish?: () => void;
@@ -96,10 +97,11 @@ export function WelcomePreloader({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '2.4rem',
+            overflow: 'hidden',
+            padding: '12px',
           }}
         >
-          🏛️
+          <BrandLogo size={48} />
         </div>
       </div>
 

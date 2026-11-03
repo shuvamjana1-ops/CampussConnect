@@ -19,16 +19,17 @@ export const LOCALE_STORAGE_KEY = 'campusconnect.locale';
 
 export const localeManifest: LocaleManifest = manifestJson;
 
-interface GlobMeta {
-  glob?: (pattern: string, options: { eager: true; import: 'default' }) => Record<string, unknown>;
-}
-
 /** Bundles every `locales/{code}/{namespace}.json`; a new locale folder needs no code change. */
 function loadBundledResources(): Resource {
-  const files = (import.meta as unknown as GlobMeta).glob?.('../locales/*/*.json', {
-    eager: true,
-    import: 'default',
-  });
+  let files: Record<string, unknown> = {};
+  try {
+    files = import.meta.glob('../locales/*/*.json', {
+      eager: true,
+      import: 'default',
+    });
+  } catch {
+    files = {};
+  }
   const resources: Record<string, Record<string, Record<string, string>>> = {};
   for (const [path, content] of Object.entries(files ?? {})) {
     const match = /\/locales\/([^/]+)\/([^/]+)\.json$/.exec(path);

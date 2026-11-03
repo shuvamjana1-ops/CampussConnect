@@ -1,353 +1,362 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { useSession, type RouteGroup } from '../auth/session';
-
-interface RoleOption {
-  readonly group: RouteGroup | 'all';
-  readonly title: string;
-  readonly persona: string;
-  readonly description: string;
-  readonly path: string;
-  readonly icon: string;
-}
-
-const ROLE_OPTIONS: readonly RoleOption[] = [
-  {
-    group: 'student',
-    title: 'Student Portal',
-    persona: 'Ananya Das (B.Tech CSE - 2nd Yr)',
-    description: 'File requests & grievances, track SLA progress, browse matched scholarships & aid.',
-    path: '/student',
-    icon: '🎓',
-  },
-  {
-    group: 'workbench',
-    title: 'Staff Workbench',
-    persona: 'Rahul Mehta (Exam & Records Cell)',
-    description: 'Triage ticket queue with keyboard shortcuts, review AI suggestions, reassign & resolve.',
-    path: '/workbench',
-    icon: '🛠️',
-  },
-  {
-    group: 'exec',
-    title: 'Executive Overview',
-    persona: 'Prof. Meera Iyer (Pro Vice-Chancellor)',
-    description: 'Track campus VOTR, systemic spike/cluster alerts, and department SLA scorecards.',
-    path: '/exec/overview',
-    icon: '📊',
-  },
-  {
-    group: 'admin',
-    title: 'Institution Admin',
-    persona: 'Dr. Suresh Kumar (Registrar)',
-    description: 'Manage departments, routing rules, SLA policies, ERP sync & audit verification.',
-    path: '/admin/config',
-    icon: '⚙️',
-  },
-  {
-    group: 'ops',
-    title: 'Platform Operations',
-    persona: 'Platform Ops Engineer',
-    description: 'Monitor service health, declare SLA breaches, and manage system guardrails.',
-    path: '/ops/health',
-    icon: '📡',
-  },
-];
+import { useSession } from '../auth/session';
+import { useToast } from '../components/Toast';
 
 export default function SignIn() {
-  const { switchRole } = useSession();
+  const { signIn, isConfigured } = useSession();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
-  // Two dedicated portal doors: Student vs Admin
-  const [door, setDoor] = useState<'student' | 'admin'>('student');
-  const [username, setUsername] = useState('student');
-  const [password, setPassword] = useState('student123');
-  const [authError, setAuthError] = useState<string | null>(null);
-  const [authSuccess, setAuthSuccess] = useState<string | null>(null);
+  const [email, setEmail] = useState('student1@demo.com');
+  const [password, setPassword] = useState('Student@123');
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleSelectRole = (option: RoleOption) => {
-    switchRole(option.group);
-    void navigate(option.path);
+  const fillCredentials = (demoEmail: string, demoPass: string, label: string) => {
+    setEmail(demoEmail);
+    setPassword(demoPass);
+    setErrorMessage(null);
+    toast(`Populated credentials for ${label}`, 'info');
   };
 
-  const handlePortalLogin = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setAuthError(null);
-    setAuthSuccess(null);
+    setErrorMessage(null);
+    setSubmitting(true);
 
-    const user = username.trim().toLowerCase();
-    const pass = password.trim();
+    const result = await signIn(email, password);
+    setSubmitting(false);
 
-    if (door === 'student') {
-      if (user === 'admin' || user.includes('admin')) {
-        setAuthError('You entered an administrator account in the Student Panel door. Please switch to the Admin Portal tab.');
-        return;
-      }
-      if (pass !== 'student123' && pass !== 'password') {
-        setAuthError('Invalid student credentials. Try user: student, password: student123');
-        return;
-      }
+    if (!result.success) {
+      setErrorMessage(result.error || 'Authentication failed. Please verify credentials.');
+      toast('Login failed', 'error');
+      return;
+    }
 
-      setAuthSuccess('Student authenticated successfully! Redirecting to student panel…');
-      switchRole('student');
-      setTimeout(() => {
-        void navigate('/student');
-      }, 350);
+    toast(`Authenticated as ${result.role?.toUpperCase() || 'USER'}!`, 'success');
+
+    // Route to appropriate dashboard based on Supabase verified profile role
+    if (result.role === 'admin') {
+      navigate('/admin');
+    } else if (result.role === 'worker') {
+      navigate('/worker');
     } else {
-      // Admin door
-      if (user === 'student' || user.includes('student')) {
-        setAuthError('Access Denied: Student credentials cannot access the Admin & Staff Workbench. Admin username and password required.');
-        return;
-      }
-      if (pass !== 'admin123' && pass !== 'password') {
-        setAuthError('Invalid admin credentials. Try user: admin, password: admin123');
-        return;
-      }
-
-      setAuthSuccess('Administrator authenticated successfully! Redirecting to Admin Workbench…');
-      switchRole('admin');
-      setTimeout(() => {
-        void navigate('/workbench');
-      }, 350);
+      navigate('/student');
     }
   };
 
-  const quickFillStudent = () => {
-    setDoor('student');
-    setUsername('student');
-    setPassword('student123');
-    setAuthError(null);
-  };
-
-  const quickFillAdmin = () => {
-    setDoor('admin');
-    setUsername('admin');
-    setPassword('admin123');
-    setAuthError(null);
-  };
-
   return (
-    <div style={{ maxWidth: '840px', margin: '2rem auto' }} className="cc-perspective-container">
-      {/* 3D Hero Lockup */}
-      <div className="cc-card-3d" style={{ marginBottom: '2rem', textAlign: 'center', padding: '2.5rem 1.5rem', border: '1px solid rgba(226, 232, 240, 0.9)' }}>
-        <div style={{ position: 'relative', width: '70px', height: '70px', margin: '0 auto 1.25rem' }}>
-          <div className="cc-emblem-3d-ring" style={{ width: '70px', height: '70px' }} />
-          <div className="cc-emblem-3d-core" style={{ width: '56px', height: '56px', fontSize: '1.75rem', margin: '7px' }}>
-            🏛️
-          </div>
-        </div>
-        <h1 style={{ margin: '0 0 0.5rem', fontSize: '2rem', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.03em' }}>
-          Welcome to CampusConnect
-        </h1>
-        <p style={{ margin: '0 0 1.5rem', color: '#475569', fontSize: '1.05rem', maxWidth: '580px', marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.5 }}>
-          Official student services, grievance redressal, and opportunity discovery platform for Indian Higher Education Institutions.
-        </p>
-
-        {/* Two Dedicated Portal Access Doors: Student vs Admin */}
-        <div
-          style={{
-            maxWidth: '520px',
-            margin: '0 auto',
-            background: '#ffffff',
-            borderRadius: '14px',
-            border: '2px solid #e2e8f0',
-            boxShadow: '0 10px 25px -5px rgba(0,0,0,0.08)',
-            overflow: 'hidden',
-            textAlign: 'left',
-          }}
-        >
-          {/* Tab Switcher */}
-          <div style={{ display: 'flex', background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-            <button
-              type="button"
-              onClick={quickFillStudent}
+    <div
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        flexWrap: 'wrap',
+        background: 'var(--bg-page)',
+      }}
+    >
+      {/* Left Visual Panel */}
+      <div
+        style={{
+          flex: '1 1 450px',
+          background: 'linear-gradient(135deg, #0a192f 0%, #0f2850 50%, #1e3a8a 100%)',
+          color: '#ffffff',
+          padding: '3.5rem',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        <div style={{ position: 'relative', zIndex: 2 }}>
+          {/* Institution Header */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '3rem' }}>
+            <div
               style={{
-                flex: 1,
-                padding: '0.9rem',
-                border: 'none',
-                background: door === 'student' ? '#ffffff' : 'transparent',
-                color: door === 'student' ? '#1e3a8a' : '#64748b',
-                fontWeight: 700,
-                fontSize: '0.95rem',
-                cursor: 'pointer',
-                borderBottom: door === 'student' ? '3px solid #f59e0b' : 'none',
+                width: '48px',
+                height: '48px',
+                borderRadius: '50%',
+                background: '#f59e0b',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '0.5rem',
-                transition: 'all 0.15s ease',
+                fontSize: '1.5rem',
+                fontWeight: 900,
+                color: '#0f2850',
+                boxShadow: '0 8px 20px rgba(245, 158, 11, 0.4)',
               }}
             >
-              <span>🎓</span> Student Panel Login
-            </button>
-            <button
-              type="button"
-              onClick={quickFillAdmin}
-              style={{
-                flex: 1,
-                padding: '0.9rem',
-                border: 'none',
-                background: door === 'admin' ? '#ffffff' : 'transparent',
-                color: door === 'admin' ? '#1e3a8a' : '#64748b',
-                fontWeight: 700,
-                fontSize: '0.95rem',
-                cursor: 'pointer',
-                borderBottom: door === 'admin' ? '3px solid #f59e0b' : 'none',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.5rem',
-                transition: 'all 0.15s ease',
-              }}
-            >
-              <span>🛡️</span> Admin Panel Login
-            </button>
+              J
+            </div>
+            <div>
+              <div style={{ fontSize: '1.35rem', fontWeight: 900, letterSpacing: '-0.02em' }}>
+                JIS UNIVERSITY
+              </div>
+              <div style={{ fontSize: '0.8rem', color: '#93c5fd', fontWeight: 600, letterSpacing: '0.05em' }}>
+                CampusConnect Enterprise Portal
+              </div>
+            </div>
           </div>
 
-          <form onSubmit={handlePortalLogin} style={{ padding: '1.5rem' }}>
-            <div style={{ marginBottom: '0.75rem', fontSize: '0.825rem', color: '#64748b' }}>
-              {door === 'student'
-                ? 'Authorized student login for requests, grievances, and scholarship tracking.'
-                : 'Restricted administrative login for university triage, staff status updates, and SLA governance.'}
+          <h1 style={{ fontSize: '2.5rem', fontWeight: 900, lineHeight: 1.15, marginBottom: '1.25rem', letterSpacing: '-0.03em' }}>
+            Zero-Trust Campus Operations & Grievance Engine.
+          </h1>
+          <p style={{ fontSize: '1rem', lineHeight: 1.6, color: '#cbd5e1', maxWidth: '440px', marginBottom: '2.5rem' }}>
+            Powered by Supabase Auth, PostgreSQL Row-Level Security (RLS), and verified role-based access control for students, workers, and administrative leadership.
+          </p>
+
+          {/* Architecture Badges */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '420px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'rgba(255, 255, 255, 0.08)', padding: '12px 16px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.15)' }}>
+              <span style={{ fontSize: '1.25rem' }}>🛡️</span>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>RLS Security Enforced</div>
+                <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Row-level policies prevent cross-tenant data leaks.</div>
+              </div>
             </div>
 
-            <div style={{ marginBottom: '1rem' }}>
-              <label htmlFor="portal-user" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#334155', marginBottom: '0.25rem' }}>
-                {door === 'student' ? 'Student ID / Email' : 'Admin Username / Email'}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'rgba(255, 255, 255, 0.08)', padding: '12px 16px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.15)' }}>
+              <span style={{ fontSize: '1.25rem' }}>🔒</span>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>Anti-Privilege Escalation Trigger</div>
+                <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>User roles locked in DB; client tampering is rejected.</div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'rgba(255, 255, 255, 0.08)', padding: '12px 16px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.15)' }}>
+              <span style={{ fontSize: '1.25rem' }}>⚡</span>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>Real-Time Status Progression</div>
+                <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Submitted → Under Review → Assigned → Resolved.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer info */}
+        <div style={{ position: 'relative', zIndex: 2, paddingTop: '2rem', borderTop: '1px solid rgba(255, 255, 255, 0.1)', fontSize: '0.8rem', color: '#94a3b8' }}>
+          JIS University CampusConnect Portal · Academic Session 2026-27
+        </div>
+      </div>
+
+      {/* Right Login Panel */}
+      <div
+        style={{
+          flex: '1 1 500px',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          padding: '2.5rem 2rem',
+        }}
+      >
+        <div style={{ width: '100%', maxWidth: '440px' }}>
+          <div style={{ marginBottom: '1.75rem' }}>
+            <h2 style={{ fontSize: '1.75rem', fontWeight: 800, margin: '0 0 0.5rem', color: 'var(--text-main)', letterSpacing: '-0.02em' }}>
+              Sign In to Your Portal
+            </h2>
+            <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+              Select a demo profile or enter your verified credentials.
+            </p>
+          </div>
+
+          {/* DEMO CREDENTIALS BOX */}
+          <div
+            style={{
+              background: 'var(--bg-surface-subtle)',
+              border: '1px solid var(--border-subtle)',
+              borderRadius: '14px',
+              padding: '1.25rem',
+              marginBottom: '1.75rem',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                🔑 One-Click Demo Credentials
+              </span>
+              <span style={{ fontSize: '0.7rem', padding: '2px 8px', borderRadius: '6px', background: isConfigured ? '#dcfce7' : '#fef3c7', color: isConfigured ? '#15803d' : '#b45309', fontWeight: 700 }}>
+                {isConfigured ? 'Supabase Connected' : 'Demo Sandbox'}
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {/* Admin Button */}
+              <button
+                type="button"
+                onClick={() => fillCredentials('admin@demo.com', 'Admin@123', 'Administrator')}
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  border: '1px solid var(--border-subtle)',
+                  background: 'var(--bg-surface)',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                }}
+              >
+                <div>
+                  <strong style={{ fontSize: '0.825rem', color: 'var(--admin-primary)', display: 'block' }}>
+                    🛡️ Administrative Command Center
+                  </strong>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>admin@demo.com · JISU-ADM-001</span>
+                </div>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--admin-accent)' }}>
+                  Fill →
+                </span>
+              </button>
+
+              {/* Workers Grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                <button
+                  type="button"
+                  onClick={() => fillCredentials('worker1@demo.com', 'Worker@123', 'Worker 1 (Exam Warden)')}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    padding: '8px 10px',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border-subtle)',
+                    background: 'var(--bg-surface)',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                  }}
+                >
+                  <strong style={{ fontSize: '0.8rem', color: 'var(--worker-primary)' }}>
+                    🔧 Staff &amp; Faculty Portal (Exam)
+                  </strong>
+                  <span style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>worker1@demo.com · JISU-STAFF-104</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => fillCredentials('worker2@demo.com', 'Worker@123', 'Worker 2 (Estates)')}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    padding: '8px 10px',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border-subtle)',
+                    background: 'var(--bg-surface)',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                  }}
+                >
+                  <strong style={{ fontSize: '0.8rem', color: 'var(--worker-primary)' }}>
+                    🔧 Staff &amp; Faculty Portal (Estates)
+                  </strong>
+                  <span style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>worker2@demo.com · JISU-EST-202</span>
+                </button>
+              </div>
+
+              {/* Students Grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                <button
+                  type="button"
+                  onClick={() => fillCredentials('student1@demo.com', 'Student@123', 'Student 1 (Ananya Das)')}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    padding: '8px 10px',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border-subtle)',
+                    background: 'var(--bg-surface)',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                  }}
+                >
+                  <strong style={{ fontSize: '0.8rem', color: 'var(--student-primary)' }}>
+                    🎓 Student Portal (CSE)
+                  </strong>
+                  <span style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>student1@demo.com · JISU/2024/CSE/0842</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => fillCredentials('student2@demo.com', 'Student@123', 'Student 2 (Rohan Sharma)')}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    padding: '8px 10px',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border-subtle)',
+                    background: 'var(--bg-surface)',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                  }}
+                >
+                  <strong style={{ fontSize: '0.8rem', color: 'var(--student-primary)' }}>
+                    🎓 Student Portal (ECE)
+                  </strong>
+                  <span style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>student2@demo.com</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Error Banner */}
+          {errorMessage && (
+            <div
+              style={{
+                padding: '12px 16px',
+                background: 'var(--status-urgent-bg)',
+                color: 'var(--status-urgent-text)',
+                borderRadius: '10px',
+                fontSize: '0.85rem',
+                fontWeight: 600,
+                marginBottom: '1.25rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+              }}
+            >
+              <span>⚠️</span>
+              <span>{errorMessage}</span>
+            </div>
+          )}
+
+          {/* Login Form */}
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
+                Institutional Email
               </label>
               <input
-                id="portal-user"
-                className="cc-input"
-                value={username}
-                onChange={(e) => { setUsername(e.target.value); }}
-                style={{ width: '100%' }}
-                placeholder={door === 'student' ? 'student' : 'admin'}
+                type="email"
                 required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="name@demo.com"
+                className="cf-input"
               />
             </div>
 
-            <div style={{ marginBottom: '1.25rem' }}>
-              <label htmlFor="portal-password" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#334155', marginBottom: '0.25rem' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
                 Password
               </label>
               <input
-                id="portal-password"
                 type="password"
-                className="cc-input"
-                value={password}
-                onChange={(e) => { setPassword(e.target.value); }}
-                style={{ width: '100%' }}
-                placeholder="••••••••"
                 required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••••••"
+                className="cf-input"
               />
             </div>
 
-            {authError && (
-              <div role="alert" className="cc-alert cc-alert-danger" style={{ marginBottom: '1rem', fontSize: '0.85rem' }}>
-                <span>✖</span> <span>{authError}</span>
-              </div>
-            )}
-
-            {authSuccess && (
-              <div role="status" className="cc-alert cc-alert-success" style={{ marginBottom: '1rem', fontSize: '0.85rem' }}>
-                <span>✓</span> <span>{authSuccess}</span>
-              </div>
-            )}
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-              <button
-                type="submit"
-                className="cc-btn-3d"
-                style={{ flex: 1, padding: '0.65rem 1.25rem', fontSize: '0.95rem' }}
-              >
-                {door === 'student' ? 'Enter Student Panel →' : 'Enter Admin Panel →'}
-              </button>
-
-              <button
-                type="button"
-                className="cc-btn-3d cc-btn-3d-yellow"
-                style={{ fontSize: '0.825rem', padding: '0.5rem 0.85rem' }}
-                onClick={door === 'student' ? quickFillStudent : quickFillAdmin}
-              >
-                ⚡ Auto-fill {door === 'student' ? 'Student' : 'Admin'}
-              </button>
-            </div>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="cf-btn cf-btn-admin"
+              style={{ width: '100%', padding: '12px', fontSize: '0.95rem', marginTop: '0.5rem' }}
+            >
+              {submitting ? 'Verifying Credentials...' : 'Authenticate & Enter Portal →'}
+            </button>
           </form>
         </div>
-
-        <div style={{ marginTop: '1.75rem', display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-          <button
-            type="button"
-            className="cc-btn-3d cc-btn-3d-white"
-            onClick={() => {
-              window.location.assign('/api/v1/auth/sso/login');
-            }}
-          >
-            Continue with Campus SSO
-          </button>
-          <button
-            type="button"
-            className="cc-btn-3d cc-btn-3d-saffron"
-            onClick={() => {
-              switchRole('all');
-              void navigate('/student');
-            }}
-          >
-            Explore All Areas (Super Demo)
-          </button>
-        </div>
-      </div>
-
-      <div style={{ marginBottom: '1.25rem' }}>
-        <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.35rem', letterSpacing: '-0.02em' }}>
-          Select a Campus Persona to Explore
-        </h2>
-        <p style={{ margin: '0', color: '#64748b', fontSize: '0.925rem' }}>
-          Quickly switch roles to test persona-specific workflows, permissions, and 3D dashboards:
-        </p>
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '1.25rem' }}>
-        {ROLE_OPTIONS.map((opt) => (
-          <div
-            key={opt.group}
-            className="cc-card-3d"
-            style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
-            onClick={() => {
-              handleSelectRole(opt);
-            }}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                handleSelectRole(opt);
-              }
-            }}
-          >
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-                <span style={{ fontSize: '1.5rem' }}>{opt.icon}</span>
-                <div>
-                  <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 600, color: '#0f172a' }}>
-                    {opt.title}
-                  </h3>
-                  <span style={{ fontSize: '0.8rem', color: '#d97706', fontWeight: 600 }}>
-                    {opt.persona}
-                  </span>
-                </div>
-              </div>
-              <p style={{ margin: '0.5rem 0 1rem', fontSize: '0.875rem', color: '#475569', lineHeight: 1.45 }}>
-                {opt.description}
-              </p>
-            </div>
-            <div>
-              <span className="cc-badge" data-tone="info">
-                Enter as {opt.group} →
-              </span>
-            </div>
-          </div>
-        ))}
       </div>
     </div>
   );

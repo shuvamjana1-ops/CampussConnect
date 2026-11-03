@@ -187,9 +187,8 @@ describe('sanitizeText property tests', () => {
         const controlCharPattern = /[\u0000-\u0008\u000B-\u000C\u000E-\u001F\u007F-\u009F]/;
         expect(sanitized).not.toMatch(controlCharPattern);
 
-        // No unescaped < or > that would form tags
-        // After sanitization, if < or > appear as text, they should be properly escaped
-        expect(sanitized).not.toMatch(/<(?![^>]*>)/);
+        // No executable or malformed opening tags
+        expect(sanitized).not.toMatch(/<\s*[a-zA-Z]/);
       }),
       { numRuns: 100 },
     );
@@ -204,18 +203,17 @@ describe('sanitizeText property tests', () => {
    * **Validates: Requirements 22.5, 4.1, 4.3**
    */
   it('Property 65.3: Plain text is unchanged by sanitisation', () => {
-    // Generate text that has no special markup, control characters, or HTML entities
-    // Allowed characters: printable ASCII (0x20-0x7E), tabs, newlines, high Unicode (>0x9F)
+    // Generate text that has no HTML tags, entity openers, or control characters
     const plainTextArbitrary = fc.string({
       minLength: 0,
       maxLength: 1000,
-      // Include common printable characters and Unicode > 0x9F
-      unit16units: () =>
-        fc.oneof(
-          fc.integer({ min: 0x20, max: 0x7e }), // Printable ASCII
-          fc.integer({ min: 0xa0, max: 0xffff }), // High Unicode (above control range)
-          fc.constantFrom(0x09, 0x0a, 0x0d), // Tab, LF, CR (allowed whitespace)
-        ),
+      unit: fc.oneof(
+        fc.integer({ min: 0x20, max: 0x7e })
+          .filter((code) => code !== 0x3c && code !== 0x26) // not '<' and not '&'
+          .map((code) => String.fromCharCode(code)),
+        fc.integer({ min: 0xa0, max: 0xffff }).map((code) => String.fromCharCode(code)),
+        fc.constantFrom('\t', '\n', '\r', ' '),
+      ),
     });
 
     fc.assert(
@@ -275,12 +273,12 @@ describe('sanitizeText property tests', () => {
   it('Property 65.5: Encoded entities are safely decoded', () => {
     fc.assert(
       fc.property(
-        fc.stringOf(
-          fc.oneof(
-            fc.integer({ min: 0x20, max: 0x7e }),
-            fc.integer({ min: 0xa0, max: 0xffff }),
+        fc.string({
+          unit: fc.oneof(
+            fc.integer({ min: 0x20, max: 0x7e }).map((c) => String.fromCharCode(c)),
+            fc.integer({ min: 0xa0, max: 0xffff }).map((c) => String.fromCharCode(c)),
           ),
-        ),
+        }),
         (plainText) => {
           // Encode special characters as HTML entities
           let encoded = plainText;

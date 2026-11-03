@@ -16,17 +16,17 @@ import sanitizeHtml from 'sanitize-html';
  * Text is stored as plain text and the PWA renders it as React text, so this is defence in depth.
  */
 export function sanitizeText(value: string): string {
-  // First strip HTML tags using sanitize-html with no entity decoding
-  // (we handle that separately to support mojibake fallback)
-  const stripped = sanitizeHtml(value, {
+  // Mask & with private use character so htmlparser2 doesn't convert invalid entities to mojibake \ufffd
+  const masked = value.replace(/&/g, '\uE000');
+  const stripped = sanitizeHtml(masked, {
     allowedTags: [],
     allowedAttributes: {},
     disallowedTagsMode: 'discard',
-    decodeEntities: false,
   });
+  const unmasked = stripped.replace(/\uE000/g, '&');
 
   // Decode HTML entities, falling back to the literal reference for unmapped sequences
-  const entityDecoded = decodeHtmlEntities(stripped);
+  const entityDecoded = decodeHtmlEntities(unmasked);
 
   // Remove control characters except whitespace (tab, LF, CR, space)
   // Control characters: U+0000-U+0008, U+000B-U+000C, U+000E-U+001F, U+007F-U+009F
@@ -58,21 +58,30 @@ function decodeHtmlEntities(text: string): string {
  * Returns the decoded character or null if unmapped.
  */
 function decodeEntity(entity: string): string | null {
-  // Try using a temporary element if in browser
-  if (typeof document !== 'undefined') {
-    try {
-      const div = document.createElement('div');
-      div.innerHTML = entity;
-      const text = div.textContent;
-      if (text && text !== entity) {
-        return text;
-      }
-    } catch {
-      // Fall through to manual decoding
+  // Numeric entities: &#123; or &#xABC;
+  if (entity.startsWith('&#') && entity.endsWith(';')) {
+    const content = entity.slice(2, -1);
+    let codePoint: number;
+
+    if (content.startsWith('x') || content.startsWith('X')) {
+      codePoint = parseInt(content.slice(1), 16);
+    } else {
+      codePoint = parseInt(content, 10);
     }
+
+    // Valid Unicode code point range is 0 to 0x10FFFF
+    if (!Number.isNaN(codePoint) && codePoint >= 0 && codePoint <= 0x10ffff) {
+      try {
+        return String.fromCodePoint(codePoint);
+      } catch {
+        return null;
+      }
+    }
+    // Beyond valid Unicode range -> return null for mojibake fallback
+    return null;
   }
 
-  // Manual decoding: try common named entities first
+  // Manual decoding: try common named entities
   const namedEntities: Record<string, string> = {
     '&amp;': '&',
     '&lt;': '<',
@@ -91,27 +100,17 @@ function decodeEntity(entity: string): string | null {
     return namedEntities[entity];
   }
 
-  // Numeric entities: &#123; or &#xABC;
-  if (entity.startsWith('&#') && entity.endsWith(';')) {
-    const content = entity.slice(2, -1);
-    let codePoint: number;
-
-    if (content.startsWith('x') || content.startsWith('X')) {
-      // Hex: &#xABC;
-      codePoint = parseInt(content.slice(1), 16);
-    } else {
-      // Decimal: &#123;
-      codePoint = parseInt(content, 10);
-    }
-
-    // Valid Unicode code point range is 0 to 0x10FFFF
-    if (!Number.isNaN(codePoint) && codePoint >= 0 && codePoint <= 0x10ffff) {
-      try {
-        return String.fromCodePoint(codePoint);
-      } catch {
-        // Invalid code point for String.fromCodePoint
-        return null;
+  // Try using a temporary element if in browser for other named entities
+  if (typeof document !== 'undefined') {
+    try {
+      const div = document.createElement('div');
+      div.innerHTML = entity;
+      const text = div.textContent;
+      if (text && text !== entity && text !== '\ufffd') {
+        return text;
       }
+    } catch {
+      // Fall through to unmapped
     }
   }
 

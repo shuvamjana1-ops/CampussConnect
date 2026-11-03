@@ -62,7 +62,6 @@ export function I18nProvider({ children }: { readonly children: ReactNode }) {
     () => ({ locale, setLocale, t: (key) => (instance ? instance.t(key) : key) }),
     [instance, locale, setLocale],
   );
-  if (instance === null) return null;
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }
 
