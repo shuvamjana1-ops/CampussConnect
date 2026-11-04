@@ -1,7 +1,7 @@
 import React, { memo, useContext, useMemo } from "react";
 import { SessionContext } from "../auth/session";
 
-export type WallpaperRole = "admin" | "staff" | "staff" | "student" | "default";
+export type WallpaperRole = "admin" | "staff" | "student" | "default";
 
 export interface LiquidGlassWallpaperProps {
   /** Explicit role override; if omitted, automatically deduced from SessionContext */
@@ -275,7 +275,7 @@ export const LiquidGlassWallpaper = memo(function LiquidGlassWallpaper({
   const sessionCtx = useContext(SessionContext);
   const sessionRole = sessionCtx?.role ?? null;
 
-  // Resolve normalized role (mapping 'staff' -> 'staff' and fallback to 'default')
+  // Resolve normalized role, falling back to 'default' when none is set.
   const resolvedRole = useMemo(():
     | "admin"
     | "staff"
@@ -284,7 +284,7 @@ export const LiquidGlassWallpaper = memo(function LiquidGlassWallpaper({
     const raw = propRole ?? sessionRole;
     if (!raw) return "default";
     if (raw === "admin") return "admin";
-    if (raw === "staff" || raw === "staff") return "staff";
+    if (raw === "staff") return "staff";
     if (raw === "student") return "student";
     return "default";
   }, [propRole, sessionRole]);
