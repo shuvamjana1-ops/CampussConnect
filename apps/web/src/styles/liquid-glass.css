@@ -109,12 +109,6 @@
   --staff-orb-3: rgba(6, 182, 212, 0.4);
   --staff-orb-4: rgba(20, 184, 166, 0.35);
 
-  /* Backwards compatibility aliases for staff */
-  --staff-accent: var(--staff-accent);
-  --staff-primary: var(--staff-primary);
-  --staff-glow: var(--staff-glow);
-  --staff-light: var(--staff-surface);
-
   /* 3. Student: Royal Blue / Sunset Orange / Rose Pink */
   --student-accent: #2563eb;
   --student-accent-hover: #1d4ed8;
@@ -224,8 +218,6 @@
 }
 
 [data-role="staff"],
-[data-role="staff"],
-.role-staff,
 .role-staff {
   --accent: var(--staff-accent);
   --accent-hover: var(--staff-accent-hover);
@@ -883,6 +875,12 @@ h6,
   to {
     transform: rotate(360deg);
   }
+
+@keyframes cc-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 }
 
 /* Skeleton Loading Shimmer */

@@ -64,7 +64,7 @@ export function RequireRole({
 export function RequireGroup({
   group,
 }: {
-  readonly group: "admin" | "staff" | "student" | "staff";
+  readonly group: "admin" | "staff" | "student";
 }) {
   const roleTarget: UserRole =
     group === "staff" ? "staff" : (group as UserRole);

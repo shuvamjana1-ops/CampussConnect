@@ -83,7 +83,7 @@ export default function ProfilePage({
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
-  const activeRole = role === "staff" ? "staff" : role || "student";
+  const activeRole = role ?? "student";
   const isStudent = activeRole === "student";
 
   const roleAccentColor =

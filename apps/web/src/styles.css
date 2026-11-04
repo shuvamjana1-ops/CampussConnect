@@ -44,6 +44,7 @@
   --cc-surface-white: #ffffff;
   --cc-surface-light: #f8fafc;
   --cc-slate-100: #f1f5f9;
+  --cc-slate-50: #f8fafc;
   --cc-slate-200: #e2e8f0;
   --cc-slate-300: #cbd5e1;
   --cc-slate-400: #94a3b8;
@@ -2313,6 +2314,7 @@ option,
   aspect-ratio: 1 / 1 !important;
 }
 
-
-
-
+/* Spinner animation for auth loading states */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

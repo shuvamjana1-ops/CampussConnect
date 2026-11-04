@@ -143,7 +143,7 @@ interface SessionState {
   readonly user: { id: string; email?: string | undefined } | null;
   readonly profile: Profile | null;
   readonly role: UserRole | null;
-  readonly session: LegacySession | null;
+  readonly session: LegacySession;
   readonly loading: boolean;
   readonly isConfigured: boolean;
   readonly signIn: (
@@ -431,7 +431,7 @@ export function SessionProvider({
     [profile, user],
   );
 
-  const legacySession: LegacySession | null = {
+  const legacySession: LegacySession = {
     userId: user?.id || "usr_ananya_01",
     displayName: profile?.full_name || "Ananya Das",
     locale: "en",

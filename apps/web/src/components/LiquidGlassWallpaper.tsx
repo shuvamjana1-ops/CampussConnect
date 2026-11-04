@@ -1,7 +1,7 @@
 import React, { memo, useContext, useMemo } from "react";
 import { SessionContext } from "../auth/session";
 
-export type WallpaperRole = "admin" | "staff" | "staff" | "student" | "default";
+export type WallpaperRole = "admin" | "staff" | "student" | "default";
 
 export interface LiquidGlassWallpaperProps {
   /** Explicit role override; if omitted, automatically deduced from SessionContext */

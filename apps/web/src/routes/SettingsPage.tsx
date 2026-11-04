@@ -27,7 +27,7 @@ export default function SettingsPage() {
   const { role, user } = useSession();
   const { toast } = useToast();
 
-  const activeRole = role === "staff" ? "staff" : role || "student";
+  const activeRole = role ?? "student";
   const isAdmin = activeRole === "admin";
 
   // 1. Theme Configuration

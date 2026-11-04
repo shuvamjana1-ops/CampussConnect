@@ -44,9 +44,7 @@ export function App() {
       <Route element={<RequireRole allowedRoles={["staff", "admin"]} />}>
         <Route element={<AppLayout />}>
           <Route path="/staff" element={<StaffDashboard />} />
-          <Route path="/staff" element={<StaffDashboard />} />
           <Route path="/portal/staff" element={<StaffDashboard />} />
-          <Route path="/staff/*" element={<StaffDashboard />} />
           <Route path="/staff/*" element={<StaffDashboard />} />
           <Route path="/portal/staff/*" element={<StaffDashboard />} />
         </Route>

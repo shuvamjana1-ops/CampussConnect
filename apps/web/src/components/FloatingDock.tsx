@@ -97,7 +97,7 @@ export function FloatingDock() {
   const dockRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
-  const activeRole = role === "staff" ? "staff" : role || "student";
+  const activeRole = role ?? "student";
 
   // Trigger theme toggle
   const handleToggleTheme = useCallback(() => {

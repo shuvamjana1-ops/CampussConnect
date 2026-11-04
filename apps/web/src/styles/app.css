@@ -460,3 +460,11 @@ body {
   color: #000000 !important;
   background: rgba(255, 255, 255, 0.96) !important;
 }
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes cc-spin {
+  to { transform: rotate(360deg); }
+}

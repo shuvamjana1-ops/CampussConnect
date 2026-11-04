@@ -97,8 +97,8 @@ export function AppLayout() {
     navigate("/login");
   };
 
-  // Strictly migrate "staff" to "staff" in UI
-  const activeRole = role === "staff" ? "staff" : role || "student";
+  // Normalize role to active workspace role
+  const activeRole = role ?? "student";
   const isAdmin = activeRole === "admin";
 
   // Navigation Links tailored to active role

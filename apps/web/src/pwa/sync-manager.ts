@@ -139,13 +139,13 @@ export function startSyncManager(): () => void {
   window.addEventListener("online", trigger);
   window.addEventListener("focus", trigger);
   document.addEventListener("visibilitychange", onVisible);
-  navigator.serviceWorker.addEventListener("message", onMessage);
+  if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', onMessage);
   trigger();
   return () => {
     window.removeEventListener("online", trigger);
     window.removeEventListener("focus", trigger);
     document.removeEventListener("visibilitychange", onVisible);
-    navigator.serviceWorker.removeEventListener("message", onMessage);
+    if ('serviceWorker' in navigator) navigator.serviceWorker.removeEventListener('message', onMessage);
     for (const id of [...timers.keys()]) clearTimer(id);
   };
 }
