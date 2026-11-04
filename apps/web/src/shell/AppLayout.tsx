@@ -60,9 +60,30 @@ export function AppLayout() {
     }
   }, [isDark]);
 
+  useEffect(() => {
+    const handleThemeChange = (e: Event) => {
+      const custom = e as CustomEvent<{ isDark?: boolean; theme?: string }>;
+      if (typeof custom.detail?.isDark === 'boolean') {
+        setIsDark(custom.detail.isDark);
+      } else if (custom.detail?.theme) {
+        setIsDark(custom.detail.theme === 'dark');
+      }
+    };
+    window.addEventListener('campusconnect:theme-changed', handleThemeChange);
+    return () => {
+      window.removeEventListener('campusconnect:theme-changed', handleThemeChange);
+    };
+  }, []);
+
   const toggleTheme = () => {
-    setIsDark((prev) => !prev);
-    toast(!isDark ? 'Dark mode enabled' : 'Light mode enabled', 'info');
+    setIsDark((prev) => {
+      const next = !prev;
+      window.dispatchEvent(
+        new CustomEvent('campusconnect:theme-changed', { detail: { isDark: next } }),
+      );
+      toast(next ? 'Dark mode enabled' : 'Light mode enabled', 'info');
+      return next;
+    });
   };
 
   const handleSignOut = async () => {

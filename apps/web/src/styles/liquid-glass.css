@@ -838,3 +838,140 @@ h1, h2, h3, h4, h5, h6,
     transform: none !important;
   }
 }
+
+/* ==========================================================================
+   9. Multi-Viewport Responsive Specifications (375px Mobile, 768px Tablet, 1440px Desktop)
+   ========================================================================== */
+
+/* Universal Responsive Layout Reset & Safe Overflow Handling */
+html,
+body,
+#root {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Ensure glass cards and tables never cause unhandled viewport blowout */
+.glass,
+.glass-strong,
+.glass-panel,
+.cc-glass-card {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.glass-table {
+  max-width: 100%;
+}
+
+/* Mobile Viewport Polish (375px - 768px) */
+@media (max-width: 768px) {
+  /* Hide fixed sidebar on mobile/tablet — full navigation lives in FloatingDock */
+  .cf-sidebar {
+    display: none !important;
+  }
+
+  .cf-app-container {
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+  }
+
+  .cf-main-content {
+    width: 100% !important;
+    max-width: 100vw !important;
+    padding: 12px 12px 100px 12px !important;
+    box-sizing: border-box !important;
+  }
+
+  .cf-topbar {
+    height: auto !important;
+    min-height: 52px !important;
+    padding: 8px 12px !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    border-radius: 16px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .cf-content-area {
+    padding: 0.5rem 0 !important;
+    max-width: 100% !important;
+  }
+
+  /* Responsive floating dock sizing for 375px screens */
+  .campusconnect-dock-container {
+    max-width: calc(100vw - 16px) !important;
+    padding: 8px 10px !important;
+    gap: 6px !important;
+    bottom: 14px !important;
+  }
+
+  .campusconnect-dock-container button {
+    width: 40px !important;
+    height: 40px !important;
+    padding: 0 !important;
+  }
+
+  /* Grid adjustments for compact screens */
+  .cc-grid-4,
+  .cc-grid-3,
+  .cc-grid-2 {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  /* Responsive table containers enable horizontal scrolling with smooth touch */
+  .glass-table-wrapper,
+  .cc-table-wrapper,
+  div[style*="overflowX"] {
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Typography scaling */
+  h1, .glass-heading {
+    letter-spacing: -0.025em;
+  }
+}
+
+/* Tablet Viewport Polish (769px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .cf-sidebar {
+    width: 220px !important;
+    margin: 12px 0 12px 12px !important;
+  }
+
+  .cf-main-content {
+    padding: 12px 16px 100px 16px !important;
+  }
+
+  .cc-grid-4 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .cc-grid-3 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* Desktop Viewport Polish (1025px - 1440px+) */
+@media (min-width: 1025px) {
+  .cf-main-content {
+    max-width: 1600px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .cf-content-area {
+    max-width: 1440px;
+    width: 100%;
+  }
+
+  .cc-container {
+    max-width: 1440px;
+  }
+}
+

@@ -24,8 +24,7 @@ apps/web/public/assets/
     ├── default-avatar.svg
     ├── student-ananya.svg
     ├── staff-rahul.svg
-    ├── admin-suresh.svg
-    └── exec-meera.svg
+    └── admin-suresh.svg
 ```
 
 ---
