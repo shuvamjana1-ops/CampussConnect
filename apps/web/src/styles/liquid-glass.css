@@ -42,8 +42,8 @@
   --duration-slow: 400ms;
 
   /* Canvas & Dark Mode Base (Default) */
-  --bg-canvas: #0b0f19;
-  --bg-page: #0b0f19;
+  --bg-canvas: #070b14;
+  --bg-page: #070b14;
   --text-main: #f8fafc;
   --text-primary: #f8fafc;
   --text-secondary: #cbd5e1;
@@ -152,8 +152,8 @@
    ========================================================================== */
 [data-theme="dark"],
 .dark {
-  --bg-canvas: #0b0f19;
-  --bg-page: #0b0f19;
+  --bg-canvas: #070b14;
+  --bg-page: #070b14;
   --text-main: #f8fafc;
   --text-primary: #f8fafc;
   --text-secondary: #cbd5e1;
@@ -304,6 +304,84 @@
   border-radius: var(--radius-btn);
   box-shadow: var(--glass-subtle-shadow);
   color: var(--text-primary);
+}
+
+/* VisionOS refractive liquid glass — specular multi-layer surfaces */
+.glass,
+.glass-panel,
+.cc-glass-card {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.03) 50%,
+    rgba(15, 23, 42, 0.45) 100%
+  );
+  backdrop-filter: blur(28px) saturate(200%) contrast(105%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%) contrast(105%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow:
+    0 16px 40px -8px rgba(0, 0, 0, 0.55),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.28),
+    inset 0 -1px 1px 0 rgba(255, 255, 255, 0.05);
+  border-radius: 22px;
+  transition:
+    transform 260ms cubic-bezier(0.32, 0.72, 0, 1),
+    box-shadow 260ms cubic-bezier(0.32, 0.72, 0, 1),
+    border-color 260ms ease;
+}
+
+.glass:hover,
+.glass-panel:hover,
+.cc-glass-card:hover {
+  border-color: rgba(255, 255, 255, 0.28);
+  box-shadow:
+    0 22px 48px -8px rgba(0, 0, 0, 0.68),
+    0 0 24px -4px rgba(37, 99, 235, 0.22),
+    inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.38);
+}
+
+.glass-strong {
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.14) 0%,
+    rgba(255, 255, 255, 0.04) 42%,
+    rgba(7, 11, 20, 0.72) 100%
+  );
+  backdrop-filter: blur(40px) saturate(200%) contrast(108%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%) contrast(108%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 28px;
+  box-shadow:
+    0 24px 56px -12px rgba(0, 0, 0, 0.7),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.32),
+    inset 0 -1px 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.glass-subtle {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  backdrop-filter: blur(18px) saturate(180%) contrast(104%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%) contrast(104%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+.cc-glass-top-bevel {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 2;
+  opacity: var(--spotlight-opacity, 0);
+  transition: opacity 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+  background: radial-gradient(
+    240px 72px at var(--mouse-x, 50%) 0px,
+    rgba(255, 255, 255, 0.34),
+    transparent 72%
+  );
 }
 
 /* Interactive Elevation Card */
@@ -697,8 +775,9 @@ h6,
 
 [data-theme="dark"] .liquid-glass-wallpaper,
 .dark .liquid-glass-wallpaper,
-.liquid-glass-wallpaper[data-theme-override="dark"] {
-  background-color: #07090e;
+.liquid-glass-wallpaper[data-theme-override="dark"],
+.liquid-glass-wallpaper {
+  background-color: #070b14;
 }
 
 [data-theme="dark"] .liquid-glass-wallpaper::before,
@@ -748,8 +827,9 @@ h6,
   will-change: transform;
   transform: translate3d(0, 0, 0);
   pointer-events: none;
-  --orb-opacity: var(--orb-opacity-light, 0.3);
-  opacity: var(--orb-opacity);
+  mix-blend-mode: screen;
+  --orb-opacity: 0.42;
+  opacity: 0.42;
   transition:
     opacity 0.5s ease,
     background-color 0.5s ease;
