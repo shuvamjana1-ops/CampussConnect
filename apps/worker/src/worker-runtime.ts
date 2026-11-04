@@ -3,12 +3,16 @@ import {
   Injectable,
   type OnApplicationBootstrap,
   type OnApplicationShutdown,
-} from '@nestjs/common';
-import type { Logger } from '@campusconnect/observability';
-import type { AuditChainer } from '@campusconnect/server/audit';
-import type { OutboxRelay, QueueConsumer, TimerSweeper } from '@campusconnect/server/outbox';
-import type { SqlDatabase } from '@campusconnect/db';
-import type { DlqRealertJob } from './dlq-realert';
+} from "@nestjs/common";
+import type { Logger } from "@campusconnect/observability";
+import type { AuditChainer } from "@campusconnect/server/audit";
+import type {
+  OutboxRelay,
+  QueueConsumer,
+  TimerSweeper,
+} from "@campusconnect/server/outbox";
+import type { SqlDatabase } from "@campusconnect/db";
+import type { DlqRealertJob } from "./dlq-realert";
 import {
   AUDIT_CHAINER,
   DLQ_REALERT_JOB,
@@ -17,13 +21,15 @@ import {
   QUEUE_CONSUMERS,
   SQL_DATABASE,
   TIMER_SWEEPER,
-} from './tokens';
+} from "./tokens";
 
 const KEEP_ALIVE_MS = 60_000;
 
 /** Starts the background loops when the application context is ready and stops them on shutdown. */
 @Injectable()
-export class WorkerRuntime implements OnApplicationBootstrap, OnApplicationShutdown {
+export class WorkerRuntime
+  implements OnApplicationBootstrap, OnApplicationShutdown
+{
   private consumerLoops: Promise<void>[] = [];
   private keepAlive: NodeJS.Timeout | undefined;
 
@@ -32,7 +38,8 @@ export class WorkerRuntime implements OnApplicationBootstrap, OnApplicationShutd
     @Inject(TIMER_SWEEPER) private readonly sweeper: TimerSweeper,
     @Inject(AUDIT_CHAINER) private readonly chainer: AuditChainer,
     @Inject(DLQ_REALERT_JOB) private readonly dlqRealert: DlqRealertJob,
-    @Inject(QUEUE_CONSUMERS) private readonly consumers: readonly QueueConsumer<unknown>[],
+    @Inject(QUEUE_CONSUMERS)
+    private readonly consumers: readonly QueueConsumer<unknown>[],
     @Inject(SQL_DATABASE) private readonly db: SqlDatabase,
     @Inject(LOGGER) private readonly logger: Logger,
   ) {}
@@ -46,10 +53,10 @@ export class WorkerRuntime implements OnApplicationBootstrap, OnApplicationShutd
     this.dlqRealert.start();
     this.consumerLoops = this.consumers.map((consumer) =>
       consumer.run().catch(() => {
-        this.logger.error('worker.consumer_stopped');
+        this.logger.error("staff.consumer_stopped");
       }),
     );
-    this.logger.info('worker.started');
+    this.logger.info("staff.started");
   }
 
   async onApplicationShutdown(): Promise<void> {
@@ -62,6 +69,6 @@ export class WorkerRuntime implements OnApplicationBootstrap, OnApplicationShutd
     // Consumers finish the poll in flight (up to the long-poll wait) before their loops end.
     await Promise.allSettled(this.consumerLoops);
     await this.db.close();
-    this.logger.info('worker.stopped');
+    this.logger.info("staff.stopped");
   }
 }

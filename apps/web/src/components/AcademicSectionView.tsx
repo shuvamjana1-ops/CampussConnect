@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router';
+import { Ticket, Paperclip, UploadCloud } from 'lucide-react';
 import { useSession } from '../auth/session';
-import { complaintStore, type AcademicRecord } from '../services/complaintStore';
+import { complaintStore, type AcademicRecord, type ComplaintAttachment } from '../services/complaintStore';
 import { GlassCard } from './GlassCard';
+import { AttendanceCalculator } from './AttendanceCalculator';
+import { HallTicketModal } from './HallTicketModal';
+import { compressImage } from '../utils/image-compressor';
 
 export interface AcademicSectionViewProps {
   readonly defaultRollNumber?: string;
@@ -52,6 +56,27 @@ export function AcademicSectionView({
   const [grievancePriority, setGrievancePriority] = useState<
     'Urgent (P0)' | 'High (P1)' | 'Normal (P2)'
   >('Urgent (P0)');
+  const [showHallTicket, setShowHallTicket] = useState(false);
+  const [proofFile, setProofFile] = useState<File | null>(null);
+  const [proofPreviewUrl, setProofPreviewUrl] = useState<string>('');
+  const [compressedBytes, setCompressedBytes] = useState<number | undefined>(undefined);
+  const [compressing, setCompressing] = useState(false);
+
+  const handleProofUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setCompressing(true);
+    try {
+      const res = await compressImage(file);
+      setProofFile(res.file);
+      setProofPreviewUrl(res.previewUrl);
+      setCompressedBytes(res.compressedBytes);
+    } catch (err) {
+      console.error('Evidence compression failed:', err);
+    } finally {
+      setCompressing(false);
+    }
+  };
 
   useEffect(() => {
     const unsubscribe = complaintStore.subscribe(() => {
@@ -148,6 +173,18 @@ export function AcademicSectionView({
     e.preventDefault();
     if (!record || !selectedSubject) return;
 
+    const attachments: ComplaintAttachment[] = proofPreviewUrl
+      ? [
+          {
+            id: `att_${Date.now()}`,
+            name: proofFile?.name || 'Answer_Script_Proof.png',
+            url: proofPreviewUrl,
+            type: (proofFile?.type === 'application/pdf' ? 'pdf' : 'image') as 'pdf' | 'image',
+            ...(compressedBytes !== undefined ? { sizeBytes: compressedBytes } : {}),
+          },
+        ]
+      : [];
+
     const newTicket = complaintStore.addComplaint({
       type: 'Academic',
       title: `Internal assessment marks mismatch in ${selectedSubject.code} (${selectedSubject.name})`,
@@ -155,6 +192,7 @@ export function AcademicSectionView({
       department: 'Examination & Records Cell',
       priority: grievancePriority,
       currentStage: 'submitted',
+      attachments,
       student: {
         id: record.studentId,
         name: record.studentName,
@@ -169,6 +207,9 @@ export function AcademicSectionView({
         : 'Within 48 hours',
     });
 
+    setProofFile(null);
+    setProofPreviewUrl('');
+    setCompressedBytes(undefined);
     setShowGrievanceModal(false);
     setSuccessMsg(
       `Grievance #${newTicket.reference} registered! Case dispatched to Admin Command Center and Staff Resolution Desk.`
@@ -234,7 +275,28 @@ export function AcademicSectionView({
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              onClick={() => setShowHallTicket(true)}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 16px',
+                borderRadius: '12px',
+                background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
+                color: '#ffffff',
+                border: 'none',
+                fontWeight: 800,
+                fontSize: '0.825rem',
+                cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.35)',
+              }}
+            >
+              <Ticket size={16} />
+              <span>🎟️ Exam Hall Ticket</span>
+            </button>
             <div
               className="glass-subtle"
               style={{
@@ -391,6 +453,20 @@ export function AcademicSectionView({
           </div>
         </div>
       </GlassCard>
+
+      {/* 75% Target & Bunk Margin Calculator */}
+      <div style={{ marginBottom: '24px' }}>
+        <AttendanceCalculator
+          record={record}
+          onFlagDiscrepancy={(sub) =>
+            handleOpenGrievanceModal({
+              code: sub.code,
+              name: sub.name,
+              internalMarks: sub.internalMarks,
+            })
+          }
+        />
+      </div>
 
       {/* Continuous Assessment & Internal Marks Roster Table */}
       <GlassCard material="glass" style={{ padding: '24px', marginBottom: '24px' }}>
@@ -697,6 +773,44 @@ export function AcademicSectionView({
 
               <div>
                 <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main, #0f172a)', marginBottom: '4px' }}>
+                  Supporting Proof (Evaluator-Signed Answer Script / Evidence)
+                </label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <label
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      padding: '8px 14px',
+                      borderRadius: '10px',
+                      background: 'rgba(37, 99, 235, 0.15)',
+                      color: '#60a5fa',
+                      border: '1px solid rgba(37, 99, 235, 0.3)',
+                      fontSize: '0.8rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <UploadCloud size={14} />
+                    <span>{compressing ? 'Compressing Proof...' : 'Upload Scanned Proof'}</span>
+                    <input
+                      type="file"
+                      accept="image/*,application/pdf"
+                      onChange={handleProofUpload}
+                      style={{ display: 'none' }}
+                    />
+                  </label>
+                  {proofFile && (
+                    <span style={{ fontSize: '0.785rem', color: '#34d399', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <Paperclip size={12} />
+                      {proofFile.name} {compressedBytes ? `(${(compressedBytes / 1024).toFixed(0)} KB compressed)` : ''}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main, #0f172a)', marginBottom: '4px' }}>
                   Priority Level
                 </label>
                 <select
@@ -982,6 +1096,14 @@ export function AcademicSectionView({
             </form>
           </GlassCard>
         </div>
+      )}
+      {/* Official Exam Hall Ticket Modal */}
+      {showHallTicket && record && (
+        <HallTicketModal
+          isOpen={showHallTicket}
+          onClose={() => setShowHallTicket(false)}
+          studentIdOrRoll={record.studentId}
+        />
       )}
     </div>
   );

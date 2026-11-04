@@ -8,7 +8,7 @@ create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   full_name text not null,
   email text not null,
-  role text not null check (role in ('admin', 'worker', 'student')) default 'student',
+  role text not null check (role in ('admin', 'staff', 'student')) default 'student',
   avatar_url text,
   department text,
   created_at timestamptz not null default now()
@@ -180,7 +180,7 @@ create policy "Profiles delete policy"
 
 -- TASKS POLICIES:
 -- Strict Isolation: Owner can access their own tasks; Admin can access all.
--- Students cannot see worker tasks; Workers cannot see student or peer tasks.
+-- Students cannot see staff tasks; Workers cannot see student or peer tasks.
 drop policy if exists "Tasks select isolation" on public.tasks;
 create policy "Tasks select isolation"
   on public.tasks

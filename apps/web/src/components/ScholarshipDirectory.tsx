@@ -162,23 +162,23 @@ export function ScholarshipDirectory() {
               <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#059669', display: 'inline-block' }} />
               VERIFIED INDIAN GOVERNMENT & INSTITUTIONAL GATEWAY
             </div>
-            <h2 id="scholarship-gateway-title" style={{ fontSize: '1.65rem', fontWeight: 800, color: '#0f2850', margin: '0 0 0.4rem', letterSpacing: '-0.02em' }}>
-              Curated Scholarship & Internship Gateway
+            <h2 id="scholarship-gateway-title" style={{ fontSize: '1.65rem', fontWeight: 800, color: '#ffffff', margin: '0 0 0.4rem', letterSpacing: '-0.02em' }}>
+              Curated Scholarship &amp; Internship Gateway
             </h2>
-            <p style={{ color: '#475569', fontSize: '0.925rem', maxWidth: '680px', margin: 0, lineHeight: 1.5 }}>
+            <p style={{ color: 'var(--text-secondary, #cbd5e1)', fontSize: '0.925rem', maxWidth: '680px', margin: 0, lineHeight: 1.5 }}>
               Zero-friction directory for JIS University students. Direct links to verified portals without advertisements, intermediary brokers, or internal redirection loops.
             </p>
           </div>
 
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-            <span style={{ fontSize: '0.8rem', color: '#0f2850', fontWeight: 700, background: '#fffbeb', border: '1px solid #fef08a', padding: '0.35rem 0.85rem', borderRadius: '9999px' }}>
+            <span style={{ fontSize: '0.8rem', color: '#fbbf24', fontWeight: 700, background: 'rgba(245, 158, 11, 0.15)', border: '1px solid rgba(245, 158, 11, 0.35)', padding: '0.35rem 0.85rem', borderRadius: '9999px' }}>
               ⚡ 100% Direct Official Links
             </span>
           </div>
         </div>
 
         {/* Filter Controls & Search */}
-        <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', borderTop: '1px solid rgba(15, 40, 80, 0.08)', paddingTop: '1.25rem' }}>
+        <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', borderTop: '1px solid rgba(255, 255, 255, 0.12)', paddingTop: '1.25rem' }}>
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
             {(
               [
@@ -229,7 +229,7 @@ export function ScholarshipDirectory() {
               </span>
             </div>
 
-            <h3 className="cc-opp-title">{opp.schemeName}</h3>
+            <h3 className="cc-opp-title" style={{ color: '#ffffff' }}>{opp.schemeName}</h3>
 
             <div className="cc-opp-grant-box">
               <span className="cc-opp-grant-label">Grant / Benefit</span>

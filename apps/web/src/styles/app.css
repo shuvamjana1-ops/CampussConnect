@@ -2,8 +2,10 @@
 /* Clean, modern, responsive with Dark Mode and Strict Role Accent Themes */
 
 :root {
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  
+  --font-sans:
+    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+
   /* Canvas & Surface (Light) */
   --bg-page: #f8fafc;
   --bg-surface: #ffffff;
@@ -11,7 +13,7 @@
   --bg-surface-subtle: #f1f5f9;
   --border-subtle: #e2e8f0;
   --border-strong: #cbd5e1;
-  
+
   /* Text */
   --text-main: #0f172a;
   --text-muted: #64748b;
@@ -24,11 +26,11 @@
   --admin-light: #e0e7ff;
   --admin-glow: rgba(67, 56, 202, 0.15);
 
-  /* Worker: Teal */
-  --worker-primary: #0f766e;
-  --worker-accent: #14b8a6;
-  --worker-light: #ccfbf1;
-  --worker-glow: rgba(20, 184, 166, 0.15);
+  /* staff: Teal */
+  --staff-primary: #0f766e;
+  --staff-accent: #14b8a6;
+  --staff-light: #ccfbf1;
+  --staff-glow: rgba(20, 184, 166, 0.15);
 
   /* Student: Royal Blue & Vibrant Orange */
   --student-primary: #1d4ed8;
@@ -48,9 +50,12 @@
 
   /* Elevation */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-md:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 /* Dark Mode Theme */
@@ -62,13 +67,13 @@
   --bg-surface-subtle: #182234;
   --border-subtle: #243045;
   --border-strong: #374151;
-  
+
   --text-main: #f9fafb;
   --text-muted: #9ca3af;
   --text-inverse: #0b0f19;
 
   --admin-light: #1e1b4b;
-  --worker-light: #134e4a;
+  --staff-light: #134e4a;
   --student-light: #172554;
 
   --status-pending-bg: #451a03;
@@ -91,7 +96,9 @@ body {
   font-family: var(--font-sans);
   background-color: var(--bg-page);
   color: var(--text-main);
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -154,7 +161,9 @@ body {
   border-radius: 16px;
   box-shadow: var(--shadow-sm);
   padding: 1.5rem;
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
 .cf-card-hover:hover {
@@ -192,9 +201,9 @@ body {
   color: var(--admin-primary);
 }
 
-.cf-nav-item.active-worker {
-  background: var(--worker-light);
-  color: var(--worker-primary);
+.cf-nav-item.active-staff {
+  background: var(--staff-light);
+  color: var(--staff-primary);
 }
 
 .cf-nav-item.active-student {
@@ -221,9 +230,9 @@ body {
   border: 1px solid rgba(67, 56, 202, 0.2);
 }
 
-.cf-badge-worker {
-  background: var(--worker-light);
-  color: var(--worker-primary);
+.cf-badge-staff {
+  background: var(--staff-light);
+  color: var(--staff-primary);
   border: 1px solid rgba(20, 184, 166, 0.2);
 }
 
@@ -257,12 +266,12 @@ body {
   background: var(--admin-primary);
 }
 
-.cf-btn-worker {
-  background: var(--worker-accent);
+.cf-btn-staff {
+  background: var(--staff-accent);
   color: #ffffff;
 }
-.cf-btn-worker:hover {
-  background: var(--worker-primary);
+.cf-btn-staff:hover {
+  background: var(--staff-primary);
 }
 
 .cf-btn-student {
@@ -350,15 +359,24 @@ body {
 
 /* Skeletons & Empty States */
 .cf-skeleton {
-  background: linear-gradient(90deg, var(--bg-surface-subtle) 25%, var(--border-subtle) 50%, var(--bg-surface-subtle) 75%);
+  background: linear-gradient(
+    90deg,
+    var(--bg-surface-subtle) 25%,
+    var(--border-subtle) 50%,
+    var(--bg-surface-subtle) 75%
+  );
   background-size: 200% 100%;
   animation: cf-loading 1.5s infinite;
   border-radius: 6px;
 }
 
 @keyframes cf-loading {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .cf-empty-state {
@@ -374,7 +392,9 @@ body {
 }
 
 /* Form Inputs */
-.cf-input, .cf-select, .cf-textarea {
+.cf-input,
+.cf-select,
+.cf-textarea {
   width: 100%;
   padding: 10px 14px;
   background: var(--bg-surface);
@@ -383,19 +403,29 @@ body {
   color: var(--text-main);
   font-size: 0.9rem;
   font-family: inherit;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
   outline: none;
 }
 
-.cf-input:focus, .cf-select:focus, .cf-textarea:focus {
+.cf-input:focus,
+.cf-select:focus,
+.cf-textarea:focus {
   border-color: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
 }
 
 /* Animation */
 @keyframes slideIn {
-  from { transform: translateY(12px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(12px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 /* Floating Navigation Dock (macOS Liquid Glass) */
@@ -403,23 +433,30 @@ body {
   will-change: transform;
 }
 
-/* Dark Theme Dock High-Contrast Specification:
-   Ensures icons and tooltips are strictly black (#000000) over the translucent glass backdrop */
+/* Permanent Dock Icon & Outline Specification:
+   Ensures dock icons and outlines are strictly black (#000000) for all time as default */
+.campusconnect-dock-container button,
+.campusconnect-dock-btn,
+.dock-item,
 [data-theme="dark"] .campusconnect-dock-container button,
 .dark .campusconnect-dock-container button {
   color: #000000 !important;
+  border: 1.5px solid #000000 !important;
+  outline: 1px solid #000000 !important;
 }
 
+.campusconnect-dock-container button svg,
+.campusconnect-dock-btn svg,
+.dock-item svg,
 [data-theme="dark"] .campusconnect-dock-container button svg,
 .dark .campusconnect-dock-container button svg {
   color: #000000 !important;
   stroke: #000000 !important;
 }
 
+.campusconnect-dock-container .dock-tooltip,
 [data-theme="dark"] .campusconnect-dock-container .dock-tooltip,
 .dark .campusconnect-dock-container .dock-tooltip {
   color: #000000 !important;
   background: rgba(255, 255, 255, 0.96) !important;
 }
-
-

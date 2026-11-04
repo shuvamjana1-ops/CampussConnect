@@ -17,9 +17,14 @@ interface RoleNav {
 }
 
 const ALL_ROLES: readonly RoleNav[] = [
-  { group: 'student', label: 'Student Portal', path: '/portal/student', icon: '🎓' },
-  { group: 'staff', label: 'Staff Portal', path: '/portal/staff', icon: '👨‍🏫' },
-  { group: 'admin', label: 'Admin Command', path: '/portal/admin', icon: '⚙️' },
+  {
+    group: "student",
+    label: "Student Portal",
+    path: "/portal/student",
+    icon: "🎓",
+  },
+  { group: "staff", label: "Staff Portal", path: "/portal/staff", icon: "👨‍🏫" },
+  { group: "admin", label: "Admin Command", path: "/portal/admin", icon: "⚙️" },
 ];
 
 export function Layout({ title }: { readonly title: string }) {
@@ -33,23 +38,23 @@ export function Layout({ title }: { readonly title: string }) {
     (r) =>
       userGroups.includes(r.group) ||
       userGroups.length > 1 ||
-      userGroups.includes('student'),
+      userGroups.includes("student"),
   );
 
   const currentPersona = useMemo(() => {
     if (profile) {
       const initials = profile.full_name
-        .split(' ')
+        .split(" ")
         .map((p) => p[0])
         .slice(0, 2)
-        .join('')
+        .join("")
         .toUpperCase();
       const roleLabel =
-        profile.role === 'admin'
-          ? 'Registrar & Admin'
-          : profile.role === 'worker'
-          ? 'Faculty / Warden'
-          : 'B.Tech CSE (Student)';
+        profile.role === "admin"
+          ? "Registrar & Admin"
+          : profile.role === "staff"
+            ? "Faculty / Warden"
+            : "B.Tech CSE (Student)";
       return {
         name: profile.full_name,
         role: roleLabel,
@@ -57,14 +62,24 @@ export function Layout({ title }: { readonly title: string }) {
         avatar_url: profile.avatar_url,
       };
     }
-    if (location.pathname.includes('/staff'))
-      return { name: 'Prof. Rahul Mehta', role: 'Faculty / Warden', initials: 'RM', avatar_url: null };
-    if (location.pathname.includes('/admin'))
-      return { name: 'Dr. Suresh Kumar', role: 'Registrar & Admin', initials: 'SK', avatar_url: null };
+    if (location.pathname.includes("/staff"))
+      return {
+        name: "Prof. Rahul Mehta",
+        role: "Faculty / Warden",
+        initials: "RM",
+        avatar_url: null,
+      };
+    if (location.pathname.includes("/admin"))
+      return {
+        name: "Dr. Suresh Kumar",
+        role: "Registrar & Admin",
+        initials: "SK",
+        avatar_url: null,
+      };
     return {
-      name: session?.displayName ?? 'Ananya Das',
-      role: 'B.Tech CSE (Student)',
-      initials: 'AD',
+      name: session?.displayName ?? "Ananya Das",
+      role: "B.Tech CSE (Student)",
+      initials: "AD",
       avatar_url: null,
     };
   }, [profile, location.pathname, session?.displayName]);
@@ -73,21 +88,31 @@ export function Layout({ title }: { readonly title: string }) {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   // Logo design can only be edited by administrators on the admin side
-  const isAdmin = location.pathname.includes('/admin');
+  const isAdmin = location.pathname.includes("/admin");
 
   return (
     <>
       <WelcomePreloader />
       {isAdmin && (
-        <LogoCustomizerModal isOpen={isLogoModalOpen} onClose={() => setIsLogoModalOpen(false)} />
+        <LogoCustomizerModal
+          isOpen={isLogoModalOpen}
+          onClose={() => setIsLogoModalOpen(false)}
+        />
       )}
-      <ProfileEditorModal isOpen={isProfileModalOpen} onClose={() => setIsProfileModalOpen(false)} />
+      <ProfileEditorModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+      />
       <header className="cc-header-container">
         <div className="cc-header-main">
           {/* Brand Lockup & Logo Section */}
           <div className="cc-brand-section">
             <NavLink to="/" className="cc-brand-lockup">
-              <div className="cc-brand-logo" aria-hidden="true" title="JIS University">
+              <div
+                className="cc-brand-logo"
+                aria-hidden="true"
+                title="JIS University"
+              >
                 <BrandLogo size={28} />
               </div>
               <div>
@@ -103,7 +128,17 @@ export function Layout({ title }: { readonly title: string }) {
                 title="Configure Institution Logo (Admin only)"
                 aria-label="Configure Institution Logo"
               >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
                   <path d="M12 20h9" />
                   <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
                 </svg>
@@ -146,14 +181,28 @@ export function Layout({ title }: { readonly title: string }) {
                   className="cc-user-pill"
                   onClick={() => setIsProfileModalOpen(true)}
                   title={`Edit Profile: ${currentPersona.name} (${currentPersona.role})`}
-                  style={{ background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+                  style={{
+                    background: "transparent",
+                    border: "none",
+                    cursor: "pointer",
+                    textAlign: "left",
+                  }}
                 >
-                  <div className="cc-avatar-circle" aria-hidden="true" style={{ overflow: 'hidden' }}>
+                  <div
+                    className="cc-avatar-circle"
+                    aria-hidden="true"
+                    style={{ overflow: "hidden" }}
+                  >
                     {currentPersona.avatar_url ? (
                       <img
                         src={currentPersona.avatar_url}
                         alt={currentPersona.name}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                          borderRadius: "50%",
+                        }}
                       />
                     ) : (
                       currentPersona.initials

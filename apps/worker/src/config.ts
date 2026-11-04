@@ -1,4 +1,3 @@
-
 /** Settings read from the environment once at start-up. Secrets come from the task's injected environment. */
 export interface WorkerConfig {
   readonly databaseUrl: string;
@@ -7,7 +6,7 @@ export interface WorkerConfig {
   readonly queueUrlPrefix: string;
   /** SNS topic that forwards alerts to the operations channel. */
   readonly alertTopicArn: string;
-  /** Tenants whose audit chains this worker advances, until the tenancy module provides the list. */
+  /** Tenants whose audit chains this staff advances, until the tenancy module provides the list. */
   readonly tenantIds: readonly string[];
   /** Bucket for audit chain-head anchors (S3 Object Lock). */
   readonly auditAnchorBucket: string;
@@ -17,21 +16,22 @@ export interface WorkerConfig {
 
 function required(env: NodeJS.ProcessEnv, name: string): string {
   const value = env[name];
-  if (value === undefined || value === '') throw new Error(`Missing required environment variable ${name}.`);
+  if (value === undefined || value === "")
+    throw new Error(`Missing required environment variable ${name}.`);
   return value;
 }
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): WorkerConfig {
   return {
-    databaseUrl: required(env, 'DATABASE_URL'),
-    region: required(env, 'AWS_REGION'),
-    queueUrlPrefix: required(env, 'SQS_QUEUE_URL_PREFIX'),
-    alertTopicArn: required(env, 'ALERT_TOPIC_ARN'),
-    auditAnchorBucket: required(env, 'AUDIT_ANCHOR_BUCKET'),
-    tenantIds: (env['WORKER_TENANT_IDS'] ?? '')
-      .split(',')
+    databaseUrl: required(env, "DATABASE_URL"),
+    region: required(env, "AWS_REGION"),
+    queueUrlPrefix: required(env, "SQS_QUEUE_URL_PREFIX"),
+    alertTopicArn: required(env, "ALERT_TOPIC_ARN"),
+    auditAnchorBucket: required(env, "AUDIT_ANCHOR_BUCKET"),
+    tenantIds: (env["WORKER_TENANT_IDS"] ?? "")
+      .split(",")
       .map((id) => id.trim())
-      .filter((id) => id !== ''),
-    hfToken: env['HF_TOKEN'] || undefined,
+      .filter((id) => id !== ""),
+    hfToken: env["HF_TOKEN"] || undefined,
   };
 }

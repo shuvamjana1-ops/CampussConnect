@@ -1,8 +1,8 @@
-// Ports and types for the files module. AWS adapters (S3, KMS) implement the ports in the worker and API apps.
+// Ports and types for the files module. AWS adapters (S3, KMS) implement the ports in the staff and API apps.
 
-import type { AttachmentRejectionReason } from '@campusconnect/contracts';
-import type { OutboxSqlClient } from '../outbox/outbox.types';
-import type { UploadTarget } from './upload-decision';
+import type { AttachmentRejectionReason } from "@campusconnect/contracts";
+import type { OutboxSqlClient } from "../outbox/outbox.types";
+import type { UploadTarget } from "./upload-decision";
 
 export interface PresignedPost {
   readonly url: string;
@@ -25,7 +25,13 @@ export interface ObjectStore {
   /** First `length` bytes of the object (ranged GET). */
   readHead(bucket: string, key: string, length: number): Promise<Uint8Array>;
   /** Copies between buckets, encrypting the copy with the given KMS key (SSE-KMS). */
-  copy(request: { fromBucket: string; fromKey: string; toBucket: string; toKey: string; kmsKeyArn: string }): Promise<void>;
+  copy(request: {
+    fromBucket: string;
+    fromKey: string;
+    toBucket: string;
+    toKey: string;
+    kmsKeyArn: string;
+  }): Promise<void>;
   /** Deletes the object and all its versions. */
   deleteObject(bucket: string, key: string): Promise<void>;
 }
@@ -49,7 +55,11 @@ export interface AttachmentNotifier {
 
 /** Decides whether the Student may attach to the Ticket (own Ticket, enrolment active). */
 export interface AttachmentAccessPolicy {
-  canAttachToTicket(tx: OutboxSqlClient, actor: FilesActor, ticketId: string): Promise<boolean>;
+  canAttachToTicket(
+    tx: OutboxSqlClient,
+    actor: FilesActor,
+    ticketId: string,
+  ): Promise<boolean>;
 }
 
 export interface FilesActor {
@@ -65,14 +75,14 @@ export interface FilesBuckets {
 export class AttachmentRejectedError extends Error {
   constructor(readonly reason: AttachmentRejectionReason) {
     super(`Attachment rejected: ${reason}`);
-    this.name = 'AttachmentRejectedError';
+    this.name = "AttachmentRejectedError";
   }
 }
 
 export class AttachmentAccessError extends Error {
   constructor() {
-    super('Ticket not accessible for attachments.');
-    this.name = 'AttachmentAccessError';
+    super("Ticket not accessible for attachments.");
+    this.name = "AttachmentAccessError";
   }
 }
 

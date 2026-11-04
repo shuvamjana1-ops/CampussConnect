@@ -10,7 +10,7 @@ export interface GazetteerName {
 export interface Gazetteer {
   /**
    * Changes whenever `names` changes. Workers cache the compiled matcher per Tenant and version, so the
-   * names are sent to a worker only when it does not hold that version yet.
+   * names are sent to a staff only when it does not hold that version yet.
    */
   readonly version: string;
   readonly names: readonly GazetteerName[];
@@ -34,11 +34,15 @@ export class StaticGazetteerProvider implements GazetteerProvider {
   readonly #byTenant: ReadonlyMap<string, Gazetteer>;
   readonly #empty: Gazetteer;
 
-  constructor(namesByTenant: Readonly<Record<string, readonly GazetteerName[]>>) {
+  constructor(
+    namesByTenant: Readonly<Record<string, readonly GazetteerName[]>>,
+  ) {
     staticGazetteerCount += 1;
     const version = `static-${String(staticGazetteerCount)}`;
     this.#byTenant = new Map(
-      Object.entries(namesByTenant).map(([tenantId, names]) => [tenantId, { version, names }] as const),
+      Object.entries(namesByTenant).map(
+        ([tenantId, names]) => [tenantId, { version, names }] as const,
+      ),
     );
     this.#empty = { version, names: [] };
   }

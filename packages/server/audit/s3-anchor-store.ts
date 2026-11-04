@@ -1,15 +1,19 @@
 // AnchorStore backed by an S3 bucket with Object Lock in compliance mode.
 
-import type { TenantId } from '@campusconnect/domain/types';
-import type { AnchorStore, AnchoredChainHead } from './audit.types';
+import type { TenantId } from "@campusconnect/domain/types";
+import type { AnchorStore, AnchoredChainHead } from "./audit.types";
 
 /**
- * The few S3 operations the store needs. A thin adapter over `@aws-sdk/client-s3` implements it in the worker app:
+ * The few S3 operations the store needs. A thin adapter over `@aws-sdk/client-s3` implements it in the staff app:
  * `putObject` must send `ObjectLockMode: COMPLIANCE` and `ObjectLockRetainUntilDate: retainUntil`,
  * and `listKeys` must return keys in S3's ascending order for the prefix.
  */
 export interface ObjectLockClient {
-  putObject(request: { key: string; body: string; retainUntil: Date }): Promise<void>;
+  putObject(request: {
+    key: string;
+    body: string;
+    retainUntil: Date;
+  }): Promise<void>;
   getObject(key: string): Promise<string | undefined>;
   listKeys(prefix: string, limit: number): Promise<string[]>;
 }
@@ -37,10 +41,15 @@ export class S3AnchorStore implements AnchorStore {
 
   async retrieve(location: string): Promise<AnchoredChainHead | undefined> {
     const body = await this.client.getObject(location);
-    return body === undefined ? undefined : (JSON.parse(body) as AnchoredChainHead);
+    return body === undefined
+      ? undefined
+      : (JSON.parse(body) as AnchoredChainHead);
   }
 
-  async listAnchors(tenantId: TenantId, limit: number): Promise<AnchoredChainHead[]> {
+  async listAnchors(
+    tenantId: TenantId,
+    limit: number,
+  ): Promise<AnchoredChainHead[]> {
     const keys = await this.client.listKeys(`anchors/${tenantId}/`, limit);
     const heads: AnchoredChainHead[] = [];
     for (const key of keys) {
@@ -56,6 +65,8 @@ export class S3AnchorStore implements AnchorStore {
  * The key is deterministic, so re-anchoring the same head writes the same object.
  */
 function anchorKey(head: AnchoredChainHead): string {
-  const reversed = (SEQ_CEILING - BigInt(head.lastSeqNum)).toString().padStart(16, '0');
+  const reversed = (SEQ_CEILING - BigInt(head.lastSeqNum))
+    .toString()
+    .padStart(16, "0");
   return `anchors/${head.tenantId}/${reversed}-${head.lastHash}.json`;
 }

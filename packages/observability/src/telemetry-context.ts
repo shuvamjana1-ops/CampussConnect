@@ -5,12 +5,12 @@
 export interface TelemetryContext {
   /** The Tenant id (a UUID) or `NO_TENANT`. */
   readonly tenantId: string;
-  /** The platform-generated request id (a ULID or UUID). Worker jobs use their job run id. */
+  /** The platform-generated request id (a ULID or UUID). staff jobs use their job run id. */
   readonly requestId: string;
 }
 
 /**
  * Returns the current request's {@link TelemetryContext}, or `undefined` outside a request.
- * The api and worker apps implement it over their AsyncLocalStorage `RequestContext`.
+ * The api and staff apps implement it over their AsyncLocalStorage `RequestContext`.
  */
 export type TelemetryContextProvider = () => TelemetryContext | undefined;

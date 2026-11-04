@@ -1,13 +1,17 @@
-import pino, { type DestinationStream, type Logger as PinoLogger, type LoggerOptions as PinoLoggerOptions } from 'pino';
+import pino, {
+  type DestinationStream,
+  type Logger as PinoLogger,
+  type LoggerOptions as PinoLoggerOptions,
+} from "pino";
 
-import { sanitizeLogFields, type LogFields } from './log-fields';
-import type { TelemetryContextProvider } from './telemetry-context';
-import { isEventName, isServiceName } from './validation';
+import { sanitizeLogFields, type LogFields } from "./log-fields";
+import type { TelemetryContextProvider } from "./telemetry-context";
+import { isEventName, isServiceName } from "./validation";
 
-export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
+export type LogLevel = "debug" | "info" | "warn" | "error";
 
 /** Written in place of an event name that is not a dotted lower-case identifier. */
-export const INVALID_EVENT = 'log.invalid_event';
+export const INVALID_EVENT = "log.invalid_event";
 
 /**
  * Structured logger whose lines hold only an event name and allowlisted {@link LogFields} (25.1, 19.6).
@@ -16,19 +20,31 @@ export const INVALID_EVENT = 'log.invalid_event';
  * `never`, so a dynamic value such as an error message or user input cannot become the log message.
  */
 export interface Logger {
-  debug<E extends string>(event: string extends E ? never : E, fields?: LogFields): void;
-  info<E extends string>(event: string extends E ? never : E, fields?: LogFields): void;
-  warn<E extends string>(event: string extends E ? never : E, fields?: LogFields): void;
-  error<E extends string>(event: string extends E ? never : E, fields?: LogFields): void;
+  debug<E extends string>(
+    event: string extends E ? never : E,
+    fields?: LogFields,
+  ): void;
+  info<E extends string>(
+    event: string extends E ? never : E,
+    fields?: LogFields,
+  ): void;
+  warn<E extends string>(
+    event: string extends E ? never : E,
+    fields?: LogFields,
+  ): void;
+  error<E extends string>(
+    event: string extends E ? never : E,
+    fields?: LogFields,
+  ): void;
   /** Returns a logger that adds `bindings` to every line. Fields passed to a log call override bindings. */
   child(bindings: LogFields): Logger;
 }
 
 export interface LoggerOptions {
-  /** Service name written on every line, such as `api`, `worker` or `emergency-worker`. */
+  /** Service name written on every line, such as `api`, `staff` or `emergency-staff`. */
   readonly service: string;
   /** Lowest level written. Defaults to `info`. */
-  readonly level?: LogLevel | 'silent';
+  readonly level?: LogLevel | "silent";
   /**
    * Supplies `requestId` and `tenantId` for the current request, so every line written during a request carries
    * them (25.1). Bindings and call fields override it.
@@ -45,16 +61,22 @@ export interface LoggerOptions {
  */
 export function createLogger(options: LoggerOptions): Logger {
   if (!isServiceName(options.service)) {
-    throw new RangeError('service must be a lower-case service name such as "api".');
+    throw new RangeError(
+      'service must be a lower-case service name such as "api".',
+    );
   }
   const pinoOptions: PinoLoggerOptions = {
-    level: options.level ?? 'info',
+    level: options.level ?? "info",
     base: { service: options.service },
-    messageKey: 'event',
+    messageKey: "event",
     timestamp: pino.stdTimeFunctions.isoTime,
     formatters: { level: (label: string) => ({ level: label }) },
   };
-  return new AllowlistLogger(pino(pinoOptions, options.destination), {}, options.getContext);
+  return new AllowlistLogger(
+    pino(pinoOptions, options.destination),
+    {},
+    options.getContext,
+  );
 }
 
 class AllowlistLogger implements Logger {
@@ -62,37 +84,61 @@ class AllowlistLogger implements Logger {
   readonly #bindings: LogFields;
   readonly #getContext: TelemetryContextProvider | undefined;
 
-  constructor(instance: PinoLogger, bindings: LogFields, getContext: TelemetryContextProvider | undefined) {
+  constructor(
+    instance: PinoLogger,
+    bindings: LogFields,
+    getContext: TelemetryContextProvider | undefined,
+  ) {
     this.#pino = instance;
     this.#bindings = bindings;
     this.#getContext = getContext;
   }
 
-  debug<E extends string>(event: string extends E ? never : E, fields?: LogFields): void {
-    this.#write('debug', event, fields);
+  debug<E extends string>(
+    event: string extends E ? never : E,
+    fields?: LogFields,
+  ): void {
+    this.#write("debug", event, fields);
   }
 
-  info<E extends string>(event: string extends E ? never : E, fields?: LogFields): void {
-    this.#write('info', event, fields);
+  info<E extends string>(
+    event: string extends E ? never : E,
+    fields?: LogFields,
+  ): void {
+    this.#write("info", event, fields);
   }
 
-  warn<E extends string>(event: string extends E ? never : E, fields?: LogFields): void {
-    this.#write('warn', event, fields);
+  warn<E extends string>(
+    event: string extends E ? never : E,
+    fields?: LogFields,
+  ): void {
+    this.#write("warn", event, fields);
   }
 
-  error<E extends string>(event: string extends E ? never : E, fields?: LogFields): void {
-    this.#write('error', event, fields);
+  error<E extends string>(
+    event: string extends E ? never : E,
+    fields?: LogFields,
+  ): void {
+    this.#write("error", event, fields);
   }
 
   child(bindings: LogFields): Logger {
-    return new AllowlistLogger(this.#pino, { ...this.#bindings, ...bindings }, this.#getContext);
+    return new AllowlistLogger(
+      this.#pino,
+      { ...this.#bindings, ...bindings },
+      this.#getContext,
+    );
   }
 
   #write(level: LogLevel, event: string, fields: LogFields | undefined): void {
     if (!this.#pino.isLevelEnabled(level)) {
       return;
     }
-    const sanitized = sanitizeLogFields({ ...this.#getContext?.(), ...this.#bindings, ...fields });
+    const sanitized = sanitizeLogFields({
+      ...this.#getContext?.(),
+      ...this.#bindings,
+      ...fields,
+    });
     const record: Record<string, unknown> = { ...sanitized.fields };
     if (sanitized.invalidFields.length > 0) {
       record.invalidFields = sanitized.invalidFields;

@@ -1,7 +1,11 @@
 // Data subject requests (19.3, 19.4, 19.9, 19.10): export and erasure with a 30-day due date.
 // Providers run in one transaction, so a failure leaves every module's data unchanged.
 
-import { useTenant, type OutboxDatabase, type OutboxSqlClient } from '../outbox/outbox.types';
+import {
+  useTenant,
+  type OutboxDatabase,
+  type OutboxSqlClient,
+} from "../outbox/outbox.types";
 import {
   DsrNotFoundError,
   DsrStateError,
@@ -10,7 +14,7 @@ import {
   type PrivacyNotifier,
   type RetainedCategory,
   type SubjectDataProvider,
-} from './privacy.types';
+} from "./privacy.types";
 
 export interface DsrRequest {
   readonly id: string;
@@ -33,7 +37,8 @@ interface DsrRow {
   failure_reason: string | null;
 }
 
-const COLUMNS = 'id::text, user_id::text, kind, status, requested_at, due_at, completed_at, failure_reason';
+const COLUMNS =
+  "id::text, user_id::text, kind, status, requested_at, due_at, completed_at, failure_reason";
 const iso = (v: Date | string): string => new Date(v).toISOString();
 
 function toRequest(r: DsrRow): DsrRequest {
@@ -49,7 +54,7 @@ function toRequest(r: DsrRow): DsrRequest {
 }
 
 function reasonOf(error: unknown): string {
-  const message = error instanceof Error ? error.message : 'Unknown error';
+  const message = error instanceof Error ? error.message : "Unknown error";
   return message.slice(0, 500);
 }
 
@@ -62,7 +67,11 @@ export class DsrService {
   ) {}
 
   /** Opens a request due 30 days from now. An unfinished request of the same kind is returned instead of a duplicate. */
-  async submit(tenantId: string, userId: string, kind: DsrKind): Promise<DsrRequest> {
+  async submit(
+    tenantId: string,
+    userId: string,
+    kind: DsrKind,
+  ): Promise<DsrRequest> {
     return this.db.transaction(async (tx) => {
       await useTenant(tx, tenantId);
       const inserted = await tx.query<DsrRow>(
@@ -79,13 +88,17 @@ export class DsrService {
         [tenantId, userId, kind],
       );
       const row = existing.rows[0];
-      if (!row) throw new DsrStateError('Request could not be opened.');
+      if (!row) throw new DsrStateError("Request could not be opened.");
       return toRequest(row);
     });
   }
 
   /** Re-opens a failed request so it is processed again; data stayed unchanged since the failure (19.10). */
-  async resubmit(tenantId: string, userId: string, requestId: string): Promise<DsrRequest> {
+  async resubmit(
+    tenantId: string,
+    userId: string,
+    requestId: string,
+  ): Promise<DsrRequest> {
     return this.db.transaction(async (tx) => {
       await useTenant(tx, tenantId);
       const found = await tx.query<DsrRow>(
@@ -95,7 +108,8 @@ export class DsrService {
       );
       const row = found.rows[0];
       if (!row) throw new DsrNotFoundError();
-      if (row.status !== 'failed') throw new DsrStateError('Only a failed request can be resubmitted.');
+      if (row.status !== "failed")
+        throw new DsrStateError("Only a failed request can be resubmitted.");
       const updated = await tx.query<DsrRow>(
         `UPDATE privacy.dsr_requests SET status = 'open', failure_reason = NULL
          WHERE tenant_id = $1::uuid AND id = $2::uuid RETURNING ${COLUMNS}`,
@@ -118,7 +132,11 @@ export class DsrService {
   }
 
   /** The completed export, for the Student who asked for it. */
-  async getExport(tenantId: string, userId: string, requestId: string): Promise<unknown> {
+  async getExport(
+    tenantId: string,
+    userId: string,
+    requestId: string,
+  ): Promise<unknown> {
     return this.db.transaction(async (tx) => {
       await useTenant(tx, tenantId);
       const rows = await tx.query<{ export_payload: unknown }>(
@@ -133,8 +151,10 @@ export class DsrService {
     });
   }
 
-  /** Processes every open request in a Tenant. Called by the DSR worker. */
-  async processOpen(tenantId: string): Promise<{ completed: number; failed: number }> {
+  /** Processes every open request in a Tenant. Called by the DSR staff. */
+  async processOpen(
+    tenantId: string,
+  ): Promise<{ completed: number; failed: number }> {
     const open = await this.db.transaction(async (tx) => {
       await useTenant(tx, tenantId);
       const rows = await tx.query<{ id: string }>(
@@ -155,8 +175,8 @@ export class DsrService {
 
   /** Runs one request. Returns true when it completed; on failure the data is unchanged and the Student is told why. */
   async process(tenantId: string, requestId: string): Promise<boolean> {
-    let kind: DsrKind = 'export';
-    let userId = '';
+    let kind: DsrKind = "export";
+    let userId = "";
     try {
       await this.db.transaction(async (tx) => {
         await useTenant(tx, tenantId);
@@ -169,18 +189,26 @@ export class DsrService {
         if (!row) throw new DsrNotFoundError();
         kind = row.kind;
         userId = row.user_id;
-        if (row.status !== 'open') throw new DsrStateError('Request is not open.');
-        await tx.query(`UPDATE privacy.dsr_requests SET attempts = attempts + 1 WHERE tenant_id = $1::uuid AND id = $2::uuid`, [
-          tenantId,
-          requestId,
-        ]);
-        if (kind === 'export') await this.runExport(tx, tenantId, userId, requestId);
+        if (row.status !== "open")
+          throw new DsrStateError("Request is not open.");
+        await tx.query(
+          `UPDATE privacy.dsr_requests SET attempts = attempts + 1 WHERE tenant_id = $1::uuid AND id = $2::uuid`,
+          [tenantId, requestId],
+        );
+        if (kind === "export")
+          await this.runExport(tx, tenantId, userId, requestId);
         else await this.runErasure(tx, tenantId, userId, requestId);
       });
       return true;
     } catch (error) {
-      if (userId === '') throw error;
-      await this.recordFailure(tenantId, requestId, userId, kind, reasonOf(error));
+      if (userId === "") throw error;
+      await this.recordFailure(
+        tenantId,
+        requestId,
+        userId,
+        kind,
+        reasonOf(error),
+      );
       return false;
     }
   }
@@ -189,7 +217,12 @@ export class DsrService {
   async notifyOverdue(tenantId: string): Promise<number> {
     return this.db.transaction(async (tx) => {
       await useTenant(tx, tenantId);
-      const rows = await tx.query<{ id: string; user_id: string; kind: DsrKind; failure_reason: string | null }>(
+      const rows = await tx.query<{
+        id: string;
+        user_id: string;
+        kind: DsrKind;
+        failure_reason: string | null;
+      }>(
         `UPDATE privacy.dsr_requests SET late_notified_at = to_timestamp($2 / 1000.0)
          WHERE tenant_id = $1::uuid AND status <> 'completed' AND late_notified_at IS NULL
            AND due_at <= to_timestamp($2 / 1000.0)
@@ -198,31 +231,57 @@ export class DsrService {
       );
       for (const r of rows.rows) {
         await this.notifier.notify(tx, tenantId, r.user_id, {
-          type: 'dsr_failed',
+          type: "dsr_failed",
           requestId: r.id,
           kind: r.kind,
-          reason: r.failure_reason ?? 'The request was not completed within 30 days.',
+          reason:
+            r.failure_reason ?? "The request was not completed within 30 days.",
         });
       }
       return rows.rows.length;
     });
   }
 
-  private async runExport(tx: OutboxSqlClient, tenantId: string, userId: string, requestId: string): Promise<void> {
+  private async runExport(
+    tx: OutboxSqlClient,
+    tenantId: string,
+    userId: string,
+    requestId: string,
+  ): Promise<void> {
     const data: Record<string, unknown> = {};
     for (const provider of this.providers) {
-      data[provider.category] = await provider.exportSubjectData(tx, tenantId, userId);
+      data[provider.category] = await provider.exportSubjectData(
+        tx,
+        tenantId,
+        userId,
+      );
     }
     await tx.query(
       `UPDATE privacy.dsr_requests
        SET status = 'completed', completed_at = now(), failure_reason = NULL, export_payload = $3::jsonb
        WHERE tenant_id = $1::uuid AND id = $2::uuid`,
-      [tenantId, requestId, JSON.stringify({ subject: userId, exportedAt: new Date(this.now()).toISOString(), data })],
+      [
+        tenantId,
+        requestId,
+        JSON.stringify({
+          subject: userId,
+          exportedAt: new Date(this.now()).toISOString(),
+          data,
+        }),
+      ],
     );
-    await this.notifier.notify(tx, tenantId, userId, { type: 'dsr_export_ready', requestId });
+    await this.notifier.notify(tx, tenantId, userId, {
+      type: "dsr_export_ready",
+      requestId,
+    });
   }
 
-  private async runErasure(tx: OutboxSqlClient, tenantId: string, userId: string, requestId: string): Promise<void> {
+  private async runErasure(
+    tx: OutboxSqlClient,
+    tenantId: string,
+    userId: string,
+    requestId: string,
+  ): Promise<void> {
     const retained: RetainedCategory[] = [];
     for (const provider of this.providers) {
       retained.push(...(await provider.eraseSubject(tx, tenantId, userId)));
@@ -233,7 +292,11 @@ export class DsrService {
        WHERE tenant_id = $1::uuid AND id = $2::uuid`,
       [tenantId, requestId, JSON.stringify(retained)],
     );
-    await this.notifier.notify(tx, tenantId, userId, { type: 'dsr_erasure_completed', requestId, retained });
+    await this.notifier.notify(tx, tenantId, userId, {
+      type: "dsr_erasure_completed",
+      requestId,
+      retained,
+    });
   }
 
   private async recordFailure(
@@ -250,7 +313,12 @@ export class DsrService {
          WHERE tenant_id = $1::uuid AND id = $2::uuid`,
         [tenantId, requestId, reason],
       );
-      await this.notifier.notify(tx, tenantId, userId, { type: 'dsr_failed', requestId, kind, reason });
+      await this.notifier.notify(tx, tenantId, userId, {
+        type: "dsr_failed",
+        requestId,
+        kind,
+        reason,
+      });
     });
   }
 }

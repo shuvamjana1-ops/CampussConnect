@@ -1,14 +1,22 @@
 /**
- * PII types, placeholders and spans shared by the public API and the redaction worker.
+ * PII types, placeholders and spans shared by the public API and the redaction staff.
  *
- * This module has no imports: the redaction worker loads it directly through Node.js type stripping.
+ * This module has no imports: the redaction staff loads it directly through Node.js type stripping.
  */
 
 /**
  * PII types the PII_Redactor detects, in the fixed priority order used when merged spans have the same
  * length (design.md, PII_Redactor). The first entry has the highest priority.
  */
-export const PII_TYPES = ['EMAIL', 'PHONE', 'GOV_ID', 'BANK_CARD', 'ROLL_NO', 'ADDRESS', 'NAME'] as const;
+export const PII_TYPES = [
+  "EMAIL",
+  "PHONE",
+  "GOV_ID",
+  "BANK_CARD",
+  "ROLL_NO",
+  "ADDRESS",
+  "NAME",
+] as const;
 
 export type PiiType = (typeof PII_TYPES)[number];
 
@@ -32,4 +40,4 @@ export function typePriority(type: PiiType): number {
 }
 
 /** RE2 source that matches any placeholder the redactor writes. */
-export const PLACEHOLDER_SOURCE = String.raw`\[PII:(?:${PII_TYPES.join('|')})\]`;
+export const PLACEHOLDER_SOURCE = String.raw`\[PII:(?:${PII_TYPES.join("|")})\]`;

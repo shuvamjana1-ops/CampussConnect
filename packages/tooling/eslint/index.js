@@ -1,7 +1,7 @@
-import js from '@eslint/js';
-import { defineConfig, globalIgnores } from 'eslint/config';
-import globals from 'globals';
-import tseslint from 'typescript-eslint';
+import js from "@eslint/js";
+import { defineConfig, globalIgnores } from "eslint/config";
+import globals from "globals";
+import tseslint from "typescript-eslint";
 
 export { globals };
 
@@ -15,14 +15,14 @@ export function createConfig(options) {
   const { tsconfigRootDir } = options;
   return defineConfig(
     globalIgnores([
-      '**/node_modules/**',
-      '**/dist/**',
-      '**/out/**',
-      '**/.next/**',
-      '**/cdk.out/**',
-      '**/coverage/**',
-      '**/.turbo/**',
-      '**/test/fixtures/**',
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/out/**",
+      "**/.next/**",
+      "**/cdk.out/**",
+      "**/coverage/**",
+      "**/.turbo/**",
+      "**/test/fixtures/**",
     ]),
     js.configs.recommended,
     tseslint.configs.strictTypeChecked,
@@ -36,22 +36,22 @@ export function createConfig(options) {
         },
       },
       linterOptions: {
-        reportUnusedDisableDirectives: 'error',
+        reportUnusedDisableDirectives: "error",
       },
       rules: {
         // Log only through packages/observability, which restricts log fields to an allowlist (25.1).
-        'no-console': 'error',
-        eqeqeq: ['error', 'always'],
-        '@typescript-eslint/consistent-type-imports': 'error',
+        "no-console": "error",
+        eqeqeq: ["error", "always"],
+        "@typescript-eslint/consistent-type-imports": "error",
       },
     },
     {
       // Plain JavaScript (config files) is not part of a TypeScript project.
-      files: ['**/*.{js,mjs,cjs}'],
+      files: ["**/*.{js,mjs,cjs}"],
       extends: [tseslint.configs.disableTypeChecked],
     },
     {
-      files: ['**/sw.js', '**/service-worker.js', '**/public/sw.js'],
+      files: ["**/sw.js", "**/service-staff.js", "**/public/sw.js"],
       languageOptions: {
         globals: globals.serviceworker,
       },

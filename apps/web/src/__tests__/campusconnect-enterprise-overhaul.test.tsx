@@ -140,6 +140,13 @@ describe('CampusConnect Enterprise Portal Overhaul Test Suite', () => {
         expect(['Active', 'Closing Soon', 'Open for 2026']).toContain(opp.deadlineStatus);
       }
     });
+
+    it('renders white headlines for scholarships and internships directory and cards', () => {
+      const html = renderComponent(<ScholarshipDirectory />);
+      expect(html).toContain('id="scholarship-gateway-title"');
+      expect(html).toContain('color:#ffffff');
+      expect(html).toContain('cc-opp-title');
+    });
   });
 
   // 4. Complaint Tracker with Real-Time Workflow Bar

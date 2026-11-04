@@ -1,4 +1,4 @@
-import { useEffect, useState, useTransition } from 'react';
+import { useEffect, useMemo, useState, useTransition } from 'react';
 import { useSearchParams } from 'react-router';
 import {
   GraduationCap,
@@ -7,6 +7,10 @@ import {
   CheckCircle2,
   UserCheck,
   Send,
+  Ticket,
+  Paperclip,
+  UploadCloud,
+  Sparkles,
 } from 'lucide-react';
 import { useSession } from '../../auth/session';
 import { AcademicSectionView } from '../../components/AcademicSectionView';
@@ -15,8 +19,19 @@ import { UserProfileSection } from '../../components/UserProfileSection';
 import { GlassCard } from '../../components/GlassCard';
 import { StatTile } from '../../components/StatTile';
 import { useToast } from '../../components/Toast';
+import { HallTicketModal } from '../../components/HallTicketModal';
+import { HostelGatePassView } from '../../components/HostelGatePassView';
+import { CertificateGenerator } from '../../components/CertificateGenerator';
+import { CampusAIAssistant } from '../../components/CampusAIAssistant';
+import { EvidenceLightboxModal } from '../../components/EvidenceLightboxModal';
+import { TicketConversationThread } from '../../components/TicketConversationThread';
+import { compressImage } from '../../utils/image-compressor';
 import { isSupabaseConfigured, supabase, type DbTask } from '../../lib/supabase';
-import { complaintStore, type ComplaintData } from '../../services/complaintStore';
+import {
+  complaintStore,
+  type ComplaintData,
+  type ComplaintAttachment,
+} from '../../services/complaintStore';
 
 export function StudentDashboard() {
   const { user, profile } = useSession();
@@ -35,6 +50,58 @@ export function StudentDashboard() {
   const [category, setCategory] = useState('Examination');
   const [priority, setPriority] = useState<DbTask['priority']>('high');
   const [submitting, setSubmitting] = useState(false);
+
+  // Evidence Attachments & Modals
+  const [showHallTicketModal, setShowHallTicketModal] = useState(false);
+  const [activeLightboxAttachment, setActiveLightboxAttachment] = useState<ComplaintAttachment | null>(null);
+  const [proofFile, setProofFile] = useState<File | null>(null);
+  const [proofPreviewUrl, setProofPreviewUrl] = useState('');
+  const [compressedBytes, setCompressedBytes] = useState<number | undefined>(undefined);
+  const [compressing, setCompressing] = useState(false);
+
+  // Auto-priority escalation when deadline-critical keywords typed
+  useEffect(() => {
+    const textCombined = `${title} ${description}`.toLowerCase();
+    const urgentTriggers = ['exam', 'hall ticket', 'cutoff', 'urgent', 'emergency'];
+    const hasUrgent = urgentTriggers.some((k) => textCombined.includes(k));
+    if (hasUrgent && priority !== 'urgent') {
+      setPriority('urgent');
+    }
+  }, [title, description, priority]);
+
+  // AI Smart Clustering for duplicate detection
+  const duplicateClusters = useMemo(() => {
+    if (!title.trim() && !description.trim()) return [];
+    const textCombined = `${title} ${description}`.toLowerCase();
+    const tokens = textCombined
+      .replace(/[^a-z0-9\s]/g, ' ')
+      .split(/\s+/)
+      .filter((t) => t.length >= 3 && !['the', 'and', 'for', 'with', 'this', 'that', 'have', 'from', 'been'].includes(t));
+
+    if (tokens.length === 0) return [];
+
+    return complaints.filter((c) => {
+      const targetText = `${c.title} ${c.description} ${c.department}`.toLowerCase();
+      const matches = tokens.filter((t) => targetText.includes(t));
+      return matches.length >= 2;
+    });
+  }, [title, description, complaints]);
+
+  const handleProofUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setCompressing(true);
+    try {
+      const res = await compressImage(file);
+      setProofFile(res.file);
+      setProofPreviewUrl(res.previewUrl);
+      setCompressedBytes(res.compressedBytes);
+    } catch (err) {
+      console.error('Failed to compress evidence image:', err);
+    } finally {
+      setCompressing(false);
+    }
+  };
 
   // Subscribe to complaintStore for real-time synchronization
   useEffect(() => {
@@ -81,6 +148,18 @@ export function StudentDashboard() {
           ? 'Hostel'
           : 'Infrastructure';
 
+      const attachments: ComplaintAttachment[] = proofPreviewUrl
+        ? [
+            {
+              id: `att_${Date.now()}`,
+              name: proofFile?.name || 'Evidence_Document.jpg',
+              url: proofPreviewUrl,
+              type: (proofFile?.type === 'application/pdf' ? 'pdf' : 'image') as 'pdf' | 'image',
+              ...(compressedBytes !== undefined ? { sizeBytes: compressedBytes } : {}),
+            },
+          ]
+        : [];
+
       const newComplaint = complaintStore.addComplaint({
         type: typeLabel,
         title,
@@ -93,6 +172,7 @@ export function StudentDashboard() {
             : 'Campus Infrastructure & IT Services',
         priority: priorityLabel,
         currentStage: 'submitted',
+        attachments,
         student: {
           id: user?.id || 'usr_ananya_01',
           name: profile?.full_name || 'Ananya Das',
@@ -105,6 +185,10 @@ export function StudentDashboard() {
         expectedResolutionTime:
           priority === 'urgent' ? 'Within 24 hours (Hall ticket cut-off)' : 'Within 48 hours',
       });
+
+      setProofFile(null);
+      setProofPreviewUrl('');
+      setCompressedBytes(undefined);
 
       if (isSupabaseConfigured && user) {
         await supabase.from('tasks').insert({
@@ -195,23 +279,46 @@ export function StudentDashboard() {
             </p>
           </div>
 
-          <span
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '6px 14px',
-              borderRadius: '9999px',
-              background: 'rgba(37, 99, 235, 0.12)',
-              color: '#1d4ed8',
-              border: '1px solid rgba(37, 99, 235, 0.25)',
-              fontSize: '0.785rem',
-              fontWeight: 700,
-            }}
-          >
-            <UserCheck size={14} />
-            <span>Active Student Standing</span>
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              onClick={() => setShowHallTicketModal(true)}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 16px',
+                borderRadius: '9999px',
+                background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
+                color: '#ffffff',
+                border: 'none',
+                fontSize: '0.825rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.35)',
+              }}
+            >
+              <Ticket size={15} />
+              <span>🎟️ Exam Hall Ticket</span>
+            </button>
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '6px 14px',
+                borderRadius: '9999px',
+                background: 'rgba(37, 99, 235, 0.12)',
+                color: '#60a5fa',
+                border: '1px solid rgba(37, 99, 235, 0.25)',
+                fontSize: '0.785rem',
+                fontWeight: 700,
+              }}
+            >
+              <UserCheck size={14} />
+              <span>Active Student Standing</span>
+            </span>
+          </div>
         </div>
       </GlassCard>
 
@@ -270,6 +377,10 @@ export function StudentDashboard() {
         {[
           { key: 'dashboard', label: `📋 My Grievances & Progress (${complaints.length})` },
           { key: 'lodge', label: '➕ Lodge New Ticket' },
+          { key: 'hallticket', label: '🎟️ Exam Hall Ticket' },
+          { key: 'hostel', label: '🏢 Hostel Gate Pass' },
+          { key: 'certificates', label: '📜 E-Certificates' },
+          { key: 'ai-assistant', label: '🤖 Campus AI Assistant' },
           { key: 'scholarships', label: '🎯 Indian Scholarship Gateway' },
           { key: 'ac', label: '📊 Academic Section (AC) Log' },
           { key: 'profile', label: '👤 Profile Photo & Details' },
@@ -422,11 +533,15 @@ export function StudentDashboard() {
 
                   {/* 4-Stage Visual Progression Tracking Bar */}
                   <div
-                    className="glass-subtle cc-stepper-track"
+                    className="glass-subtle"
                     style={{
-                      padding: '20px 24px',
+                      position: 'relative',
+                      padding: '24px',
                       borderRadius: '16px',
-                      marginBottom: '16px',
+                      margin: '20px 0',
+                      minHeight: '120px',
+                      background: 'rgba(20, 20, 32, 0.65)',
+                      border: '1px solid rgba(255, 255, 255, 0.12)',
                     }}
                   >
                     <div
@@ -587,12 +702,48 @@ export function StudentDashboard() {
                         borderLeft: `4px solid ${currentStep === 4 ? '#059669' : 'var(--student-primary, #1d4ed8)'}`,
                       }}
                     >
-                      <strong style={{ color: currentStep === 4 ? '#065f46' : 'var(--student-primary, #1d4ed8)' }}>
+                      <strong style={{ color: currentStep === 4 ? '#34d399' : '#60a5fa' }}>
                         Latest Update ({latestEvent.actor}):
                       </strong>{' '}
                       {latestEvent.description}
                     </div>
                   )}
+
+                  {/* Supporting Evidence Attachments */}
+                  {c.attachments && c.attachments.length > 0 && (
+                    <div style={{ marginTop: '14px' }}>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>
+                        Uploaded Evidence Proof ({c.attachments.length}):
+                      </span>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                        {c.attachments.map((att) => (
+                          <button
+                            key={att.id}
+                            type="button"
+                            onClick={() => setActiveLightboxAttachment(att)}
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '8px',
+                              padding: '6px 12px',
+                              borderRadius: '10px',
+                              background: 'rgba(20, 20, 32, 0.8)',
+                              border: '1px solid rgba(255, 255, 255, 0.12)',
+                              color: '#f8fafc',
+                              fontSize: '0.785rem',
+                              cursor: 'pointer',
+                            }}
+                          >
+                            <Paperclip size={13} style={{ color: '#60a5fa' }} />
+                            <span>{att.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Two-Way Clarification Thread */}
+                  <TicketConversationThread complaintId={c.id} />
                 </GlassCard>
               );
             })
@@ -603,53 +754,108 @@ export function StudentDashboard() {
       {/* Tab 2: Lodge New Ticket */}
       {activeTab === 'lodge' && (
         <GlassCard material="glass" style={{ maxWidth: '720px', margin: '0 auto', padding: '28px' }}>
-          <h2 style={{ margin: '0 0 6px 0', fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-main, #0f172a)' }}>
+          <h2 style={{ margin: '0 0 6px 0', fontSize: '1.4rem', fontWeight: 800, color: '#f8fafc' }}>
             Lodge Student Grievance / Service Docket
           </h2>
-          <p style={{ margin: '0 0 24px 0', color: 'var(--text-muted, #64748b)', fontSize: '0.9rem' }}>
+          <p style={{ margin: '0 0 24px 0', color: '#94a3b8', fontSize: '0.9rem' }}>
             Direct submission into JIS University workflow. The ticket will be assigned directly to faculty or estates staff.
           </p>
+
+          {/* AI Duplicate Clustering Banner */}
+          {duplicateClusters.length > 0 && (
+            <div
+              style={{
+                padding: '14px 18px',
+                borderRadius: '14px',
+                background: 'rgba(245, 158, 11, 0.12)',
+                border: '1px solid rgba(245, 158, 11, 0.35)',
+                color: '#fbbf24',
+                marginBottom: '16px',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 800, marginBottom: '6px' }}>
+                <Sparkles size={16} />
+                <span>🤖 AI Smart Clustering: Similar Active Tickets Detected</span>
+              </div>
+              <p style={{ margin: '0 0 10px 0', fontSize: '0.825rem', color: '#cbd5e1' }}>
+                Our triage AI detected keyword overlap with active tickets. Submitting a duplicate may delay resolution:
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {duplicateClusters.map((d) => (
+                  <div
+                    key={d.id}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '8px 12px',
+                      borderRadius: '8px',
+                      background: 'rgba(20, 20, 32, 0.6)',
+                      fontSize: '0.8rem',
+                    }}
+                  >
+                    <div>
+                      <strong style={{ color: '#60a5fa', fontFamily: 'monospace' }}>#{d.reference}</strong>{' '}
+                      <span style={{ color: '#f8fafc' }}>{d.title}</span>
+                    </div>
+                    <span
+                      style={{
+                        fontSize: '0.725rem',
+                        padding: '2px 8px',
+                        borderRadius: '9999px',
+                        background: 'rgba(245, 158, 11, 0.2)',
+                        color: '#fbbf24',
+                        fontWeight: 700,
+                      }}
+                    >
+                      {d.currentStage.replace(/_/g, ' ').toUpperCase()}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <form onSubmit={handleLodgeGrievance} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 700, marginBottom: '6px' }}>
+                <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 700, color: '#f8fafc', marginBottom: '6px' }}>
                   Classification
                 </label>
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
                   className="glass-subtle"
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1px solid rgba(0, 0, 0, 0.1)' }}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '12px' }}
                 >
-                  <option value="Examination">Examination & Marks Correction</option>
-                  <option value="Hostel">Hostel & Accommodation</option>
-                  <option value="Infrastructure">Infrastructure & Campus IT</option>
-                  <option value="Academic">Academic Credits & Clearances</option>
-                  <option value="Accounts">Fee Clearance & Accounts</option>
+                  <option value="Examination">Examination &amp; Marks Correction</option>
+                  <option value="Hostel">Hostel &amp; Accommodation</option>
+                  <option value="Infrastructure">Infrastructure &amp; Campus IT</option>
+                  <option value="Academic">Academic Credits &amp; Clearances</option>
+                  <option value="Accounts">Fee Clearance &amp; Accounts</option>
                 </select>
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 700, marginBottom: '6px' }}>
+                <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 700, color: '#f8fafc', marginBottom: '6px' }}>
                   Priority Level
                 </label>
                 <select
                   value={priority}
                   onChange={(e) => setPriority(e.target.value as any)}
                   className="glass-subtle"
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1px solid rgba(0, 0, 0, 0.1)' }}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '12px' }}
                 >
-                  <option value="urgent">Urgent — Exam Hall Ticket Cutoff</option>
-                  <option value="high">High — Infrastructure / Hostel Stoppage</option>
-                  <option value="medium">Medium — General Inquiry & Records</option>
-                  <option value="low">Low — General Request</option>
+                  <option value="urgent">Urgent (P0) — Exam Hall Ticket Cutoff</option>
+                  <option value="high">High (P1) — Infrastructure / Hostel Stoppage</option>
+                  <option value="medium">Medium (P2) — General Inquiry &amp; Records</option>
+                  <option value="low">Low (P3) — General Request</option>
                 </select>
               </div>
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 700, marginBottom: '6px' }}>
+              <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 700, color: '#f8fafc', marginBottom: '6px' }}>
                 Subject / Title
               </label>
               <input
@@ -659,13 +865,13 @@ export function StudentDashboard() {
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g., Internal Assessment Marks Discrepancy in CS302"
                 className="glass-subtle"
-                style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1px solid rgba(0, 0, 0, 0.1)' }}
+                style={{ width: '100%', padding: '10px 14px', borderRadius: '12px' }}
               />
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 700, marginBottom: '6px' }}>
-                Detailed Description & Location Details
+              <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 700, color: '#f8fafc', marginBottom: '6px' }}>
+                Detailed Description &amp; Location Details
               </label>
               <textarea
                 required
@@ -674,8 +880,47 @@ export function StudentDashboard() {
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="State the room number, course code, evaluator name, and dates involved..."
                 className="glass-subtle"
-                style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1px solid rgba(0, 0, 0, 0.1)', fontFamily: 'inherit' }}
+                style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', fontFamily: 'inherit' }}
               />
+            </div>
+
+            {/* Evidence File Attachment */}
+            <div>
+              <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 700, color: '#f8fafc', marginBottom: '6px' }}>
+                Supporting Evidence &amp; Image Proof (Under 200 KB Compressed)
+              </label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                <label
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '8px 16px',
+                    borderRadius: '10px',
+                    background: 'rgba(37, 99, 235, 0.15)',
+                    color: '#60a5fa',
+                    border: '1px solid rgba(37, 99, 235, 0.3)',
+                    fontSize: '0.825rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                  }}
+                >
+                  <UploadCloud size={15} />
+                  <span>{compressing ? 'Compressing Proof...' : 'Upload Supporting Proof'}</span>
+                  <input
+                    type="file"
+                    accept="image/*,application/pdf"
+                    onChange={handleProofUpload}
+                    style={{ display: 'none' }}
+                  />
+                </label>
+                {proofFile && (
+                  <span style={{ fontSize: '0.825rem', color: '#34d399', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Paperclip size={13} />
+                    {proofFile.name} {compressedBytes ? `(${(compressedBytes / 1024).toFixed(0)} KB)` : ''}
+                  </span>
+                )}
+              </div>
             </div>
 
             <button
@@ -704,16 +949,54 @@ export function StudentDashboard() {
         </GlassCard>
       )}
 
-      {/* Tab 3: Scholarships & Internships */}
+      {/* Tab 3: Exam Hall Ticket */}
+      {activeTab === 'hallticket' && (
+        <HallTicketModal
+          isOpen={true}
+          onClose={() => setSearchParams({ tab: 'dashboard' })}
+        />
+      )}
+
+      {/* Tab 4: Hostel Gate Pass */}
+      {activeTab === 'hostel' && (
+        <HostelGatePassView
+          studentRoll="JISU/2024/CSE/0842"
+          canManagePermissions={false}
+        />
+      )}
+
+      {/* Tab 5: E-Certificates */}
+      {activeTab === 'certificates' && <CertificateGenerator studentRoll="JISU/2024/CSE/0842" />}
+
+      {/* Tab 6: Campus AI Assistant */}
+      {activeTab === 'ai-assistant' && <CampusAIAssistant />}
+
+      {/* Tab 7: Scholarships & Internships */}
       {activeTab === 'scholarships' && <ScholarshipDirectory />}
 
-      {/* Tab 4: Academic Section (AC) Log */}
+      {/* Tab 8: Academic Section (AC) Log */}
       {activeTab === 'ac' && (
         <AcademicSectionView defaultRollNumber="JISU/2024/CSE/0842" canEdit={false} />
       )}
 
-      {/* Tab 5: Profile Photo & Details */}
+      {/* Tab 9: Profile Photo & Details */}
       {activeTab === 'profile' && <UserProfileSection />}
+
+      {/* Global Hall Ticket Modal Triggered from Header */}
+      {showHallTicketModal && (
+        <HallTicketModal
+          isOpen={showHallTicketModal}
+          onClose={() => setShowHallTicketModal(false)}
+        />
+      )}
+
+      {/* Lightbox for attachments */}
+      {activeLightboxAttachment && (
+        <EvidenceLightboxModal
+          attachment={activeLightboxAttachment}
+          onClose={() => setActiveLightboxAttachment(null)}
+        />
+      )}
     </div>
   );
 }

@@ -933,7 +933,7 @@
         "timestamp": 1793632111996
       }
     ],
-    "6.2 Create the `apps/api` and `apps/worker` NestJS entry points": [
+    "6.2 Create the `apps/api` and `apps/staff` NestJS entry points": [
       {
         "executionId": "55f37644-ffa5-4e47-81cb-ec1d5b66cdd2",
         "chatSessionId": "sess_ffe12b8b-e816-456e-acf0-024c0964835f",
@@ -2457,7 +2457,7 @@
         "timestamp": 1793628936280
       }
     ],
-    "17.4 Implement the triage worker and suggestion endpoint in `packages/server/triage`": [
+    "17.4 Implement the triage staff and suggestion endpoint in `packages/server/triage`": [
       {
         "executionId": "55f37644-ffa5-4e47-81cb-ec1d5b66cdd2",
         "chatSessionId": "sess_ffe12b8b-e816-456e-acf0-024c0964835f",
@@ -5158,7 +5158,7 @@
         "timestamp": 1793628953628
       }
     ],
-    "34.3 Implement the `emergency-worker` and acknowledgements": [
+    "34.3 Implement the `emergency-staff` and acknowledgements": [
       {
         "executionId": "55f37644-ffa5-4e47-81cb-ec1d5b66cdd2",
         "chatSessionId": "sess_ffe12b8b-e816-456e-acf0-024c0964835f",

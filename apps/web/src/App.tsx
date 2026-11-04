@@ -1,16 +1,16 @@
-import { Route, Routes } from 'react-router';
-import { RequireRole } from './auth/RequireGroup';
-import { AcademicSectionView } from './components/AcademicSectionView';
-import AdminDashboard from './routes/(admin)/AdminDashboard';
-import StaffDashboard from './routes/(staff)/StaffDashboard';
-import StudentDashboard from './routes/(student)/StudentDashboard';
-import LandingPage from './routes/LandingPage';
-import SignIn from './routes/SignIn';
-import SignUp from './routes/SignUp';
-import ProfilePage from './routes/ProfilePage';
-import SettingsPage from './routes/SettingsPage';
-import NotFoundPage from './routes/NotFoundPage';
-import { AppLayout } from './shell/AppLayout';
+import { Route, Routes } from "react-router";
+import { RequireRole } from "./auth/RequireGroup";
+import { AcademicSectionView } from "./components/AcademicSectionView";
+import AdminDashboard from "./routes/(admin)/AdminDashboard";
+import StaffDashboard from "./routes/(staff)/StaffDashboard";
+import StudentDashboard from "./routes/(student)/StudentDashboard";
+import LandingPage from "./routes/LandingPage";
+import SignIn from "./routes/SignIn";
+import SignUp from "./routes/SignUp";
+import ProfilePage from "./routes/ProfilePage";
+import SettingsPage from "./routes/SettingsPage";
+import NotFoundPage from "./routes/NotFoundPage";
+import { AppLayout } from "./shell/AppLayout";
 
 export function App() {
   return (
@@ -27,7 +27,7 @@ export function App() {
           2. Administrator Command Center (/admin, /portal/admin)
              Restricted to: 'admin'
           ========================================================================= */}
-      <Route element={<RequireRole allowedRoles={['admin']} />}>
+      <Route element={<RequireRole allowedRoles={["admin"]} />}>
         <Route element={<AppLayout />}>
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/portal/admin" element={<AdminDashboard />} />
@@ -37,17 +37,17 @@ export function App() {
       </Route>
 
       {/* =========================================================================
-          3. Staff Resolution Workspace (/staff, /worker, /portal/staff)
-             Restricted to: 'worker' (staff), 'admin'
-             Note: Full migration from former "worker" nomenclature to "staff"
+          3. Staff Resolution Workspace (/staff, /staff, /portal/staff)
+             Restricted to: 'staff' (staff), 'admin'
+             Note: Full migration from former "staff" nomenclature to "staff"
           ========================================================================= */}
-      <Route element={<RequireRole allowedRoles={['worker', 'admin']} />}>
+      <Route element={<RequireRole allowedRoles={["staff", "admin"]} />}>
         <Route element={<AppLayout />}>
           <Route path="/staff" element={<StaffDashboard />} />
-          <Route path="/worker" element={<StaffDashboard />} />
+          <Route path="/staff" element={<StaffDashboard />} />
           <Route path="/portal/staff" element={<StaffDashboard />} />
           <Route path="/staff/*" element={<StaffDashboard />} />
-          <Route path="/worker/*" element={<StaffDashboard />} />
+          <Route path="/staff/*" element={<StaffDashboard />} />
           <Route path="/portal/staff/*" element={<StaffDashboard />} />
         </Route>
       </Route>
@@ -56,7 +56,7 @@ export function App() {
           4. Student Portal & Academic Records (/student, /portal/student)
              Restricted to: 'student', 'admin'
           ========================================================================= */}
-      <Route element={<RequireRole allowedRoles={['student', 'admin']} />}>
+      <Route element={<RequireRole allowedRoles={["student", "admin"]} />}>
         <Route element={<AppLayout />}>
           <Route path="/student" element={<StudentDashboard />} />
           <Route path="/portal/student" element={<StudentDashboard />} />
@@ -68,9 +68,11 @@ export function App() {
 
       {/* =========================================================================
           5. Shared Authenticated Suite (/profile, /settings)
-             Accessible to all authenticated roles: 'student', 'worker', 'admin'
+             Accessible to all authenticated roles: 'student', 'staff', 'admin'
           ========================================================================= */}
-      <Route element={<RequireRole allowedRoles={['student', 'worker', 'admin']} />}>
+      <Route
+        element={<RequireRole allowedRoles={["student", "staff", "admin"]} />}
+      >
         <Route element={<AppLayout />}>
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/settings" element={<SettingsPage />} />

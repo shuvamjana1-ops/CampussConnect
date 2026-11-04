@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router';
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router";
 import {
   Search,
   ArrowRight,
@@ -16,12 +16,16 @@ import {
   Laptop,
   LogOut,
   X,
-} from 'lucide-react';
-import { useSession } from '../auth/session';
+  Ticket,
+  Building2,
+  Award,
+  Bot,
+} from "lucide-react";
+import { useSession } from "../auth/session";
 
 export interface CommandItem {
   id: string;
-  category: 'Navigation' | 'Quick Actions' | 'Appearance';
+  category: "Navigation" | "Quick Actions" | "Appearance";
   title: string;
   subtitle?: string;
   icon: React.ReactNode;
@@ -32,7 +36,7 @@ export interface CommandItem {
 
 export function CommandPalette() {
   const [isOpen, setIsOpen] = useState(false);
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   const { switchRole, signOut } = useSession();
@@ -44,11 +48,11 @@ export function CommandPalette() {
   // Open / Close event listeners
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setIsOpen((prev) => !prev);
       }
-      if (e.key === 'Escape' && isOpen) {
+      if (e.key === "Escape" && isOpen) {
         e.preventDefault();
         setIsOpen(false);
       }
@@ -58,19 +62,25 @@ export function CommandPalette() {
       setIsOpen(true);
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('campusconnect:open-command-palette', handleCustomOpen);
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener(
+      "campusconnect:open-command-palette",
+      handleCustomOpen,
+    );
 
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('campusconnect:open-command-palette', handleCustomOpen);
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener(
+        "campusconnect:open-command-palette",
+        handleCustomOpen,
+      );
     };
   }, [isOpen]);
 
   // Focus input when opened
   useEffect(() => {
     if (isOpen) {
-      setQuery('');
+      setQuery("");
       setSelectedIndex(0);
       setTimeout(() => {
         inputRef.current?.focus();
@@ -79,24 +89,24 @@ export function CommandPalette() {
   }, [isOpen]);
 
   // Theme Helpers
-  const setTheme = (mode: 'light' | 'dark' | 'system') => {
+  const setTheme = (mode: "light" | "dark" | "system") => {
     try {
-      if (mode === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        document.documentElement.classList.add('dark');
-        localStorage.setItem('campusconnect:theme', 'dark');
-      } else if (mode === 'light') {
-        document.documentElement.removeAttribute('data-theme');
-        document.documentElement.classList.remove('dark');
-        localStorage.setItem('campusconnect:theme', 'light');
+      if (mode === "dark") {
+        document.documentElement.setAttribute("data-theme", "dark");
+        document.documentElement.classList.add("dark");
+        localStorage.setItem("campusconnect:theme", "dark");
+      } else if (mode === "light") {
+        document.documentElement.removeAttribute("data-theme");
+        document.documentElement.classList.remove("dark");
+        localStorage.setItem("campusconnect:theme", "light");
       } else {
-        localStorage.removeItem('campusconnect:theme');
-        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          document.documentElement.setAttribute('data-theme', 'dark');
-          document.documentElement.classList.add('dark');
+        localStorage.removeItem("campusconnect:theme");
+        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+          document.documentElement.setAttribute("data-theme", "dark");
+          document.documentElement.classList.add("dark");
         } else {
-          document.documentElement.removeAttribute('data-theme');
-          document.documentElement.classList.remove('dark');
+          document.documentElement.removeAttribute("data-theme");
+          document.documentElement.classList.remove("dark");
         }
       }
     } catch {
@@ -109,162 +119,210 @@ export function CommandPalette() {
     return [
       // Navigation
       {
-        id: 'nav-admin',
-        category: 'Navigation',
-        title: 'Admin Command Center',
-        subtitle: 'Overview, analytics, and institutional governance',
+        id: "nav-admin",
+        category: "Navigation",
+        title: "Admin Command Center",
+        subtitle: "Overview, analytics, and institutional governance",
         icon: <ShieldCheck size={18} />,
-        shortcut: 'G A',
-        keywords: ['admin', 'dashboard', 'analytics', 'governance'],
-        action: () => navigate('/admin'),
+        shortcut: "G A",
+        keywords: ["admin", "dashboard", "analytics", "governance"],
+        action: () => navigate("/admin"),
       },
       {
-        id: 'nav-staff',
-        category: 'Navigation',
-        title: 'Staff Work Queue',
-        subtitle: 'Assigned dockets and resolution pipeline',
+        id: "nav-staff",
+        category: "Navigation",
+        title: "Staff Work Queue",
+        subtitle: "Assigned dockets and resolution pipeline",
         icon: <CheckCircle2 size={18} />,
-        shortcut: 'G W',
-        keywords: ['staff', 'worker', 'queue', 'tickets', 'dockets'],
-        action: () => navigate('/staff'),
+        shortcut: "G W",
+        keywords: ["staff", "staff", "queue", "tickets", "dockets"],
+        action: () => navigate("/staff"),
       },
       {
-        id: 'nav-student',
-        category: 'Navigation',
-        title: 'Student Portal',
-        subtitle: 'Grievance lodge, status tracker & services',
+        id: "nav-student",
+        category: "Navigation",
+        title: "Student Portal",
+        subtitle: "Grievance lodge, status tracker & services",
         icon: <GraduationCap size={18} />,
-        shortcut: 'G S',
-        keywords: ['student', 'portal', 'complaints', 'status'],
-        action: () => navigate('/student'),
+        shortcut: "G S",
+        keywords: ["student", "portal", "complaints", "status"],
+        action: () => navigate("/student"),
       },
       {
-        id: 'nav-academic',
-        category: 'Navigation',
-        title: 'Academic Section (AC)',
-        subtitle: 'Examination script records & course evaluation',
+        id: "nav-academic",
+        category: "Navigation",
+        title: "Academic Section (AC)",
+        subtitle: "Examination script records & course evaluation",
         icon: <BookOpen size={18} />,
-        shortcut: 'G C',
-        keywords: ['academic', 'grades', 'marks', 'exam', 'section', 'ac'],
-        action: () => navigate('/portal/student/ac'),
+        shortcut: "G C",
+        keywords: ["academic", "grades", "marks", "exam", "section", "ac"],
+        action: () => navigate("/portal/student/ac"),
       },
       {
-        id: 'nav-scholarships',
-        category: 'Navigation',
-        title: 'Scholarships & Internships',
-        subtitle: 'Institutional grants & industry fellowships',
+        id: "nav-scholarships",
+        category: "Navigation",
+        title: "Scholarships & Internships",
+        subtitle: "Institutional grants & industry fellowships",
         icon: <Sparkles size={18} />,
-        shortcut: 'G I',
-        keywords: ['scholarships', 'internships', 'grants', 'careers'],
-        action: () => navigate('/student?tab=scholarships'),
+        shortcut: "G I",
+        keywords: ["scholarships", "internships", "grants", "careers"],
+        action: () => navigate("/student?tab=scholarships"),
       },
       {
-        id: 'nav-profile',
-        category: 'Navigation',
-        title: 'User Profile & Identity Dossier',
-        subtitle: 'View photo presets and personal details',
+        id: "nav-hallticket",
+        category: "Navigation",
+        title: "Exam Hall Ticket & Admit Card",
+        subtitle: "View timetable, seat allocation, and download admit card",
+        icon: <Ticket size={18} />,
+        shortcut: "G H",
+        keywords: ["hall", "ticket", "admit", "card", "exam", "seating"],
+        action: () => navigate("/student?tab=hallticket"),
+      },
+      {
+        id: "nav-hostel",
+        category: "Navigation",
+        title: "Hostel Outpass & Digital Gate Pass",
+        subtitle: "Request leave pass and manage security check-outs",
+        icon: <Building2 size={18} />,
+        shortcut: "G O",
+        keywords: ["hostel", "gate", "pass", "outpass", "leave", "warden"],
+        action: () => navigate("/student?tab=hostel"),
+      },
+      {
+        id: "nav-certificates",
+        category: "Navigation",
+        title: "Institutional E-Certificates",
+        subtitle: "Generate Bonafide, Fee Estimation & No-Dues clearances",
+        icon: <Award size={18} />,
+        shortcut: "G E",
+        keywords: ["certificate", "bonafide", "fee", "no-dues", "clearance"],
+        action: () => navigate("/student?tab=certificates"),
+      },
+      {
+        id: "nav-ai-assistant",
+        category: "Navigation",
+        title: "CampusConnect AI Assistant",
+        subtitle:
+          "Instant statutory answers for attendance, regulations & queries",
+        icon: <Bot size={18} />,
+        shortcut: "G K",
+        keywords: [
+          "ai",
+          "assistant",
+          "bot",
+          "regulations",
+          "attendance",
+          "rules",
+        ],
+        action: () => navigate("/student?tab=ai-assistant"),
+      },
+      {
+        id: "nav-profile",
+        category: "Navigation",
+        title: "User Profile & Identity Dossier",
+        subtitle: "View photo presets and personal details",
         icon: <User size={18} />,
-        shortcut: 'G P',
-        keywords: ['profile', 'user', 'photo', 'avatar', 'dossier', 'roll'],
-        action: () => navigate('/profile'),
+        shortcut: "G P",
+        keywords: ["profile", "user", "photo", "avatar", "dossier", "roll"],
+        action: () => navigate("/profile"),
       },
       {
-        id: 'nav-settings',
-        category: 'Navigation',
-        title: 'System Settings',
-        subtitle: 'Institution logo, preferences, notifications',
+        id: "nav-settings",
+        category: "Navigation",
+        title: "System Settings",
+        subtitle: "Institution logo, preferences, notifications",
         icon: <Settings size={18} />,
-        shortcut: 'G ,',
-        keywords: ['settings', 'logo', 'config', 'theme', 'preferences'],
-        action: () => navigate('/settings'),
+        shortcut: "G ,",
+        keywords: ["settings", "logo", "config", "theme", "preferences"],
+        action: () => navigate("/settings"),
       },
 
       // Quick Actions
       {
-        id: 'action-lodge',
-        category: 'Quick Actions',
-        title: 'Lodge New Grievance / Task',
-        subtitle: 'Create and submit a new ticket docket',
+        id: "action-lodge",
+        category: "Quick Actions",
+        title: "Lodge New Grievance / Task",
+        subtitle: "Create and submit a new ticket docket",
         icon: <ClipboardList size={18} />,
-        keywords: ['create', 'lodge', 'new', 'grievance', 'ticket'],
-        action: () => navigate('/student?tab=lodge'),
+        keywords: ["create", "lodge", "new", "grievance", "ticket"],
+        action: () => navigate("/student?tab=lodge"),
       },
       {
-        id: 'action-switch-admin',
-        category: 'Quick Actions',
-        title: 'Switch Role to Administrator',
-        subtitle: 'Access Registrar & Command Center views',
+        id: "action-switch-admin",
+        category: "Quick Actions",
+        title: "Switch Role to Administrator",
+        subtitle: "Access Registrar & Command Center views",
         icon: <ShieldCheck size={18} />,
-        keywords: ['switch', 'role', 'admin'],
+        keywords: ["switch", "role", "admin"],
         action: () => {
-          switchRole('admin');
-          navigate('/admin');
+          switchRole("admin");
+          navigate("/admin");
         },
       },
       {
-        id: 'action-switch-staff',
-        category: 'Quick Actions',
-        title: 'Switch Role to Staff',
-        subtitle: 'Access Faculty & Work Queue views',
+        id: "action-switch-staff",
+        category: "Quick Actions",
+        title: "Switch Role to Staff",
+        subtitle: "Access Faculty & Work Queue views",
         icon: <CheckCircle2 size={18} />,
-        keywords: ['switch', 'role', 'staff', 'worker'],
+        keywords: ["switch", "role", "staff", "staff"],
         action: () => {
-          switchRole('staff');
-          navigate('/staff');
+          switchRole("staff");
+          navigate("/staff");
         },
       },
       {
-        id: 'action-switch-student',
-        category: 'Quick Actions',
-        title: 'Switch Role to Student',
-        subtitle: 'Access Student Portal & Services',
+        id: "action-switch-student",
+        category: "Quick Actions",
+        title: "Switch Role to Student",
+        subtitle: "Access Student Portal & Services",
         icon: <GraduationCap size={18} />,
-        keywords: ['switch', 'role', 'student'],
+        keywords: ["switch", "role", "student"],
         action: () => {
-          switchRole('student');
-          navigate('/student');
+          switchRole("student");
+          navigate("/student");
         },
       },
       {
-        id: 'action-signout',
-        category: 'Quick Actions',
-        title: 'Sign Out / Exit Session',
-        subtitle: 'Safely terminate active authentication session',
+        id: "action-signout",
+        category: "Quick Actions",
+        title: "Sign Out / Exit Session",
+        subtitle: "Safely terminate active authentication session",
         icon: <LogOut size={18} />,
-        keywords: ['signout', 'logout', 'exit'],
+        keywords: ["signout", "logout", "exit"],
         action: async () => {
           await signOut();
-          navigate('/login');
+          navigate("/login");
         },
       },
 
       // Appearance
       {
-        id: 'theme-dark',
-        category: 'Appearance',
-        title: 'Switch to Dark Mode',
-        subtitle: 'Deep macOS obsidian glass aesthetic',
+        id: "theme-dark",
+        category: "Appearance",
+        title: "Switch to Dark Mode",
+        subtitle: "Deep macOS obsidian glass aesthetic",
         icon: <Moon size={18} />,
-        keywords: ['dark', 'mode', 'theme', 'black'],
-        action: () => setTheme('dark'),
+        keywords: ["dark", "mode", "theme", "black"],
+        action: () => setTheme("dark"),
       },
       {
-        id: 'theme-light',
-        category: 'Appearance',
-        title: 'Switch to Light Mode',
-        subtitle: 'Crisp Apple frosted crystal aesthetic',
+        id: "theme-light",
+        category: "Appearance",
+        title: "Switch to Light Mode",
+        subtitle: "Crisp Apple frosted crystal aesthetic",
         icon: <Sun size={18} />,
-        keywords: ['light', 'mode', 'theme', 'white'],
-        action: () => setTheme('light'),
+        keywords: ["light", "mode", "theme", "white"],
+        action: () => setTheme("light"),
       },
       {
-        id: 'theme-system',
-        category: 'Appearance',
-        title: 'Match System Theme',
-        subtitle: 'Follow OS appearance preferences automatically',
+        id: "theme-system",
+        category: "Appearance",
+        title: "Match System Theme",
+        subtitle: "Follow OS appearance preferences automatically",
         icon: <Laptop size={18} />,
-        keywords: ['system', 'automatic', 'auto', 'match'],
-        action: () => setTheme('system'),
+        keywords: ["system", "automatic", "auto", "match"],
+        action: () => setTheme("system"),
       },
     ];
   }, [navigate, switchRole, signOut]);
@@ -276,7 +334,8 @@ export function CommandPalette() {
     return commands.filter((c) => {
       if (c.title.toLowerCase().includes(clean)) return true;
       if (c.subtitle && c.subtitle.toLowerCase().includes(clean)) return true;
-      if (c.keywords && c.keywords.some((k) => k.toLowerCase().includes(clean))) return true;
+      if (c.keywords && c.keywords.some((k) => k.toLowerCase().includes(clean)))
+        return true;
       return false;
     });
   }, [commands, query]);
@@ -292,21 +351,29 @@ export function CommandPalette() {
   useEffect(() => {
     const listEl = listRef.current;
     if (!listEl) return;
-    const activeEl = listEl.querySelector(`[data-command-index="${selectedIndex}"]`) as HTMLElement;
+    const activeEl = listEl.querySelector(
+      `[data-command-index="${selectedIndex}"]`,
+    ) as HTMLElement;
     if (activeEl) {
-      activeEl.scrollIntoView({ block: 'nearest' });
+      activeEl.scrollIntoView({ block: "nearest" });
     }
   }, [selectedIndex]);
 
   // Key navigation in input
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'ArrowDown') {
+    if (e.key === "ArrowDown") {
       e.preventDefault();
-      setSelectedIndex((prev) => (filteredCommands.length > 0 ? (prev + 1) % filteredCommands.length : 0));
-    } else if (e.key === 'ArrowUp') {
+      setSelectedIndex((prev) =>
+        filteredCommands.length > 0 ? (prev + 1) % filteredCommands.length : 0,
+      );
+    } else if (e.key === "ArrowUp") {
       e.preventDefault();
-      setSelectedIndex((prev) => (filteredCommands.length > 0 ? (prev - 1 + filteredCommands.length) % filteredCommands.length : 0));
-    } else if (e.key === 'Enter') {
+      setSelectedIndex((prev) =>
+        filteredCommands.length > 0
+          ? (prev - 1 + filteredCommands.length) % filteredCommands.length
+          : 0,
+      );
+    } else if (e.key === "Enter") {
       e.preventDefault();
       if (filteredCommands[selectedIndex]) {
         filteredCommands[selectedIndex].action();
@@ -324,51 +391,54 @@ export function CommandPalette() {
       aria-label="Command Palette"
       onClick={() => setIsOpen(false)}
       style={{
-        position: 'fixed',
+        position: "fixed",
         inset: 0,
         zIndex: 60,
-        display: 'flex',
-        alignItems: 'flex-start',
-        justifyContent: 'center',
-        paddingTop: '12vh',
-        paddingLeft: '16px',
-        paddingRight: '16px',
-        background: 'rgba(0, 0, 0, 0.45)',
-        backdropFilter: 'blur(40px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-        animation: 'cf-fade-in 200ms cubic-bezier(0.32, 0.72, 0, 1)',
+        display: "flex",
+        alignItems: "flex-start",
+        justifyContent: "center",
+        paddingTop: "12vh",
+        paddingLeft: "16px",
+        paddingRight: "16px",
+        background: "rgba(0, 0, 0, 0.45)",
+        backdropFilter: "blur(40px) saturate(180%)",
+        WebkitBackdropFilter: "blur(40px) saturate(180%)",
+        animation: "cf-fade-in 200ms cubic-bezier(0.32, 0.72, 0, 1)",
       }}
     >
       {/* Dialog Window */}
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          width: '100%',
-          maxWidth: '620px',
-          borderRadius: '24px',
-          background: 'rgba(255, 255, 255, 0.85)',
-          backdropFilter: 'blur(40px) saturate(190%)',
-          WebkitBackdropFilter: 'blur(40px) saturate(190%)',
-          border: '1px solid rgba(255, 255, 255, 0.5)',
+          width: "100%",
+          maxWidth: "620px",
+          borderRadius: "24px",
+          background: "rgba(255, 255, 255, 0.85)",
+          backdropFilter: "blur(40px) saturate(190%)",
+          WebkitBackdropFilter: "blur(40px) saturate(190%)",
+          border: "1px solid rgba(255, 255, 255, 0.5)",
           boxShadow:
-            '0 25px 60px -12px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.7)',
-          overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
-          animation: 'cf-slide-up 240ms cubic-bezier(0.32, 0.72, 0, 1)',
+            "0 25px 60px -12px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.7)",
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
+          animation: "cf-slide-up 240ms cubic-bezier(0.32, 0.72, 0, 1)",
         }}
       >
         {/* Search Input Bar */}
         <div
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            padding: '16px 20px',
-            borderBottom: '1px solid rgba(0, 0, 0, 0.08)',
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
+            padding: "16px 20px",
+            borderBottom: "1px solid rgba(0, 0, 0, 0.08)",
           }}
         >
-          <Search size={20} style={{ color: 'var(--text-muted, #64748b)', flexShrink: 0 }} />
+          <Search
+            size={20}
+            style={{ color: "var(--text-muted, #64748b)", flexShrink: 0 }}
+          />
           <input
             ref={inputRef}
             type="text"
@@ -381,32 +451,32 @@ export function CommandPalette() {
             placeholder="Type a command or destination (e.g. 'tickets', 'dark', 'profile')..."
             style={{
               flex: 1,
-              border: 'none',
-              background: 'transparent',
-              fontSize: '1rem',
-              color: 'var(--text-main, #0f172a)',
-              outline: 'none',
-              fontFamily: 'inherit',
+              border: "none",
+              background: "transparent",
+              fontSize: "1rem",
+              color: "var(--text-main, #0f172a)",
+              outline: "none",
+              fontFamily: "inherit",
             }}
           />
           {query ? (
             <button
               type="button"
               onClick={() => {
-                setQuery('');
+                setQuery("");
                 inputRef.current?.focus();
               }}
               style={{
-                background: 'rgba(0, 0, 0, 0.06)',
-                border: 'none',
-                borderRadius: '50%',
-                width: '22px',
-                height: '22px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                color: 'var(--text-muted, #64748b)',
+                background: "rgba(0, 0, 0, 0.06)",
+                border: "none",
+                borderRadius: "50%",
+                width: "22px",
+                height: "22px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                color: "var(--text-muted, #64748b)",
               }}
             >
               <X size={13} />
@@ -414,13 +484,13 @@ export function CommandPalette() {
           ) : (
             <kbd
               style={{
-                fontSize: '0.7rem',
+                fontSize: "0.7rem",
                 fontWeight: 600,
-                padding: '2px 6px',
-                borderRadius: '6px',
-                background: 'rgba(0, 0, 0, 0.06)',
-                color: 'var(--text-muted, #64748b)',
-                border: '1px solid rgba(0, 0, 0, 0.1)',
+                padding: "2px 6px",
+                borderRadius: "6px",
+                background: "rgba(0, 0, 0, 0.06)",
+                color: "var(--text-muted, #64748b)",
+                border: "1px solid rgba(0, 0, 0, 0.1)",
               }}
             >
               ESC
@@ -433,18 +503,18 @@ export function CommandPalette() {
           ref={listRef}
           role="listbox"
           style={{
-            maxHeight: '360px',
-            overflowY: 'auto',
-            padding: '10px',
+            maxHeight: "360px",
+            overflowY: "auto",
+            padding: "10px",
           }}
         >
           {filteredCommands.length === 0 ? (
             <div
               style={{
-                padding: '32px 16px',
-                textAlign: 'center',
-                color: 'var(--text-muted, #64748b)',
-                fontSize: '0.875rem',
+                padding: "32px 16px",
+                textAlign: "center",
+                color: "var(--text-muted, #64748b)",
+                fontSize: "0.875rem",
               }}
             >
               No matching commands found for &ldquo;{query}&rdquo;
@@ -464,33 +534,46 @@ export function CommandPalette() {
                   }}
                   onMouseEnter={() => setSelectedIndex(idx)}
                   style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '10px 14px',
-                    borderRadius: '12px',
-                    cursor: 'pointer',
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "10px 14px",
+                    borderRadius: "12px",
+                    cursor: "pointer",
                     background: isSelected
-                      ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(99, 102, 241, 0.12))'
-                      : 'transparent',
+                      ? "linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(99, 102, 241, 0.12))"
+                      : "transparent",
                     border: isSelected
-                      ? '1px solid rgba(59, 130, 246, 0.3)'
-                      : '1px solid transparent',
-                    transition: 'background-color 140ms ease, border-color 140ms ease',
+                      ? "1px solid rgba(59, 130, 246, 0.3)"
+                      : "1px solid transparent",
+                    transition:
+                      "background-color 140ms ease, border-color 140ms ease",
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "12px",
+                      minWidth: 0,
+                    }}
+                  >
                     <div
                       style={{
-                        width: '32px',
-                        height: '32px',
-                        borderRadius: '10px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        background: isSelected ? 'var(--accent, #3b82f6)' : 'rgba(0, 0, 0, 0.05)',
-                        color: isSelected ? '#ffffff' : 'var(--text-main, #0f172a)',
-                        transition: 'background-color 160ms ease, color 160ms ease',
+                        width: "32px",
+                        height: "32px",
+                        borderRadius: "10px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        background: isSelected
+                          ? "var(--accent, #3b82f6)"
+                          : "rgba(0, 0, 0, 0.05)",
+                        color: isSelected
+                          ? "#ffffff"
+                          : "var(--text-main, #0f172a)",
+                        transition:
+                          "background-color 160ms ease, color 160ms ease",
                         flexShrink: 0,
                       }}
                     >
@@ -499,12 +582,12 @@ export function CommandPalette() {
                     <div style={{ minWidth: 0 }}>
                       <div
                         style={{
-                          fontSize: '0.875rem',
+                          fontSize: "0.875rem",
                           fontWeight: 600,
-                          color: 'var(--text-main, #0f172a)',
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
+                          color: "var(--text-main, #0f172a)",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
                         }}
                       >
                         {item.title}
@@ -512,11 +595,11 @@ export function CommandPalette() {
                       {item.subtitle && (
                         <div
                           style={{
-                            fontSize: '0.75rem',
-                            color: 'var(--text-muted, #64748b)',
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
+                            fontSize: "0.75rem",
+                            color: "var(--text-muted, #64748b)",
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
                           }}
                         >
                           {item.subtitle}
@@ -525,23 +608,36 @@ export function CommandPalette() {
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0, marginLeft: '12px' }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      flexShrink: 0,
+                      marginLeft: "12px",
+                    }}
+                  >
                     {item.shortcut && (
                       <kbd
                         style={{
-                          fontSize: '0.7rem',
+                          fontSize: "0.7rem",
                           fontWeight: 600,
-                          padding: '2px 6px',
-                          borderRadius: '6px',
-                          background: 'rgba(0, 0, 0, 0.05)',
-                          color: 'var(--text-muted, #64748b)',
-                          border: '1px solid rgba(0, 0, 0, 0.08)',
+                          padding: "2px 6px",
+                          borderRadius: "6px",
+                          background: "rgba(0, 0, 0, 0.05)",
+                          color: "var(--text-muted, #64748b)",
+                          border: "1px solid rgba(0, 0, 0, 0.08)",
                         }}
                       >
                         {item.shortcut}
                       </kbd>
                     )}
-                    {isSelected && <ArrowRight size={15} style={{ color: 'var(--accent, #3b82f6)' }} />}
+                    {isSelected && (
+                      <ArrowRight
+                        size={15}
+                        style={{ color: "var(--accent, #3b82f6)" }}
+                      />
+                    )}
                   </div>
                 </div>
               );
@@ -552,23 +648,49 @@ export function CommandPalette() {
         {/* Footer Shortcut Legend */}
         <div
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '10px 18px',
-            borderTop: '1px solid rgba(0, 0, 0, 0.06)',
-            background: 'rgba(0, 0, 0, 0.02)',
-            fontSize: '0.725rem',
-            color: 'var(--text-muted, #64748b)',
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "10px 18px",
+            borderTop: "1px solid rgba(0, 0, 0, 0.06)",
+            background: "rgba(0, 0, 0, 0.02)",
+            fontSize: "0.725rem",
+            color: "var(--text-muted, #64748b)",
           }}
         >
-          <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
+          <div style={{ display: "flex", gap: "14px", alignItems: "center" }}>
             <span>
-              <kbd style={{ padding: '1px 5px', borderRadius: '4px', background: 'rgba(0,0,0,0.06)' }}>↑</kbd>{' '}
-              <kbd style={{ padding: '1px 5px', borderRadius: '4px', background: 'rgba(0,0,0,0.06)' }}>↓</kbd> Navigate
+              <kbd
+                style={{
+                  padding: "1px 5px",
+                  borderRadius: "4px",
+                  background: "rgba(0,0,0,0.06)",
+                }}
+              >
+                ↑
+              </kbd>{" "}
+              <kbd
+                style={{
+                  padding: "1px 5px",
+                  borderRadius: "4px",
+                  background: "rgba(0,0,0,0.06)",
+                }}
+              >
+                ↓
+              </kbd>{" "}
+              Navigate
             </span>
             <span>
-              <kbd style={{ padding: '1px 5px', borderRadius: '4px', background: 'rgba(0,0,0,0.06)' }}>↵</kbd> Select
+              <kbd
+                style={{
+                  padding: "1px 5px",
+                  borderRadius: "4px",
+                  background: "rgba(0,0,0,0.06)",
+                }}
+              >
+                ↵
+              </kbd>{" "}
+              Select
             </span>
           </div>
           <div>

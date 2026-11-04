@@ -1,26 +1,33 @@
 // Profile embeddings (requirements 10.7, 10.8, 10.14, 11.10) and the consent-gated income band (10.5, 10.6, 19.2).
 
-import type { AiAdapter } from '@campusconnect/ai-adapter';
-import { EMBEDDING_REGENERATION_POLICY, retryDelayMs } from '@campusconnect/domain/retry';
-import type { PiiRedactor } from '@campusconnect/pii-redactor';
-import type { ConsentService } from '../privacy/consent.service';
-import { INCOME_BAND_PURPOSE, type ProfileDatabase, type ProfileSqlClient } from './profile.types';
-import type { ProfileService } from './profile.service';
+import type { AiAdapter } from "@campusconnect/ai-adapter";
+import {
+  EMBEDDING_REGENERATION_POLICY,
+  retryDelayMs,
+} from "@campusconnect/domain/retry";
+import type { PiiRedactor } from "@campusconnect/pii-redactor";
+import type { ConsentService } from "../privacy/consent.service";
+import {
+  INCOME_BAND_PURPOSE,
+  type ProfileDatabase,
+  type ProfileSqlClient,
+} from "./profile.types";
+import type { ProfileService } from "./profile.service";
 
 /**
  * Fields that may appear in embedding text. Income band, social category and gender are never ranking inputs (11.10),
  * and identifiers such as the roll number and hostel carry no matching signal.
  */
 export const EMBEDDING_FIELD_ALLOWLIST: readonly string[] = [
-  'program',
-  'department',
-  'year',
-  'skills',
-  'interests',
-  'achievements',
-  'preferredLocations',
-  'cgpa',
-  'graduationYear',
+  "program",
+  "department",
+  "year",
+  "skills",
+  "interests",
+  "achievements",
+  "preferredLocations",
+  "cgpa",
+  "graduationYear",
 ];
 
 export const PROFILE_EMBEDDING_DIMENSIONS = 1024;
@@ -41,15 +48,19 @@ interface DueRow {
 }
 
 /** Plain text of the allowlisted fields only. Empty when the profile holds none of them. */
-export function buildProfileText(fields: Readonly<Record<string, { readonly value: unknown }>>): string {
+export function buildProfileText(
+  fields: Readonly<Record<string, { readonly value: unknown }>>,
+): string {
   const lines: string[] = [];
   for (const name of EMBEDDING_FIELD_ALLOWLIST) {
     const value = fields[name]?.value;
     if (value === undefined || value === null) continue;
-    const text = Array.isArray(value) ? value.map(String).join(', ') : String(value);
+    const text = Array.isArray(value)
+      ? value.map(String).join(", ")
+      : String(value);
     if (text.trim().length > 0) lines.push(`${name}: ${text}`);
   }
-  return lines.join('\n');
+  return lines.join("\n");
 }
 
 export class ProfileEmbeddingService {
@@ -60,7 +71,7 @@ export class ProfileEmbeddingService {
   }
 
   /**
-   * `embed` worker. Run at least every minute so a change is embedded well inside 5 minutes (10.7). Picks profiles
+   * `embed` staff. Run at least every minute so a change is embedded well inside 5 minutes (10.7). Picks profiles
    * changed since their last embedding and profiles whose retry is due. Returns the number of vectors stored.
    */
   async runEmbeddings(tenantId: string, limit = 50): Promise<number> {
@@ -104,12 +115,17 @@ export class ProfileEmbeddingService {
       // Only redacted text reaches the adapter (10.14). A redaction failure means the adapter is not called.
       const redacted = await this.options.redactor.redact(text, { tenantId });
       const result = await this.options.ai.embed(
-        { purpose: 'embed', texts: [redacted.text] },
+        { purpose: "embed", texts: [redacted.text] },
         { timeoutMs: EMBED_TIMEOUT_MS },
       );
-      if (result.type === 'success' && result.data.vectors.length === 1) {
+      if (result.type === "success" && result.data.vectors.length === 1) {
         const v = result.data.vectors[0];
-        if (v !== undefined && v.length === PROFILE_EMBEDDING_DIMENSIONS && v.every(Number.isFinite)) vector = v;
+        if (
+          v !== undefined &&
+          v.length === PROFILE_EMBEDDING_DIMENSIONS &&
+          v.every(Number.isFinite)
+        )
+          vector = v;
       }
     } catch {
       vector = undefined;
@@ -122,7 +138,7 @@ export class ProfileEmbeddingService {
               SET embedding = $3::vector, embedding_stale = false, embedding_attempts = 0, embedding_next_at = NULL,
                   embedding_updated_at = $4::timestamptz
             WHERE tenant_id = $1::uuid AND user_id = $2::uuid`,
-          [tenantId, row.user_id, `[${vector.join(',')}]`, snapshot],
+          [tenantId, row.user_id, `[${vector.join(",")}]`, snapshot],
         );
         return;
       }
@@ -162,7 +178,11 @@ export class IncomeBandConsentHandler {
   ) {}
 
   /** Call after `ConsentService.withdraw` succeeds for any purpose. Other purposes are ignored. */
-  async onConsentWithdrawn(tenantId: string, userId: string, purpose: string): Promise<void> {
+  async onConsentWithdrawn(
+    tenantId: string,
+    userId: string,
+    purpose: string,
+  ): Promise<void> {
     if (purpose !== INCOME_BAND_PURPOSE) return;
     await this.profiles.removeIncomeBand(tenantId, userId);
   }
@@ -172,17 +192,21 @@ export class IncomeBandConsentHandler {
    * cannot leave the value in matching. Returns the number of bands removed.
    */
   async reconcile(tenantId: string, limit = 200): Promise<number> {
-    const holders = await this.database.transaction({ tenantId }, async (tx: ProfileSqlClient) => {
-      const r = await tx.query<{ user_id: string }>(
-        `SELECT user_id::text AS user_id FROM opps.student_profiles
+    const holders = await this.database.transaction(
+      { tenantId },
+      async (tx: ProfileSqlClient) => {
+        const r = await tx.query<{ user_id: string }>(
+          `SELECT user_id::text AS user_id FROM opps.student_profiles
           WHERE tenant_id = $1::uuid AND fields ? 'incomeBand' LIMIT $2`,
-        [tenantId, limit],
-      );
-      return r.rows;
-    });
+          [tenantId, limit],
+        );
+        return r.rows;
+      },
+    );
     let removed = 0;
     for (const { user_id: userId } of holders) {
-      if (await this.consents.hasConsent(tenantId, userId, INCOME_BAND_PURPOSE)) continue;
+      if (await this.consents.hasConsent(tenantId, userId, INCOME_BAND_PURPOSE))
+        continue;
       await this.profiles.removeIncomeBand(tenantId, userId);
       removed += 1;
     }

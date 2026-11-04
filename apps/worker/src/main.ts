@@ -1,6 +1,6 @@
-import 'reflect-metadata';
-import { NestFactory } from '@nestjs/core';
-import { WorkerModule } from './worker.module';
+import "reflect-metadata";
+import { NestFactory } from "@nestjs/core";
+import { WorkerModule } from "./staff.module";
 
 /** Standalone bootstrap: no HTTP server. The runtime starts its loops from the application lifecycle hooks. */
 async function bootstrap(): Promise<void> {

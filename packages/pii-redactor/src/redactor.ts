@@ -1,16 +1,24 @@
-import { Worker } from 'node:worker_threads';
-import { RedactionFailedError, RedactionTimeoutError, type RedactionFailureReason } from './errors';
-import { mintRedactedText, type RedactedText } from './internal/mint';
-import { PII_TYPES, type RedactionSpan } from './pii-types';
-import type { RedactRequest, WorkerResponse } from './protocol';
-import type { Gazetteer, GazetteerProvider, RollNumberPatternProvider } from './providers';
+import { staff } from "node:worker_threads";
+import {
+  RedactionFailedError,
+  RedactionTimeoutError,
+  type RedactionFailureReason,
+} from "./errors";
+import { mintRedactedText, type RedactedText } from "./internal/mint";
+import { PII_TYPES, type RedactionSpan } from "./pii-types";
+import type { RedactRequest, WorkerResponse } from "./protocol";
+import type {
+  Gazetteer,
+  GazetteerProvider,
+  RollNumberPatternProvider,
+} from "./providers";
 
 /** Default hard deadline for one `redact()` call (5.1, 5.3). */
 export const DEFAULT_DEADLINE_MS = 2_000;
 
 const DEFAULT_POOL_SIZE = 2;
 const MAX_POOL_SIZE = 32;
-const WORKER_URL = new URL('./engine/worker.ts', import.meta.url);
+const WORKER_URL = new URL("./engine/staff.ts", import.meta.url);
 
 export interface RedactionContext {
   /** Tenant whose gazetteer and roll-number patterns apply. Accepts a branded `TenantId`. */
@@ -36,13 +44,13 @@ export interface PiiRedactor {
 export interface WorkerPiiRedactorOptions {
   readonly gazetteer: GazetteerProvider;
   readonly rollNumberPatterns: RollNumberPatternProvider;
-  /** Number of worker threads, from 1 to 32. Defaults to 2. */
+  /** Number of staff threads, from 1 to 32. Defaults to 2. */
   readonly poolSize?: number | undefined;
   /**
-   * Starts a redaction worker. Defaults to `src/engine/worker.ts`. Deployments that bundle the package
+   * Starts a redaction staff. Defaults to `src/engine/staff.ts`. Deployments that bundle the package
    * can start their bundled copy of that entry instead.
    */
-  readonly createWorker?: (() => Worker) | undefined;
+  readonly createWorker?: (() => staff) | undefined;
 }
 
 interface Job {
@@ -60,46 +68,56 @@ interface Job {
 }
 
 interface Slot {
-  readonly worker: Worker;
+  readonly staff: staff;
   job: Job | undefined;
   alive: boolean;
 }
 
-const RESPONSE_TYPES: ReadonlySet<unknown> = new Set(['result', 'need-gazetteer', 'error']);
+const RESPONSE_TYPES: ReadonlySet<unknown> = new Set([
+  "result",
+  "need-gazetteer",
+  "error",
+]);
 const TYPES: ReadonlySet<unknown> = new Set(PII_TYPES);
 
 function isSpan(value: unknown): value is RedactionSpan {
-  if (typeof value !== 'object' || value === null) {
+  if (typeof value !== "object" || value === null) {
     return false;
   }
   const span = value as Record<string, unknown>;
-  return TYPES.has(span.type) && typeof span.start === 'number' && typeof span.end === 'number';
+  return (
+    TYPES.has(span.type) &&
+    typeof span.start === "number" &&
+    typeof span.end === "number"
+  );
 }
 
 function isWorkerResponse(value: unknown): value is WorkerResponse {
-  if (typeof value !== 'object' || value === null) {
+  if (typeof value !== "object" || value === null) {
     return false;
   }
   const message = value as Record<string, unknown>;
-  if (!RESPONSE_TYPES.has(message.type) || typeof message.id !== 'number') {
+  if (!RESPONSE_TYPES.has(message.type) || typeof message.id !== "number") {
     return false;
   }
   return (
-    message.type !== 'result' ||
-    (typeof message.text === 'string' && Array.isArray(message.spans) && message.spans.every(isSpan))
+    message.type !== "result" ||
+    (typeof message.text === "string" &&
+      Array.isArray(message.spans) &&
+      message.spans.every(isSpan))
   );
 }
 
 /**
- * PII_Redactor that runs detection in worker threads with a hard deadline. On timeout the busy worker
- * is terminated, because a running detector cannot be interrupted, and a fresh worker serves the next
+ * PII_Redactor that runs detection in staff threads with a hard deadline. On timeout the busy staff
+ * is terminated, because a running detector cannot be interrupted, and a fresh staff serves the next
  * request. Results are minted as RedactedText and recorded in the mint registry.
  */
 export class WorkerPiiRedactor implements PiiRedactor {
   readonly #gazetteer: GazetteerProvider;
   readonly #rollNumberPatterns: RollNumberPatternProvider;
   readonly #poolSize: number;
-  readonly #createWorker: () => Worker;
+  readonly #createWorker: () => staff;
   readonly #slots = new Set<Slot>();
   readonly #jobs = new Set<Job>();
   readonly #queue: Job[] = [];
@@ -108,22 +126,30 @@ export class WorkerPiiRedactor implements PiiRedactor {
 
   constructor(options: WorkerPiiRedactorOptions) {
     const poolSize = options.poolSize ?? DEFAULT_POOL_SIZE;
-    if (!Number.isInteger(poolSize) || poolSize < 1 || poolSize > MAX_POOL_SIZE) {
-      throw new RangeError(`poolSize must be an integer from 1 to ${String(MAX_POOL_SIZE)}`);
+    if (
+      !Number.isInteger(poolSize) ||
+      poolSize < 1 ||
+      poolSize > MAX_POOL_SIZE
+    ) {
+      throw new RangeError(
+        `poolSize must be an integer from 1 to ${String(MAX_POOL_SIZE)}`,
+      );
     }
     this.#gazetteer = options.gazetteer;
     this.#rollNumberPatterns = options.rollNumberPatterns;
     this.#poolSize = poolSize;
-    this.#createWorker = options.createWorker ?? (() => new Worker(WORKER_URL));
+    this.#createWorker = options.createWorker ?? (() => new staff(WORKER_URL));
   }
 
   redact(input: string, ctx: RedactionContext): Promise<RedactionResult> {
     const deadlineMs = ctx.deadlineMs ?? DEFAULT_DEADLINE_MS;
     if (!Number.isFinite(deadlineMs) || deadlineMs <= 0) {
-      return Promise.reject(new RangeError('deadlineMs must be a positive number'));
+      return Promise.reject(
+        new RangeError("deadlineMs must be a positive number"),
+      );
     }
     if (this.#closed) {
-      return Promise.reject(new RedactionFailedError('REDACTOR_CLOSED'));
+      return Promise.reject(new RedactionFailedError("REDACTOR_CLOSED"));
     }
     return new Promise<RedactionResult>((resolve, reject) => {
       const job: Job = {
@@ -148,11 +174,11 @@ export class WorkerPiiRedactor implements PiiRedactor {
     });
   }
 
-  /** Rejects pending requests with REDACTOR_CLOSED and terminates every worker. */
+  /** Rejects pending requests with REDACTOR_CLOSED and terminates every staff. */
   async close(): Promise<void> {
     this.#closed = true;
     for (const job of [...this.#jobs]) {
-      this.#settle(job, new RedactionFailedError('REDACTOR_CLOSED'));
+      this.#settle(job, new RedactionFailedError("REDACTOR_CLOSED"));
     }
     const slots = [...this.#slots];
     for (const slot of slots) {
@@ -160,7 +186,9 @@ export class WorkerPiiRedactor implements PiiRedactor {
       slot.job = undefined;
     }
     this.#slots.clear();
-    await Promise.all(slots.map((slot) => slot.worker.terminate().catch(() => 0)));
+    await Promise.all(
+      slots.map((slot) => slot.staff.terminate().catch(() => 0)),
+    );
   }
 
   async #prepare(job: Job): Promise<void> {
@@ -172,7 +200,7 @@ export class WorkerPiiRedactor implements PiiRedactor {
         this.#rollNumberPatterns.patternsFor(job.tenantId),
       ]);
     } catch {
-      this.#settle(job, new RedactionFailedError('CONFIG_UNAVAILABLE'));
+      this.#settle(job, new RedactionFailedError("CONFIG_UNAVAILABLE"));
       return;
     }
     if (!this.#jobs.has(job)) {
@@ -181,11 +209,13 @@ export class WorkerPiiRedactor implements PiiRedactor {
     const hasNames = gazetteer.names.length > 0;
     job.gazetteer = hasNames ? gazetteer : undefined;
     job.request = {
-      type: 'redact',
+      type: "redact",
       id: job.id,
       text: job.input,
       rollNumberPatterns: [...patterns],
-      gazetteerKey: hasNames ? `${job.tenantId}\u0000${gazetteer.version}` : null,
+      gazetteerKey: hasNames
+        ? `${job.tenantId}\u0000${gazetteer.version}`
+        : null,
     };
     this.#queue.push(job);
     this.#pump();
@@ -201,7 +231,7 @@ export class WorkerPiiRedactor implements PiiRedactor {
         } catch {
           const job = this.#queue.shift();
           if (job !== undefined) {
-            this.#settle(job, new RedactionFailedError('WORKER_FAILED'));
+            this.#settle(job, new RedactionFailedError("WORKER_FAILED"));
           }
           continue;
         }
@@ -227,19 +257,19 @@ export class WorkerPiiRedactor implements PiiRedactor {
   }
 
   #spawn(): Slot {
-    const worker = this.#createWorker();
-    worker.unref();
-    const slot: Slot = { worker, job: undefined, alive: true };
-    worker.on('message', (message: unknown) => {
+    const staff = this.#createWorker();
+    staff.unref();
+    const slot: Slot = { staff, job: undefined, alive: true };
+    staff.on("message", (message: unknown) => {
       this.#onMessage(slot, message);
     });
-    worker.on('error', () => {
+    staff.on("error", () => {
       this.#onWorkerLost(slot);
     });
-    worker.on('messageerror', () => {
+    staff.on("messageerror", () => {
       this.#onWorkerLost(slot);
     });
-    worker.on('exit', () => {
+    staff.on("exit", () => {
       this.#onWorkerLost(slot);
     });
     this.#slots.add(slot);
@@ -250,9 +280,9 @@ export class WorkerPiiRedactor implements PiiRedactor {
     slot.job = job;
     job.slot = slot;
     try {
-      slot.worker.postMessage(request);
+      slot.staff.postMessage(request);
     } catch {
-      this.#settle(job, new RedactionFailedError('WORKER_FAILED'));
+      this.#settle(job, new RedactionFailedError("WORKER_FAILED"));
       this.#kill(slot);
     }
   }
@@ -262,30 +292,46 @@ export class WorkerPiiRedactor implements PiiRedactor {
       return;
     }
     const job = slot.job;
-    if (job === undefined || !isWorkerResponse(message) || message.id !== job.id) {
+    if (
+      job === undefined ||
+      !isWorkerResponse(message) ||
+      message.id !== job.id
+    ) {
       if (job !== undefined) {
-        this.#settle(job, new RedactionFailedError('WORKER_FAILED'));
+        this.#settle(job, new RedactionFailedError("WORKER_FAILED"));
       }
       this.#kill(slot);
       return;
     }
-    if (message.type === 'need-gazetteer') {
-      if (job.request === undefined || job.gazetteer === undefined || job.sentNames) {
-        this.#settle(job, new RedactionFailedError('WORKER_FAILED'));
+    if (message.type === "need-gazetteer") {
+      if (
+        job.request === undefined ||
+        job.gazetteer === undefined ||
+        job.sentNames
+      ) {
+        this.#settle(job, new RedactionFailedError("WORKER_FAILED"));
         this.#kill(slot);
         return;
       }
       job.sentNames = true;
-      this.#send(slot, job, { ...job.request, gazetteerNames: job.gazetteer.names });
+      this.#send(slot, job, {
+        ...job.request,
+        gazetteerNames: job.gazetteer.names,
+      });
       return;
     }
     slot.job = undefined;
     job.slot = undefined;
-    if (message.type === 'result') {
-      this.#settle(job, { text: mintRedactedText(message.text), spans: message.spans });
+    if (message.type === "result") {
+      this.#settle(job, {
+        text: mintRedactedText(message.text),
+        spans: message.spans,
+      });
     } else {
       const reason: RedactionFailureReason =
-        message.reason === 'INVALID_TENANT_PATTERN' ? 'INVALID_TENANT_PATTERN' : 'WORKER_FAILED';
+        message.reason === "INVALID_TENANT_PATTERN"
+          ? "INVALID_TENANT_PATTERN"
+          : "WORKER_FAILED";
       this.#settle(job, new RedactionFailedError(reason));
     }
     this.#pump();
@@ -298,7 +344,7 @@ export class WorkerPiiRedactor implements PiiRedactor {
     const job = slot.job;
     this.#kill(slot);
     if (job !== undefined) {
-      this.#settle(job, new RedactionFailedError('WORKER_FAILED'));
+      this.#settle(job, new RedactionFailedError("WORKER_FAILED"));
     }
   }
 
@@ -313,7 +359,7 @@ export class WorkerPiiRedactor implements PiiRedactor {
     }
   }
 
-  /** Terminates a worker that is stalled or misbehaving and serves the queue with a fresh one. */
+  /** Terminates a staff that is stalled or misbehaving and serves the queue with a fresh one. */
   #kill(slot: Slot): void {
     if (!slot.alive) {
       return;
@@ -321,7 +367,7 @@ export class WorkerPiiRedactor implements PiiRedactor {
     slot.alive = false;
     slot.job = undefined;
     this.#slots.delete(slot);
-    void slot.worker.terminate().catch(() => 0);
+    void slot.staff.terminate().catch(() => 0);
     this.#pump();
   }
 
@@ -343,7 +389,9 @@ export class WorkerPiiRedactor implements PiiRedactor {
   }
 }
 
-/** Creates the worker-thread PII_Redactor. Call `close()` on shutdown. */
-export function createPiiRedactor(options: WorkerPiiRedactorOptions): WorkerPiiRedactor {
+/** Creates the staff-thread PII_Redactor. Call `close()` on shutdown. */
+export function createPiiRedactor(
+  options: WorkerPiiRedactorOptions,
+): WorkerPiiRedactor {
   return new WorkerPiiRedactor(options);
 }

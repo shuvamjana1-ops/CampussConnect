@@ -1,8 +1,14 @@
-import { context, propagation, trace, type Attributes, type Link } from '@opentelemetry/api';
-import { AsyncLocalStorageContextManager } from '@opentelemetry/context-async-hooks';
-import { W3CTraceContextPropagator } from '@opentelemetry/core';
-import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
-import { resourceFromAttributes } from '@opentelemetry/resources';
+import {
+  context,
+  propagation,
+  trace,
+  type Attributes,
+  type Link,
+} from "@opentelemetry/api";
+import { AsyncLocalStorageContextManager } from "@opentelemetry/context-async-hooks";
+import { W3CTraceContextPropagator } from "@opentelemetry/core";
+import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
+import { resourceFromAttributes } from "@opentelemetry/resources";
 import {
   BatchSpanProcessor,
   TracerProvider,
@@ -11,13 +17,18 @@ import {
   type SpanExporter,
   type SpanProcessor,
   type TimedEvent,
-} from '@opentelemetry/sdk-trace';
+} from "@opentelemetry/sdk-trace";
 
-import type { TelemetryContextProvider } from './telemetry-context';
-import { isRequestIdValue, isRouteTemplate, isServiceName, isTenantIdValue } from './validation';
+import type { TelemetryContextProvider } from "./telemetry-context";
+import {
+  isRequestIdValue,
+  isRouteTemplate,
+  isServiceName,
+  isTenantIdValue,
+} from "./validation";
 
-export const TENANT_ID_ATTRIBUTE = 'tenant.id';
-export const REQUEST_ID_ATTRIBUTE = 'request.id';
+export const TENANT_ID_ATTRIBUTE = "tenant.id";
+export const REQUEST_ID_ATTRIBUTE = "request.id";
 
 /**
  * The only span attributes that leave the process: `tenant.id`, `request.id` and technical attributes from the
@@ -29,29 +40,29 @@ export const REQUEST_ID_ATTRIBUTE = 'request.id';
 export const SPAN_ATTRIBUTE_ALLOWLIST: ReadonlySet<string> = new Set([
   TENANT_ID_ATTRIBUTE,
   REQUEST_ID_ATTRIBUTE,
-  'http.request.method',
-  'http.route',
-  'http.response.status_code',
-  'url.scheme',
-  'network.protocol.name',
-  'network.protocol.version',
-  'server.address',
-  'server.port',
-  'error.type',
-  'exception.type',
-  'db.system.name',
-  'db.namespace',
-  'db.operation.name',
-  'db.collection.name',
-  'messaging.system',
-  'messaging.operation.type',
-  'messaging.operation.name',
-  'messaging.destination.name',
-  'messaging.batch.message_count',
-  'rpc.system',
-  'rpc.service',
-  'rpc.method',
-  'cloud.region',
+  "http.request.method",
+  "http.route",
+  "http.response.status_code",
+  "url.scheme",
+  "network.protocol.name",
+  "network.protocol.version",
+  "server.address",
+  "server.port",
+  "error.type",
+  "exception.type",
+  "db.system.name",
+  "db.namespace",
+  "db.operation.name",
+  "db.collection.name",
+  "messaging.system",
+  "messaging.operation.type",
+  "messaging.operation.name",
+  "messaging.destination.name",
+  "messaging.batch.message_count",
+  "rpc.system",
+  "rpc.service",
+  "rpc.method",
+  "cloud.region",
 ]);
 
 /** Technical string values: identifiers, host names, codes and route templates. No spaces, `@` or query strings. */
@@ -61,10 +72,10 @@ const TECHNICAL_STRING = /^[A-Za-z0-9_.:/{}-]{1,256}$/;
 const SPAN_NAME = /^[A-Za-z0-9 _.:/{}-]{1,128}$/;
 
 /** Replaces a span name that could hold a raw path or free text. */
-export const REDACTED_SPAN_NAME = 'span';
+export const REDACTED_SPAN_NAME = "span";
 
 /** Replaces an event name that could hold free text. */
-export const REDACTED_EVENT_NAME = 'event';
+export const REDACTED_EVENT_NAME = "event";
 
 function isAllowedAttribute(key: string, value: unknown): boolean {
   if (!SPAN_ATTRIBUTE_ALLOWLIST.has(key)) {
@@ -75,13 +86,13 @@ function isAllowedAttribute(key: string, value: unknown): boolean {
       return isTenantIdValue(value);
     case REQUEST_ID_ATTRIBUTE:
       return isRequestIdValue(value);
-    case 'http.route':
+    case "http.route":
       return isRouteTemplate(value);
     default:
       return (
-        (typeof value === 'string' && TECHNICAL_STRING.test(value)) ||
-        (typeof value === 'number' && Number.isFinite(value)) ||
-        typeof value === 'boolean'
+        (typeof value === "string" && TECHNICAL_STRING.test(value)) ||
+        (typeof value === "number" && Number.isFinite(value)) ||
+        typeof value === "boolean"
       );
   }
 }
@@ -93,7 +104,9 @@ export interface FilteredAttributes {
 }
 
 /** Keeps the attributes on {@link SPAN_ATTRIBUTE_ALLOWLIST} whose values pass their checks. */
-export function filterSpanAttributes(attributes: Attributes): FilteredAttributes {
+export function filterSpanAttributes(
+  attributes: Attributes,
+): FilteredAttributes {
   const kept: Attributes = {};
   let removed = 0;
   for (const [key, value] of Object.entries(attributes)) {
@@ -115,8 +128,8 @@ export function safeSpanName(name: string): string {
     return REDACTED_SPAN_NAME;
   }
   const routesAreTemplates = name
-    .split(' ')
-    .every((word) => !word.startsWith('/') || isRouteTemplate(word));
+    .split(" ")
+    .every((word) => !word.startsWith("/") || isRouteTemplate(word));
   return routesAreTemplates ? name : REDACTED_SPAN_NAME;
 }
 
@@ -130,7 +143,8 @@ function filterEvent(event: TimedEvent): TimedEvent {
     time: event.time,
     name,
     attributes: filtered.attributes,
-    droppedAttributesCount: (event.droppedAttributesCount ?? 0) + filtered.removed,
+    droppedAttributesCount:
+      (event.droppedAttributesCount ?? 0) + filtered.removed,
   };
 }
 
@@ -142,7 +156,8 @@ function filterLink(link: Link): Link {
   return {
     context: link.context,
     attributes: filtered.attributes,
-    droppedAttributesCount: (link.droppedAttributesCount ?? 0) + filtered.removed,
+    droppedAttributesCount:
+      (link.droppedAttributesCount ?? 0) + filtered.removed,
   };
 }
 
@@ -157,7 +172,9 @@ export function allowlistSpan(span: ReadableSpan): ReadableSpan {
     name: safeSpanName(span.name),
     kind: span.kind,
     spanContext: () => span.spanContext(),
-    ...(span.parentSpanContext === undefined ? {} : { parentSpanContext: span.parentSpanContext }),
+    ...(span.parentSpanContext === undefined
+      ? {}
+      : { parentSpanContext: span.parentSpanContext }),
     startTime: span.startTime,
     endTime: span.endTime,
     status: { code: span.status.code },
@@ -185,7 +202,10 @@ export class AllowlistSpanExporter implements SpanExporter {
     this.#delegate = delegate;
   }
 
-  export(spans: ReadableSpan[], resultCallback: Parameters<SpanExporter['export']>[1]): void {
+  export(
+    spans: ReadableSpan[],
+    resultCallback: Parameters<SpanExporter["export"]>[1],
+  ): void {
     this.#delegate.export(spans.map(allowlistSpan), resultCallback);
   }
 
@@ -232,10 +252,10 @@ export class TelemetryContextSpanProcessor implements SpanProcessor {
 }
 
 /** The ADOT collector sidecar's OTLP/HTTP traces endpoint. The collector exports to X-Ray. */
-export const DEFAULT_OTLP_TRACES_URL = 'http://localhost:4318/v1/traces';
+export const DEFAULT_OTLP_TRACES_URL = "http://localhost:4318/v1/traces";
 
 export interface TracingOptions {
-  /** Service name, such as `api` or `worker`. Becomes the `service.name` resource attribute. */
+  /** Service name, such as `api` or `staff`. Becomes the `service.name` resource attribute. */
   readonly serviceName: string;
   readonly serviceVersion?: string;
   /** Deployment environment, such as `staging` or `production`. */
@@ -262,22 +282,30 @@ export interface Tracing {
  */
 export function startTracing(options: TracingOptions): Tracing {
   if (!isServiceName(options.serviceName)) {
-    throw new RangeError('serviceName must be a lower-case service name such as "api".');
+    throw new RangeError(
+      'serviceName must be a lower-case service name such as "api".',
+    );
   }
   const contextManager = new AsyncLocalStorageContextManager().enable();
   context.setGlobalContextManager(contextManager);
   propagation.setGlobalPropagator(new W3CTraceContextPropagator());
 
   const exporter = new AllowlistSpanExporter(
-    options.exporter ?? new OTLPTraceExporter({ url: options.otlpTracesUrl ?? DEFAULT_OTLP_TRACES_URL }),
+    options.exporter ??
+      new OTLPTraceExporter({
+        url: options.otlpTracesUrl ?? DEFAULT_OTLP_TRACES_URL,
+      }),
   );
   const tracerProvider = new TracerProvider({
     resource: resourceFromAttributes({
-      'service.name': options.serviceName,
-      'service.version': options.serviceVersion,
-      'deployment.environment.name': options.environment,
+      "service.name": options.serviceName,
+      "service.version": options.serviceVersion,
+      "deployment.environment.name": options.environment,
     }),
-    spanProcessors: [new TelemetryContextSpanProcessor(options.getContext), new BatchSpanProcessor({ exporter })],
+    spanProcessors: [
+      new TelemetryContextSpanProcessor(options.getContext),
+      new BatchSpanProcessor({ exporter }),
+    ],
   });
   trace.setGlobalTracerProvider(tracerProvider);
 

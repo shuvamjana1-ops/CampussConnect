@@ -1,5 +1,5 @@
 {
-  "name": "@campusconnect/worker",
+  "name": "@campusconnect/staff",
   "version": "0.0.0",
   "private": true,
   "description": "NestJS standalone entry point: SQS consumers, timer sweeper, outbox relay and audit chainer.",
