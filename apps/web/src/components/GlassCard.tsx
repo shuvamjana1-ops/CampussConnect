@@ -169,6 +169,9 @@ export const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(function Gla
       }}
       {...restProps}
     >
+      {/* Top-bevel specular reflection that tracks --mouse-x / --mouse-y */}
+      {spotlight && <div className="cc-glass-top-bevel" aria-hidden="true" />}
+
       {/* Specular Border Spotlight Overlay (Masked 1px edge ring) */}
       {spotlight && <div className="cc-glass-border-spotlight" aria-hidden="true" />}
 

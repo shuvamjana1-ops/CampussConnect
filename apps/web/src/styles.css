@@ -5,8 +5,8 @@
 
 :root {
   /* Dark Mode Default Tokens */
-  --bg-canvas: #0b0f19;
-  --bg-page: #0b0f19;
+  --bg-canvas: #070b14;
+  --bg-page: #070b14;
   --text-main: #f8fafc;
   --text-primary: #f8fafc;
   --text-secondary: #cbd5e1;
@@ -2033,6 +2033,68 @@ html, body {
   position: relative;
   margin: 2rem 0;
   padding: 0.5rem 1rem;
+}
+
+.cc-complaint-stepper-shell {
+  position: relative;
+  padding: 24px;
+  margin: 20px 0;
+  min-height: 118px;
+}
+
+.cc-case-drawer {
+  margin-top: 16px;
+  border-radius: 22px;
+  overflow: hidden;
+}
+
+.cc-case-drawer > summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 14px 18px;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.cc-case-drawer > summary::-webkit-details-marker {
+  display: none;
+}
+
+.cc-segmented-pill-bar {
+  display: flex;
+  max-width: 100%;
+  overflow-x: auto;
+  margin-bottom: 24px;
+  border-radius: 9999px;
+}
+
+.cc-sla-pulse {
+  animation: cc-sla-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes cc-sla-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(220, 38, 38, 0);
+  }
+}
+
+.cc-attendance-bar {
+  height: 10px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.cc-attendance-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #1d4ed8, #06b6d4);
+  box-shadow: 0 0 16px rgba(6, 182, 212, 0.55);
 }
 
 .cc-stepper-track {

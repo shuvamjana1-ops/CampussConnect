@@ -264,6 +264,58 @@ export const ROLE_ORB_PALETTES: Record<
   },
 };
 
+/** Fixed ambient mesh so every glass card refracts the same four campus hues. */
+export const AMBIENT_MESH_ORBS: readonly OrbConfig[] = [
+  {
+    id: "ambient-royal",
+    color: "#1D4ED8",
+    size: 620,
+    top: "-12%",
+    left: "-6%",
+    animationName: "orbFloat1",
+    duration: "28s",
+    delay: "0s",
+    opacityLight: 0.42,
+    opacityDark: 0.42,
+  },
+  {
+    id: "ambient-indigo",
+    color: "#4338CA",
+    size: 540,
+    top: "8%",
+    right: "-8%",
+    animationName: "orbFloat2",
+    duration: "32s",
+    delay: "-6s",
+    opacityLight: 0.42,
+    opacityDark: 0.42,
+  },
+  {
+    id: "ambient-amber",
+    color: "#F59E0B",
+    size: 480,
+    bottom: "-8%",
+    left: "18%",
+    animationName: "orbFloat3",
+    duration: "30s",
+    delay: "-10s",
+    opacityLight: 0.42,
+    opacityDark: 0.42,
+  },
+  {
+    id: "ambient-cyan",
+    color: "#06B6D4",
+    size: 460,
+    bottom: "12%",
+    right: "12%",
+    animationName: "orbFloat4",
+    duration: "26s",
+    delay: "-3s",
+    opacityLight: 0.42,
+    opacityDark: 0.42,
+  },
+];
+
 export const LiquidGlassWallpaper = memo(function LiquidGlassWallpaper({
   role: propRole,
   className = "",
@@ -275,7 +327,7 @@ export const LiquidGlassWallpaper = memo(function LiquidGlassWallpaper({
   const sessionCtx = useContext(SessionContext);
   const sessionRole = sessionCtx?.role ?? null;
 
-  // Resolve normalized role (mapping 'staff' -> 'staff' and fallback to 'default')
+  // Resolve normalized role, falling back to 'default' when none is set.
   const resolvedRole = useMemo(():
     | "admin"
     | "staff"
@@ -284,7 +336,7 @@ export const LiquidGlassWallpaper = memo(function LiquidGlassWallpaper({
     const raw = propRole ?? sessionRole;
     if (!raw) return "default";
     if (raw === "admin") return "admin";
-    if (raw === "staff" || raw === "staff") return "staff";
+    if (raw === "staff") return "staff";
     if (raw === "student") return "student";
     return "default";
   }, [propRole, sessionRole]);
@@ -308,13 +360,48 @@ export const LiquidGlassWallpaper = memo(function LiquidGlassWallpaper({
         overflow: "hidden",
         contain: "strict",
         userSelect: "none",
+        backgroundColor: "#070B14",
         ...style,
       }}
     >
       {/* Subtle Apple-style mesh grain/dither overlay to prevent gradient color banding */}
       <div className="liquid-glass-mesh-overlay" />
 
-      {/* Floating Blurred Orbs */}
+      {/* Four slow-drifting refractive orbs: royal, indigo, amber, cyan */}
+      {AMBIENT_MESH_ORBS.map((orb) => (
+        <div
+          key={orb.id}
+          data-ambient-orb={orb.color}
+          className={`liquid-orb liquid-orb-${orb.id}`}
+          style={{
+            position: "absolute",
+            width: `${orb.size}px`,
+            height: `${orb.size}px`,
+            borderRadius: "50%",
+            background: `radial-gradient(circle, ${orb.color} 0%, transparent 70%)`,
+            backgroundColor: orb.color,
+            filter: "blur(95px)",
+            WebkitFilter: "blur(95px)",
+            mixBlendMode: "screen",
+            opacity: 0.42,
+            willChange: "transform",
+            transform: "translate3d(0, 0, 0)",
+            top: orb.top,
+            bottom: orb.bottom,
+            left: orb.left,
+            right: orb.right,
+            animationName: disableAnimation ? "none" : orb.animationName,
+            animationDuration: orb.duration,
+            animationTimingFunction: "ease-in-out",
+            animationIterationCount: "infinite",
+            animationDirection: "alternate",
+            animationDelay: orb.delay,
+            pointerEvents: "none",
+          }}
+        />
+      ))}
+
+      {/* Role-tinted orbs kept for palette identity */}
       {palette.orbs.map((orb) => (
         <div
           key={orb.id}
